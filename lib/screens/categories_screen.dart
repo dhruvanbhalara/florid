@@ -48,7 +48,9 @@ class _CategoriesScreenState extends State<CategoriesScreen>
         final categories = appProvider.categories;
         final error = appProvider.categoriesError;
         final isFlorid = settingsProvider.themeStyle == ThemeStyle.florid;
-        return _buildBody(state, categories, error, isFlorid);
+        final isDarkKnight =
+            settingsProvider.themeStyle == ThemeStyle.darkKnight;
+        return _buildBody(state, categories, error, isFlorid, isDarkKnight);
       },
     );
   }
@@ -58,6 +60,7 @@ class _CategoriesScreenState extends State<CategoriesScreen>
     List<String> categories,
     String? error,
     bool isFlorid,
+    bool isDarkKnight,
   ) {
     if (state == LoadingState.loading && categories.isEmpty) {
       return Center(
@@ -155,7 +158,7 @@ class _CategoriesScreenState extends State<CategoriesScreen>
                 ).animate().fadeIn(duration: 300.ms, delay: (10 * index).ms);
               },
             ),
-            if (isFlorid) SizedBox(height: 96),
+            if (isFlorid || isDarkKnight) SizedBox(height: 96),
           ],
         ),
       ),

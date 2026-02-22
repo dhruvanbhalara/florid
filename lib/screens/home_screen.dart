@@ -84,6 +84,8 @@ class _HomeScreenState extends State<HomeScreen>
             appProvider.latestAppsState == LoadingState.loading ||
             appProvider.recentlyUpdatedAppsState == LoadingState.loading;
         final isFlorid = settingsProvider.themeStyle == ThemeStyle.florid;
+        final isDarkKnight =
+            settingsProvider.themeStyle == ThemeStyle.darkKnight;
 
         Widget buildRecentSection() {
           return LayoutBuilder(
@@ -250,7 +252,6 @@ class _HomeScreenState extends State<HomeScreen>
         return RefreshIndicator(
           onRefresh: _onRefresh,
           child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
             child: LayoutBuilder(
               builder: (context, constraints) {
                 if (Responsive.isLargeWidth(constraints.maxWidth)) {
@@ -341,7 +342,7 @@ class _HomeScreenState extends State<HomeScreen>
                             .fadeIn(duration: 300.ms),
                       buildRecentSection(),
                       buildNewReleasesSection(),
-                      if (isFlorid) const SizedBox(height: 86),
+                      if (isFlorid || isDarkKnight) const SizedBox(height: 86),
                     ],
                   ); // Phone layout
                 }

@@ -31,26 +31,43 @@ class FTabBar extends StatelessWidget implements PreferredSizeWidget {
     // Listen so the TabBar updates when the theme style changes.
     final settings = context.watch<SettingsProvider>();
     final isFlorid = settings.themeStyle == ThemeStyle.florid;
+    final isDarkKnight = settings.themeStyle == ThemeStyle.darkKnight;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    final indicator = isFlorid
-        ? BoxDecoration(
-            color: isDark
-                ? Theme.of(context).colorScheme.surfaceContainer
-                : Theme.of(context).colorScheme.surfaceBright,
-            borderRadius: BorderRadius.circular(99),
-          )
-        : null;
-
-    final labelColor = isFlorid
-        ? Theme.of(context).colorScheme.onSurface
-        : null;
-
-    final unselectedColor = Theme.of(context).colorScheme.onSurfaceVariant;
-
-    final padding = isFlorid
-        ? const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 8.0)
-        : EdgeInsets.zero;
+    final (
+      indicator,
+      indicatorSize,
+      labelColor,
+      unselectedColor,
+      padding,
+    ) = switch (settings.themeStyle) {
+      ThemeStyle.florid => (
+        BoxDecoration(
+          color: isDark
+              ? Theme.of(context).colorScheme.surfaceContainer
+              : Theme.of(context).colorScheme.surfaceBright,
+          borderRadius: BorderRadius.circular(99),
+        ),
+        TabBarIndicatorSize.tab,
+        Theme.of(context).colorScheme.onSurface,
+        Theme.of(context).colorScheme.onSurfaceVariant,
+        const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 8.0),
+      ),
+      ThemeStyle.darkKnight => (
+        null,
+        TabBarIndicatorSize.label,
+        null,
+        Theme.of(context).colorScheme.onSurfaceVariant,
+        null,
+      ),
+      _ => (
+        null,
+        TabBarIndicatorSize.label,
+        null,
+        Theme.of(context).colorScheme.onSurfaceVariant,
+        EdgeInsets.zero,
+      ),
+    };
 
     return Container(
       width: double.infinity,
@@ -64,10 +81,9 @@ class FTabBar extends StatelessWidget implements PreferredSizeWidget {
         child: TabBar(
           controller: controller,
           indicator: indicator,
-          indicatorSize: isFlorid
-              ? TabBarIndicatorSize.tab
-              : TabBarIndicatorSize.label,
-          dividerHeight: 0,
+          indicatorSize: indicatorSize,
+          indicatorAnimation: TabIndicatorAnimation.elastic,
+          dividerHeight: isDarkKnight ? 1 : 0,
           labelColor: labelColor,
           unselectedLabelColor: unselectedColor,
           splashBorderRadius: isFlorid

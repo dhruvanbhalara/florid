@@ -48,6 +48,7 @@ class _LibraryScreenState extends State<LibraryScreen>
   @override
   Widget build(BuildContext context) {
     final settingsProvider = context.watch<SettingsProvider>();
+    final isDarkKnight = settingsProvider.themeStyle == ThemeStyle.darkKnight;
 
     return Scaffold(
       body: NestedScrollView(
@@ -76,12 +77,12 @@ class _LibraryScreenState extends State<LibraryScreen>
                         ),
                       ).animate().fadeIn(duration: 500.ms, delay: 100.ms),
               ),
-              backgroundColor: Theme.of(
-                context,
-              ).colorScheme.surfaceContainerLow,
-              surfaceTintColor: Theme.of(
-                context,
-              ).colorScheme.surfaceContainerLow,
+              backgroundColor: isDarkKnight
+                  ? null
+                  : Theme.of(context).colorScheme.surfaceContainerLow,
+              surfaceTintColor: isDarkKnight
+                  ? null
+                  : Theme.of(context).colorScheme.surfaceContainerLow,
               pinned: false,
             ),
             SliverPersistentHeader(
@@ -90,10 +91,12 @@ class _LibraryScreenState extends State<LibraryScreen>
                     ? 64
                     : 56,
                 child: Material(
-                  color: Theme.of(context).colorScheme.surfaceContainerLow,
-                  surfaceTintColor: Theme.of(
-                    context,
-                  ).colorScheme.surfaceContainerLow,
+                  color: isDarkKnight
+                      ? null
+                      : Theme.of(context).colorScheme.surfaceContainerLow,
+                  surfaceTintColor: isDarkKnight
+                      ? null
+                      : Theme.of(context).colorScheme.surfaceContainerLow,
                   child: FTabBar(
                     controller: _tabController,
                     onTabChanged: (index) {

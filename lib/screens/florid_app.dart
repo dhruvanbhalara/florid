@@ -194,6 +194,7 @@ class _FloridAppState extends State<FloridApp> {
               final updatableAppsCount = snapshot.data?.length ?? 0;
               final localizations = AppLocalizations.of(context)!;
               final isFlorid = settings.themeStyle == ThemeStyle.florid;
+              final isDarkKnight = settings.themeStyle == ThemeStyle.darkKnight;
 
               Widget buildIcon(IconData iconData, {required bool selected}) {
                 final icon = Icon(
@@ -416,7 +417,7 @@ class _FloridAppState extends State<FloridApp> {
                         ),
                     ],
                   ),
-                  if (isFlorid && !isWide)
+                  if ((isFlorid || isDarkKnight) && !isWide)
                     Positioned(
                       left: 0,
                       right: 0,
@@ -435,7 +436,7 @@ class _FloridAppState extends State<FloridApp> {
                         ),
                       ),
                     ),
-                  if (isFlorid && isWide)
+                  if ((isFlorid || isDarkKnight) && isWide)
                     Positioned.fill(
                       child: SafeArea(
                         child: Align(
@@ -447,13 +448,13 @@ class _FloridAppState extends State<FloridApp> {
                         ),
                       ),
                     ),
-                  if (!isFlorid && !isWide)
+                  if (!(isFlorid || isDarkKnight) && !isWide)
                     Positioned(
                       right: 16,
                       bottom: 16,
                       child: SafeArea(child: searchFab),
                     ),
-                  if (!isFlorid && isWide)
+                  if (!(isFlorid || isDarkKnight) && isWide)
                     Positioned(
                       right: 24,
                       bottom: 24,

@@ -170,7 +170,9 @@ class _UserScreenState extends State<UserScreen>
       );
     }
 
-    final bottomPadding = settingsProvider.themeStyle == ThemeStyle.florid
+    final bottomPadding =
+        settingsProvider.themeStyle == ThemeStyle.florid ||
+            settingsProvider.themeStyle == ThemeStyle.darkKnight
         ? 96.0
         : 16.0;
 
@@ -256,13 +258,19 @@ class _UserScreenState extends State<UserScreen>
     final appProvider = context.watch<AppProvider>();
     final settingsProvider = context.watch<SettingsProvider>();
     final repositoryLoaded = appProvider.repository != null;
+    final isDarkKnight = settingsProvider.themeStyle == ThemeStyle.darkKnight;
 
     return Scaffold(
       body: NestedScrollView(
         headerSliverBuilder: (context, innerBoxIsScrolled) => [
           SliverAppBar.medium(
-            backgroundColor: Theme.of(context).colorScheme.surfaceContainerLow,
-            surfaceTintColor: Theme.of(context).colorScheme.surfaceContainerLow,
+            backgroundColor: isDarkKnight
+                ? null
+                : Theme.of(context).colorScheme.surfaceContainerLow,
+            surfaceTintColor: isDarkKnight
+                ? null
+                : Theme.of(context).colorScheme.surfaceContainerLow,
+            scrolledUnderElevation: isDarkKnight ? 0 : null,
             title: Row(
               children: [
                 CircleAvatar(
@@ -301,10 +309,13 @@ class _UserScreenState extends State<UserScreen>
                   ? 68
                   : 56,
               child: Material(
-                color: Theme.of(context).colorScheme.surfaceContainerLow,
-                surfaceTintColor: Theme.of(
-                  context,
-                ).colorScheme.surfaceContainerLow,
+                color: isDarkKnight
+                    ? null
+                    : Theme.of(context).colorScheme.surfaceContainerLow,
+
+                surfaceTintColor: isDarkKnight
+                    ? null
+                    : Theme.of(context).colorScheme.surfaceContainerLow,
                 child: Container(
                   margin: settingsProvider.themeStyle == ThemeStyle.florid
                       ? const EdgeInsets.only(top: 8)
@@ -359,7 +370,10 @@ class _UserScreenState extends State<UserScreen>
                 0,
                 16,
                 0,
-                settingsProvider.themeStyle == ThemeStyle.florid ? 32 : 0,
+                settingsProvider.themeStyle == ThemeStyle.florid ||
+                        settingsProvider.themeStyle == ThemeStyle.darkKnight
+                    ? 32
+                    : 0,
               ),
               child: SettingsScreen(),
             ),

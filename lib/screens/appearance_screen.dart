@@ -95,6 +95,12 @@ class AppearanceScreen extends StatelessWidget {
                                 value: ThemeStyle.material,
                               ),
                               MRadioListItemData<ThemeStyle>(
+                                title: 'Dark Knight',
+                                subtitle:
+                                    'A dark, high-contrast Florid-inspired theme',
+                                value: ThemeStyle.darkKnight,
+                              ),
+                              MRadioListItemData<ThemeStyle>(
                                 title: 'Florid style',
                                 subtitle: '',
                                 suffix: Container(

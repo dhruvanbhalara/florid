@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-enum ThemeStyle { material, florid }
+enum ThemeStyle { material, florid, darkKnight }
 
 enum UpdateNetworkPolicy { any, wifiOnly, wifiAndCharging }
 

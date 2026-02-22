@@ -21,6 +21,33 @@ class UpdatesScreen extends StatefulWidget {
   State<UpdatesScreen> createState() => _UpdatesScreenState();
 }
 
+class _FTabBarHeaderDelegate extends SliverPersistentHeaderDelegate {
+  _FTabBarHeaderDelegate({required this.height, required this.child});
+
+  final double height;
+  final Widget child;
+
+  @override
+  double get minExtent => height;
+
+  @override
+  double get maxExtent => height;
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    return SizedBox.expand(child: child);
+  }
+
+  @override
+  bool shouldRebuild(covariant _FTabBarHeaderDelegate oldDelegate) {
+    return oldDelegate.height != height || oldDelegate.child != child;
+  }
+}
+
 class _UpdatesScreenState extends State<UpdatesScreen>
     with AutomaticKeepAliveClientMixin, SingleTickerProviderStateMixin {
   late TabController _tabController;
@@ -58,6 +85,8 @@ class _UpdatesScreenState extends State<UpdatesScreen>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    final settingsProvider = context.watch<SettingsProvider>();
+    final isDarkKnight = settingsProvider.themeStyle == ThemeStyle.darkKnight;
 
     return Consumer<AppProvider>(
       builder: (context, appProvider, child) {
@@ -124,66 +153,90 @@ class _UpdatesScreenState extends State<UpdatesScreen>
                 .toList();
 
             return Scaffold(
-              appBar: AppBar(
-                backgroundColor: Theme.of(
-                  context,
-                ).colorScheme.surfaceContainerLow,
-                surfaceTintColor: Theme.of(
-                  context,
-                ).colorScheme.surfaceContainerLow,
-                title: const Text('Apps'),
-                bottom: FTabBar(
-                  controller: _tabController,
-                  showBadge: true,
-                  items: [
-                    FloridTabBarItem(
-                      icon: Symbols.system_update,
-                      label: AppLocalizations.of(context)!.updates,
-                      badgeCount: updatableApps.length,
+              body: NestedScrollView(
+                headerSliverBuilder: (context, innerBoxIsScrolled) => [
+                  SliverAppBar(
+                    floating: true,
+                    backgroundColor: isDarkKnight
+                        ? null
+                        : Theme.of(context).colorScheme.surfaceContainerLow,
+                    surfaceTintColor: isDarkKnight
+                        ? null
+                        : Theme.of(context).colorScheme.surfaceContainerLow,
+                    title: const Text('Apps'),
+                    scrolledUnderElevation: isDarkKnight ? 0 : null,
+                    // pinned: false,
+                    actions: [
+                      IconButton(
+                        icon: const Icon(Symbols.refresh),
+                        onPressed: _onRefresh,
+                        tooltip: AppLocalizations.of(context)!.refresh,
+                      ),
+                    ],
+                  ),
+                  SliverPersistentHeader(
+                    // pinned: true,
+                    floating: true,
+                    delegate: _FTabBarHeaderDelegate(
+                      height: settingsProvider.themeStyle == ThemeStyle.florid
+                          ? 68
+                          : 56,
+                      child: Material(
+                        color: isDarkKnight
+                            ? null
+                            : Theme.of(context).colorScheme.surfaceContainerLow,
+                        surfaceTintColor: isDarkKnight
+                            ? null
+                            : Theme.of(context).colorScheme.surfaceContainerLow,
+                        child: FTabBar(
+                          controller: _tabController,
+                          showBadge: true,
+                          items: [
+                            FloridTabBarItem(
+                              icon: Symbols.system_update,
+                              label: AppLocalizations.of(context)!.updates,
+                              badgeCount: updatableApps.length,
+                            ),
+                            FloridTabBarItem(
+                              icon: Symbols.devices,
+                              label: AppLocalizations.of(context)!.on_device,
+                              badgeCount: allFDroidApps.length,
+                            ),
+                          ],
+                          onTabChanged: (index) {
+                            _tabController.animateTo(index);
+                          },
+                        ),
+                      ),
                     ),
-                    FloridTabBarItem(
-                      icon: Symbols.devices,
-                      label: AppLocalizations.of(context)!.on_device,
-                      badgeCount: allFDroidApps.length,
-                    ),
-                  ],
-                  onTabChanged: (index) {
-                    _tabController.animateTo(index);
-                  },
-                ),
-                actions: [
-                  IconButton(
-                    icon: const Icon(Symbols.refresh),
-                    onPressed: _onRefresh,
-                    tooltip: AppLocalizations.of(context)!.refresh,
                   ),
                 ],
-              ),
-              body: RefreshIndicator(
-                onRefresh: _onRefresh,
-                child: TabBarView(
-                  controller: _tabController,
-                  children: [
-                    // Tab 1: Updates Only
-                    _buildUpdatesTab(
-                      context,
-                      appProvider,
-                      context.read<SettingsProvider>(),
-                      updatableApps,
-                      repositoryLoaded,
-                      repositoryState,
-                      repositoryError,
-                    ),
+                body: RefreshIndicator(
+                  onRefresh: _onRefresh,
+                  child: TabBarView(
+                    controller: _tabController,
+                    children: [
+                      // Tab 1: Updates Only
+                      _buildUpdatesTab(
+                        context,
+                        appProvider,
+                        context.read<SettingsProvider>(),
+                        updatableApps,
+                        repositoryLoaded,
+                        repositoryState,
+                        repositoryError,
+                      ),
 
-                    // Tab 2: All Installed F-Droid Apps
-                    _buildInstalledAppsTab(
-                      context,
-                      appProvider,
-                      context.read<SettingsProvider>(),
-                      allFDroidApps,
-                      updatableApps,
-                    ),
-                  ],
+                      // Tab 2: All Installed F-Droid Apps
+                      _buildInstalledAppsTab(
+                        context,
+                        appProvider,
+                        context.read<SettingsProvider>(),
+                        allFDroidApps,
+                        updatableApps,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             );
@@ -309,46 +362,62 @@ class _UpdatesScreenState extends State<UpdatesScreen>
       body: Column(
         children: [
           // Header
-          Container(
-            margin: EdgeInsets.only(top: 16),
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Material(
-              color: Theme.of(context).colorScheme.primaryContainer,
-              borderRadius: BorderRadius.circular(99),
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        '${updatableApps.length} ${updatableApps.length == 1 ? 'update' : 'updates'} available',
-                        style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(fontWeight: FontWeight.w600),
+          SafeArea(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Material(
+                color: Theme.of(context).colorScheme.primaryContainer,
+                borderRadius: BorderRadius.circular(99),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          '${updatableApps.length} ${updatableApps.length == 1 ? 'update' : 'updates'} available',
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onPrimaryContainer,
+                              ),
+                        ),
                       ),
-                    ),
 
-                    TextButton(
-                      onPressed: () => _updateAllApps(context, updatableApps),
-                      child: const Text('Update All'),
-                    ),
-                  ],
+                      TextButton(
+                        onPressed: () => _updateAllApps(context, updatableApps),
+                        style: TextButton.styleFrom(
+                          foregroundColor: Theme.of(
+                            context,
+                          ).colorScheme.onPrimaryContainer,
+                        ),
+                        child: const Text('Update All'),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
 
           // Apps list
-          Expanded(
+          Flexible(
             child: ListView.builder(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
               padding: EdgeInsets.fromLTRB(
                 8,
                 8,
                 8,
-                settingsProvider.themeStyle == ThemeStyle.florid ? 96 : 16,
+                settingsProvider.themeStyle == ThemeStyle.florid ||
+                        settingsProvider.themeStyle == ThemeStyle.darkKnight
+                    ? 96
+                    : 16,
               ),
               itemCount: updatableApps.length,
               itemBuilder: (context, index) {
@@ -455,7 +524,9 @@ class _UpdatesScreenState extends State<UpdatesScreen>
       );
     }
 
-    final bottomPadding = settingsProvider.themeStyle == ThemeStyle.florid
+    final bottomPadding =
+        settingsProvider.themeStyle == ThemeStyle.florid ||
+            settingsProvider.themeStyle == ThemeStyle.darkKnight
         ? 96.0
         : 16.0;
 

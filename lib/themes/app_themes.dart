@@ -461,4 +461,98 @@ class AppThemes {
       progressIndicatorTheme: ProgressIndicatorThemeData(year2023: false),
     );
   }
+
+  // Dark Knight Theme (custom dark-focused style)
+  static ThemeData darkKnightLightTheme({ColorScheme? colorScheme}) {
+    final ColorScheme scheme = colorScheme != null
+        ? ColorScheme.fromSeed(
+            seedColor: colorScheme.primary,
+            brightness: Brightness.light,
+          )
+        : ColorScheme.fromSeed(
+            seedColor: kAppColor,
+            brightness: Brightness.light,
+          );
+
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: scheme,
+      appBarTheme: AppBarTheme(
+        centerTitle: true,
+        backgroundColor: scheme.surface,
+        elevation: 0,
+      ),
+      scaffoldBackgroundColor: scheme.surface,
+      inputDecorationTheme: InputDecorationTheme(filled: true),
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: scheme.surface,
+      ),
+      navigationRailTheme: NavigationRailThemeData(
+        backgroundColor: scheme.surface,
+      ),
+    );
+  }
+
+  static ThemeData darkKnightDarkTheme({ColorScheme? colorScheme}) {
+    final ColorScheme scheme = colorScheme != null
+        ? ColorScheme.fromSeed(
+            seedColor: colorScheme.primary,
+            brightness: Brightness.dark,
+            dynamicSchemeVariant: DynamicSchemeVariant.monochrome,
+            surface: Colors.black,
+          )
+        : ColorScheme.fromSeed(
+            seedColor: Colors.black,
+            brightness: Brightness.dark,
+            dynamicSchemeVariant: DynamicSchemeVariant.monochrome,
+            surface: Colors.black,
+          );
+
+    return ThemeData(
+      colorScheme: scheme,
+      brightness: Brightness.dark,
+      appBarTheme: AppBarTheme(
+        // centerTitle: true,
+        backgroundColor: scheme.surface,
+        elevation: 0,
+        titleTextStyle: TextStyle(
+          fontFamily: 'Google Sans Flex',
+          fontSize: 24,
+          fontVariations: [
+            FontVariation('wght', 300),
+            FontVariation('ROND', 0),
+            FontVariation('wdth', 95),
+          ],
+        ),
+      ),
+      fontFamily: 'Google Sans Flex',
+      scaffoldBackgroundColor: scheme.surface,
+      cardTheme: CardThemeData(
+        color: scheme.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(
+            color: scheme.onSurfaceVariant.withValues(alpha: .25),
+          ),
+        ),
+        elevation: 0,
+      ),
+
+      inputDecorationTheme: InputDecorationTheme(filled: true),
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: scheme.surface,
+        iconTheme: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return IconThemeData(color: scheme.primary);
+          }
+          return IconThemeData(color: scheme.onSurface);
+        }),
+      ),
+      navigationRailTheme: NavigationRailThemeData(
+        backgroundColor: scheme.surfaceContainer,
+        selectedIconTheme: IconThemeData(color: scheme.primary),
+        unselectedIconTheme: IconThemeData(color: scheme.onSurface),
+      ),
+    );
+  }
 }

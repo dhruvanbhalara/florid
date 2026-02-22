@@ -677,13 +677,19 @@ class _AppDetailsScreenState extends State<AppDetailsScreen> {
   Widget build(BuildContext context) {
     return NotificationListener<ScrollNotification>(
       onNotification: (notification) {
-        /// 2
-        setState(() {
-          _isCollapsed =
-              _scrollController.hasClients &&
-              _scrollController.offset >
-                  (expandedBarHeight - collapsedBarHeight);
-        });
+        // Compute collapsed state synchronously but schedule state change
+        // after the current frame to avoid calling setState during layout.
+        final newCollapsed =
+            _scrollController.hasClients &&
+            _scrollController.offset > (expandedBarHeight - collapsedBarHeight);
+        if (newCollapsed != _isCollapsed) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+            setState(() {
+              _isCollapsed = newCollapsed;
+            });
+          });
+        }
         return false;
       },
       child: Scaffold(

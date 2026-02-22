@@ -102,18 +102,45 @@ class MainApp extends StatelessWidget {
               final lightScheme = useDynamic ? lightDynamic : null;
               final darkScheme = useDynamic ? darkDynamic : null;
 
+              // Choose theme data based on selected ThemeStyle
+              final ThemeData lightTheme = () {
+                switch (settings.themeStyle) {
+                  case ThemeStyle.florid:
+                    return AppThemes.floridLightTheme(colorScheme: lightScheme);
+                  case ThemeStyle.darkKnight:
+                    return AppThemes.darkKnightLightTheme(
+                      colorScheme: lightScheme,
+                    );
+                  case ThemeStyle.material:
+                  default:
+                    return AppThemes.materialLightTheme(
+                      colorScheme: lightScheme,
+                    );
+                }
+              }();
+
+              final ThemeData darkThemeData = () {
+                switch (settings.themeStyle) {
+                  case ThemeStyle.florid:
+                    return AppThemes.floridDarkTheme(colorScheme: darkScheme);
+                  case ThemeStyle.darkKnight:
+                    return AppThemes.darkKnightDarkTheme(
+                      colorScheme: darkScheme,
+                    );
+                  case ThemeStyle.material:
+                  default:
+                    return AppThemes.materialDarkTheme(colorScheme: darkScheme);
+                }
+              }();
+
               return MaterialApp(
                 title: 'Florid - F-Droid Client',
                 debugShowCheckedModeBanner: false,
                 navigatorKey: appNavigatorKey,
                 localizationsDelegates: AppLocalizations.localizationsDelegates,
                 supportedLocales: AppLocalizations.supportedLocales,
-                theme: settings.themeStyle == ThemeStyle.florid
-                    ? AppThemes.floridLightTheme(colorScheme: lightScheme)
-                    : AppThemes.materialLightTheme(colorScheme: lightScheme),
-                darkTheme: settings.themeStyle == ThemeStyle.florid
-                    ? AppThemes.floridDarkTheme(colorScheme: darkScheme)
-                    : AppThemes.materialDarkTheme(colorScheme: darkScheme),
+                theme: lightTheme,
+                darkTheme: darkThemeData,
                 themeMode: settings.themeMode,
                 home: !settings.isLoaded
                     ? const Scaffold(

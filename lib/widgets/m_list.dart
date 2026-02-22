@@ -1,4 +1,6 @@
+import 'package:florid/providers/settings_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class MListItemData {
   final String title;
@@ -66,6 +68,9 @@ class MListView extends StatelessWidget {
   Widget build(BuildContext context) {
     // Use theme as part of key to force rebuild when theme changes
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final settings = context.watch<SettingsProvider>();
+    final isFlorid = settings.themeStyle == ThemeStyle.florid;
+    final isDarkKnight = settings.themeStyle == ThemeStyle.darkKnight;
 
     return ListView.separated(
       key: ValueKey(isDarkMode),
@@ -92,7 +97,9 @@ class MListView extends StatelessWidget {
                 : const Radius.circular(4.0),
           ),
           child: Material(
-            color: Theme.of(context).colorScheme.surfaceContainer,
+            color: isFlorid
+                ? Theme.of(context).colorScheme.surfaceContainer
+                : Theme.of(context).colorScheme.surface,
             clipBehavior: Clip.antiAlias,
             child: ListTile(
               contentPadding: EdgeInsets.only(left: 16.0, right: 16.0),
@@ -111,7 +118,16 @@ class MListView extends StatelessWidget {
         );
       },
       separatorBuilder: (context, index) {
-        return SizedBox(height: 4);
+        if (isFlorid) return SizedBox(height: 4);
+        if (isDarkKnight) {
+          return Divider(
+            height: 1,
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurfaceVariant.withValues(alpha: 0.2),
+          );
+        }
+        return SizedBox(height: 0);
       },
     );
   }
@@ -135,6 +151,9 @@ class MListViewBuilder extends StatelessWidget {
   Widget build(BuildContext context) {
     // Use theme as part of key to force rebuild when theme changes
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final settings = context.watch<SettingsProvider>();
+    final isFlorid = settings.themeStyle == ThemeStyle.florid;
+    final isDarkKnight = settings.themeStyle == ThemeStyle.darkKnight;
 
     return ListView.separated(
       key: ValueKey(isDarkMode),
@@ -160,7 +179,9 @@ class MListViewBuilder extends StatelessWidget {
                 : const Radius.circular(4.0),
           ),
           child: Material(
-            color: Theme.of(context).colorScheme.surfaceContainer,
+            color: isFlorid
+                ? Theme.of(context).colorScheme.surfaceContainer
+                : Theme.of(context).colorScheme.surface,
             clipBehavior: Clip.antiAlias,
             child: ListTile(
               contentPadding: EdgeInsets.only(left: 16.0, right: 16.0),
@@ -177,7 +198,16 @@ class MListViewBuilder extends StatelessWidget {
         );
       },
       separatorBuilder: (context, index) {
-        return SizedBox(height: 4);
+        if (isFlorid) return SizedBox(height: 4);
+        if (isDarkKnight) {
+          return Divider(
+            height: 1,
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurfaceVariant.withValues(alpha: 0.2),
+          );
+        }
+        return SizedBox(height: 0);
       },
     );
   }
@@ -219,6 +249,9 @@ class MRadioListView<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     // Use theme as part of key to force rebuild when theme changes
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final settings = context.watch<SettingsProvider>();
+    final isFlorid = settings.themeStyle == ThemeStyle.florid;
+    final isDarkKnight = settings.themeStyle == ThemeStyle.darkKnight;
 
     return ListView.separated(
       key: ValueKey(isDarkMode),
@@ -245,7 +278,9 @@ class MRadioListView<T> extends StatelessWidget {
                 : const Radius.circular(4.0),
           ),
           child: Material(
-            color: Theme.of(context).colorScheme.surfaceContainer,
+            color: isFlorid
+                ? Theme.of(context).colorScheme.surfaceContainer
+                : Theme.of(context).colorScheme.surface,
             clipBehavior: Clip.antiAlias,
             child: RadioListTile<T>(
               contentPadding: EdgeInsets.only(left: 16.0, right: 18.0),
@@ -266,7 +301,16 @@ class MRadioListView<T> extends StatelessWidget {
         );
       },
       separatorBuilder: (context, index) {
-        return SizedBox(height: 4);
+        if (isFlorid) return SizedBox(height: 4);
+        if (isDarkKnight) {
+          return Divider(
+            height: 1,
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurfaceVariant.withValues(alpha: 0.2),
+          );
+        }
+        return SizedBox(height: 0);
       },
     );
   }
@@ -306,6 +350,9 @@ class MCheckboxListView extends StatelessWidget {
   Widget build(BuildContext context) {
     // Use theme as part of key to force rebuild when theme changes
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final settings = context.watch<SettingsProvider>();
+    final isFlorid = settings.themeStyle == ThemeStyle.florid;
+    final isDarkKnight = settings.themeStyle == ThemeStyle.darkKnight;
 
     return ListView.separated(
       key: ValueKey(isDarkMode),
@@ -333,7 +380,9 @@ class MCheckboxListView extends StatelessWidget {
           ),
           child: Material(
             clipBehavior: Clip.antiAlias,
-            color: Theme.of(context).colorScheme.surfaceContainer,
+            color: isFlorid
+                ? Theme.of(context).colorScheme.surfaceContainer
+                : Theme.of(context).colorScheme.surface,
             child: CheckboxListTile(
               contentPadding: EdgeInsets.only(left: 16.0, right: 4.0),
               title: Text(items[index].title),
@@ -352,7 +401,16 @@ class MCheckboxListView extends StatelessWidget {
         );
       },
       separatorBuilder: (context, index) {
-        return SizedBox(height: 4);
+        if (isFlorid) return SizedBox(height: 4);
+        if (isDarkKnight) {
+          return Divider(
+            height: 1,
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurfaceVariant.withValues(alpha: 0.2),
+          );
+        }
+        return SizedBox(height: 0);
       },
     );
   }
@@ -378,6 +436,9 @@ class MCheckboxListViewBuilder extends StatelessWidget {
   Widget build(BuildContext context) {
     // Use theme as part of key to force rebuild when theme changes
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final settings = context.watch<SettingsProvider>();
+    final isFlorid = settings.themeStyle == ThemeStyle.florid;
+    final isDarkKnight = settings.themeStyle == ThemeStyle.darkKnight;
 
     return ListView.separated(
       key: ValueKey(isDarkMode),
@@ -404,7 +465,9 @@ class MCheckboxListViewBuilder extends StatelessWidget {
           ),
           child: Material(
             clipBehavior: Clip.antiAlias,
-            color: Theme.of(context).colorScheme.surfaceContainer,
+            color: isFlorid
+                ? Theme.of(context).colorScheme.surfaceContainer
+                : Theme.of(context).colorScheme.surface,
             child: CheckboxListTile(
               contentPadding: EdgeInsets.only(left: 16.0, right: 4.0),
               title: Text(item.title),
@@ -421,7 +484,16 @@ class MCheckboxListViewBuilder extends StatelessWidget {
         );
       },
       separatorBuilder: (context, index) {
-        return SizedBox(height: 4);
+        if (isFlorid) return SizedBox(height: 4);
+        if (isDarkKnight) {
+          return Divider(
+            height: 1,
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurfaceVariant.withValues(alpha: 0.2),
+          );
+        }
+        return SizedBox(height: 0);
       },
     );
   }
