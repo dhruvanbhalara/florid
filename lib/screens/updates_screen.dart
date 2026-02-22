@@ -405,7 +405,8 @@ class _UpdatesScreenState extends State<UpdatesScreen>
                           ),
                         ),
                       if (app.latestVersion?.whatsNew != null &&
-                          app.latestVersion!.whatsNew!.isNotEmpty)
+                          app.latestVersion!.whatsNew!.isNotEmpty &&
+                          settingsProvider.showWhatsNew)
                         ChangelogPreview(text: app.latestVersion!.whatsNew),
                     ],
                   ),

@@ -23,6 +23,7 @@ class SettingsProvider extends ChangeNotifier {
   static const _lastSeenVersionKey = 'last_seen_version';
   static const _userNameKey = 'user_name';
   static const _showKeepAndroidOpenCardKey = 'show_keep_android_open_card';
+  static const _showWhatsNewKey = 'show_whats_new';
 
   ThemeMode _themeMode = ThemeMode.system;
   ThemeStyle _themeStyle = ThemeStyle.florid;
@@ -40,6 +41,7 @@ class SettingsProvider extends ChangeNotifier {
   bool _loaded = false;
   String _lastSeenVersion = '';
   String _userName = '';
+  bool _showWhatsNew = true;
 
   SettingsProvider() {
     _load();
@@ -61,6 +63,7 @@ class SettingsProvider extends ChangeNotifier {
   bool get showKeepAndroidOpenCard => _showKeepAndroidOpenCard;
   String get lastSeenVersion => _lastSeenVersion;
   String get userName => _userName;
+  bool get showWhatsNew => _showWhatsNew;
 
   /// Available locales for F-Droid repository data
   static const List<String> availableLocales = [
@@ -144,6 +147,7 @@ class SettingsProvider extends ChangeNotifier {
     _lastSeenVersion = prefs.getString(_lastSeenVersionKey) ?? '';
     _userName = prefs.getString(_userNameKey) ?? '';
     _loaded = true;
+    _showWhatsNew = prefs.getBool(_showWhatsNewKey) ?? true;
     notifyListeners();
   }
 
@@ -253,5 +257,12 @@ class SettingsProvider extends ChangeNotifier {
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_userNameKey, name);
+  }
+
+  Future<void> setShowWhatsNew(bool value) async {
+    _showWhatsNew = value;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_showWhatsNewKey, value);
   }
 }

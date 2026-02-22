@@ -128,6 +128,31 @@ class AppearanceScreen extends StatelessWidget {
                               settings.setThemeStyle(style);
                             },
                           ),
+                          Column(
+                            spacing: 4.0,
+                            children: [
+                              MListHeader(title: 'Other'),
+                              MListView(
+                                items: [
+                                  MListItemData(
+                                    title: 'Show What\'s New',
+                                    onTap: () {
+                                      settings.setShowWhatsNew(
+                                        !settings.showWhatsNew,
+                                      );
+                                    },
+                                    suffix: Switch(
+                                      value: settings.showWhatsNew,
+                                      onChanged: (value) {
+                                        settings.setShowWhatsNew(value);
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+
                           MListView(
                             items: [
                               MListItemData(
