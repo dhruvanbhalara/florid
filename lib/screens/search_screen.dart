@@ -156,12 +156,13 @@ class _SearchScreenState extends State<SearchScreen> {
             Badge(
               isLabelVisible: _filters.hasActiveFilters,
               label: Text(_filters.activeFilterCount.toString()),
-              child: TextButton.icon(
+              child: IconButton.filledTonal(
                 onPressed: _openFilters,
                 icon: const Icon(Symbols.filter_list),
-                label: const Text('Filters'),
+                tooltip: 'Filters',
               ),
             ),
+            SizedBox(width: 8),
           ],
         ),
         body: Consumer<AppProvider>(
