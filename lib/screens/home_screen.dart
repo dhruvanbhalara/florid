@@ -14,6 +14,7 @@ import '../widgets/app_list_item.dart';
 import 'app_details_screen.dart';
 import 'latest_screen.dart';
 import 'recently_updated_screen.dart';
+import 'top_apps_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -44,7 +45,10 @@ class _HomeScreenState extends State<HomeScreen>
     appProvider.fetchRecentlyUpdatedApps(
       repositoriesProvider: repositoriesProvider,
     );
-    appProvider.fetchTopApps(repositoriesProvider: repositoriesProvider);
+    appProvider.fetchTopApps(
+      repositoriesProvider: repositoriesProvider,
+      limit: 10,
+    );
   }
 
   Future<void> _onRefresh() async {
@@ -55,7 +59,10 @@ class _HomeScreenState extends State<HomeScreen>
       appProvider.fetchRecentlyUpdatedApps(
         repositoriesProvider: repositoriesProvider,
       ),
-      appProvider.fetchTopApps(repositoriesProvider: repositoriesProvider),
+      appProvider.fetchTopApps(
+        repositoriesProvider: repositoriesProvider,
+        limit: 10,
+      ),
     ]);
   }
 
@@ -70,6 +77,13 @@ class _HomeScreenState extends State<HomeScreen>
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const RecentlyUpdatedScreen()),
+    );
+  }
+
+  void _openTopAppsScreen() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const TopAppsScreen()),
     );
   }
 
@@ -270,7 +284,12 @@ class _HomeScreenState extends State<HomeScreen>
         }
 
         Widget buildTopAppsSection() {
-          final topApps = appProvider.topApps.take(_previewLimit).toList();
+          final allTopApps = appProvider.topApps;
+          final carouselApps = allTopApps.take(_previewLimit).toList();
+          final listApps = allTopApps
+              .skip(_previewLimit)
+              .take(_previewLimit)
+              .toList();
           final isTopAppsLoading =
               appProvider.topAppsState == LoadingState.loading;
 
@@ -280,32 +299,43 @@ class _HomeScreenState extends State<HomeScreen>
             children: [
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      'Top Apps',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Monthly Top Apps',
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.w600),
+                        ),
+                        Text(
+                          'from IzzyOnDroid',
+                          style: Theme.of(context).textTheme.labelSmall
+                              ?.copyWith(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
+                              ),
+                        ),
+                      ],
                     ),
-                    Text(
-                      'from IzzyOnDroid',
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
+                    IconButton(
+                      onPressed: _openTopAppsScreen,
+                      icon: Icon(Symbols.arrow_forward),
                     ),
                   ],
                 ),
               ),
-              if (isTopAppsLoading && topApps.isEmpty)
+              if (isTopAppsLoading && carouselApps.isEmpty)
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 32.0),
                   child: Center(
                     child: CircularProgressIndicator(year2023: false),
                   ),
                 )
-              else if (topApps.isEmpty)
+              else if (carouselApps.isEmpty)
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Center(
@@ -321,7 +351,7 @@ class _HomeScreenState extends State<HomeScreen>
                     ),
                   ),
                 )
-              else
+              else ...[
                 SizedBox(
                   height: 200,
                   child: CarouselView(
@@ -331,11 +361,11 @@ class _HomeScreenState extends State<HomeScreen>
                     onTap: (index) => Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (context) =>
-                            AppDetailsScreen(app: topApps[index]),
+                            AppDetailsScreen(app: carouselApps[index]),
                       ),
                     ),
                     padding: const EdgeInsets.symmetric(horizontal: 8),
-                    children: topApps.asMap().entries.map((entry) {
+                    children: carouselApps.asMap().entries.map((entry) {
                       final app = entry.value;
                       return Material(
                         color: Theme.of(
@@ -459,26 +489,35 @@ class _HomeScreenState extends State<HomeScreen>
                             ],
                           ),
                         ),
-                        // child:
-                        //     AppListItem(
-                        //       app: app,
-                        //       showInstallStatus: false,
-                        //       onTap: () {
-                        //         Navigator.of(context).push(
-                        //           MaterialPageRoute(
-                        //             builder: (context) =>
-                        //                 AppDetailsScreen(app: app),
-                        //           ),
-                        //         );
-                        //       },
-                        //     ).animate().fadeIn(
-                        //       duration: 300.ms,
-                        //       delay: (50 * index).ms,
-                        //     ),
                       );
                     }).toList(),
                   ),
                 ),
+                if (listApps.isNotEmpty)
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    itemCount: listApps.length,
+                    itemBuilder: (context, index) {
+                      final app = listApps[index];
+                      return AppListItem(
+                        app: app,
+                        showInstallStatus: false,
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => AppDetailsScreen(app: app),
+                            ),
+                          );
+                        },
+                      ).animate().fadeIn(
+                        duration: 300.ms,
+                        delay: (50 * index).ms,
+                      );
+                    },
+                  ),
+              ],
             ],
           );
         }
