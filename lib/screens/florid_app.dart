@@ -113,7 +113,12 @@ class _FloridAppState extends State<FloridApp> {
                   ),
                 ),
               ),
-              FilledButton(onPressed: () {}, child: Text("Close")),
+              FilledButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text("Close"),
+              ),
             ],
           ),
         );
