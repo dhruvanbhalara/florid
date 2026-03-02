@@ -6,7 +6,7 @@ version: 1.0.8+9
 
 environment:
   sdk: ^3.9.2
-  flutter: ^3.38.7
+  flutter: ^3.41.2
 
 dependencies:
   flutter:
@@ -53,7 +53,7 @@ dependencies:
   package_info_plus: ^9.0.0
 
   # Device info for ABI detection
-  device_info_plus: ^11.1.0
+  device_info_plus: ^12.3.0
 
   # Cached network image for app icons
   cached_network_image: ^3.3.1
@@ -64,7 +64,7 @@ dependencies:
   # File picker and downloads
   dio: ^5.4.1
   file_picker: ^10.1.2
-  workmanager: ^0.8.0
+  workmanager: ^0.9.0+3
 
   # App installer for APK installation
   app_installer: ^1.1.0
@@ -82,7 +82,7 @@ dependencies:
   android_intent_plus: ^6.0.0
 
   # Local notifications for download progress
-  flutter_local_notifications: ^19.5.0
+  flutter_local_notifications: ^20.1.0
   flutter_native_splash: ^2.4.7
   flutter_animate: ^4.5.2
 
