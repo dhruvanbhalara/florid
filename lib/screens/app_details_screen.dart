@@ -675,6 +675,8 @@ class _AppDetailsScreenState extends State<AppDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkKnight =
+        context.read<SettingsProvider>().themeStyle == ThemeStyle.darkKnight;
     return NotificationListener<ScrollNotification>(
       onNotification: (notification) {
         // Compute collapsed state synchronously but schedule state change
@@ -716,7 +718,9 @@ class _AppDetailsScreenState extends State<AppDetailsScreen> {
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        Theme.of(context).colorScheme.primaryContainer,
+                        isDarkKnight
+                            ? Theme.of(context).colorScheme.surfaceContainerLow
+                            : Theme.of(context).colorScheme.primaryContainer,
                         Theme.of(context).colorScheme.surface,
                       ],
                       begin: Alignment.topCenter,
