@@ -28,7 +28,7 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   bool get wantKeepAlive => true;
 
-  static const int _previewLimit = 5;
+  static const int _previewLimit = 6;
 
   @override
   void initState() {
@@ -140,11 +140,9 @@ class _HomeScreenState extends State<HomeScreen>
                           style: Theme.of(context).textTheme.titleMedium
                               ?.copyWith(fontWeight: FontWeight.w600),
                         ),
-                        TextButton.icon(
+                        IconButton(
                           onPressed: _openRecentlyUpdatedScreen,
-                          iconAlignment: IconAlignment.end,
                           icon: Icon(Symbols.arrow_forward),
-                          label: Text(AppLocalizations.of(context)!.show_more),
                         ),
                       ],
                     ),
@@ -177,29 +175,41 @@ class _HomeScreenState extends State<HomeScreen>
                       ),
                     )
                   else
-                    ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      itemCount: recentlyUpdatedApps.length,
-                      itemBuilder: (context, index) {
-                        final app = recentlyUpdatedApps[index];
-                        return AppListItem(
-                          app: app,
-                          showInstallStatus: false,
-                          onTap: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    AppDetailsScreen(app: app),
+                    SizedBox(
+                      height: 180,
+                      child: Material(
+                        child: GridView.builder(
+                          scrollDirection: Axis.horizontal,
+
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                mainAxisSpacing: 8,
+                                crossAxisSpacing: 8,
+                                childAspectRatio: 0.3,
                               ),
+                          itemCount: recentlyUpdatedApps.length,
+                          itemBuilder: (context, index) {
+                            final app = recentlyUpdatedApps[index];
+                            return AppListItem(
+                              app: app,
+                              showInstallStatus: false,
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        AppDetailsScreen(app: app),
+                                  ),
+                                );
+                              },
+                            ).animate().fadeIn(
+                              duration: 300.ms,
+                              delay: (50 * index).ms,
                             );
                           },
-                        ).animate().fadeIn(
-                          duration: 300.ms,
-                          delay: (50 * index).ms,
-                        );
-                      },
+                        ),
+                      ),
                     ),
                 ],
               ),
@@ -223,11 +233,9 @@ class _HomeScreenState extends State<HomeScreen>
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    TextButton.icon(
+                    IconButton(
                       onPressed: _openLatestScreen,
-                      iconAlignment: IconAlignment.end,
                       icon: Icon(Symbols.arrow_forward),
-                      label: Text(AppLocalizations.of(context)!.show_more),
                     ),
                   ],
                 ),

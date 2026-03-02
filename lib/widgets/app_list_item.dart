@@ -14,6 +14,7 @@ class AppListItem extends StatelessWidget {
   final bool showCategory;
   final bool showInstallStatus;
   final bool showFavorite;
+  final bool showDescription;
 
   const AppListItem({
     super.key,
@@ -23,6 +24,7 @@ class AppListItem extends StatelessWidget {
     this.showCategory = true,
     this.showInstallStatus = true,
     this.showFavorite = false,
+    this.showDescription = true,
   });
 
   @override
@@ -95,7 +97,9 @@ class AppListItem extends StatelessWidget {
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
-      subtitle: Text(app.summary, maxLines: 2, overflow: TextOverflow.ellipsis),
+      subtitle: showDescription
+          ? Text(app.summary, maxLines: 2, overflow: TextOverflow.ellipsis)
+          : null,
       trailing: showInstallStatus || showFavorite
           ? Padding(
               padding: const EdgeInsets.only(right: 8.0),
