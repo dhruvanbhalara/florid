@@ -359,6 +359,7 @@ class _UpdatesScreenState extends State<UpdatesScreen>
 
                 return Card(
                   elevation: 0,
+                  key: Key(app.packageName),
                   child: Column(
                     children: [
                       AppListItem(
@@ -469,6 +470,7 @@ class _UpdatesScreenState extends State<UpdatesScreen>
           (updateApp) => updateApp.packageName == app.packageName,
         );
         return Card(
+          key: Key(app.packageName),
           elevation: 0,
           child: Column(
             children: [
