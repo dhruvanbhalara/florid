@@ -44,6 +44,7 @@ class _RepositoriesScreenState extends State<RepositoriesScreen> {
               'name': e['name'] as String,
               'url': e['url'] as String,
               'description': e['description'] as String? ?? '',
+              'fingerprint': e['fingerprint'] as String? ?? '',
             },
           )
           .toList();
@@ -145,6 +146,10 @@ class _RepositoriesScreenState extends State<RepositoriesScreen> {
                                         await repoProvider.addRepository(
                                           preset['name']!,
                                           preset['url']!,
+                                          fingerprint:
+                                              preset['fingerprint']!.isEmpty
+                                              ? null
+                                              : preset['fingerprint'],
                                         );
                                         // Only proceed with modal and refresh if addition succeeded (no error)
                                         if (repoProvider.error == null &&
