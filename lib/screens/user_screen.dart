@@ -7,7 +7,6 @@ import 'package:florid/screens/app_details_screen.dart';
 import 'package:florid/screens/settings_screen.dart';
 import 'package:florid/utils/menu_actions.dart';
 import 'package:florid/widgets/app_list_item.dart';
-import 'package:florid/widgets/changelog_preview.dart';
 import 'package:florid/widgets/f_tabbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -187,25 +186,18 @@ class _UserScreenState extends State<UserScreen>
         return Card(
           elevation: 0,
           key: Key(app.packageName),
-          child: Column(
-            children: [
-              AppListItem(
-                app: app,
-                showInstallStatus: true,
-                showFavorite: true,
-                onUpdate: hasUpdate ? () => _updateApp(context, app) : null,
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => AppDetailsScreen(app: app),
-                    ),
-                  );
-                },
-              ),
-              if (app.latestVersion?.whatsNew != null &&
-                  app.latestVersion!.whatsNew!.isNotEmpty)
-                ChangelogPreview(text: app.latestVersion!.whatsNew),
-            ],
+          child: AppListItem(
+            app: app,
+            showInstallStatus: true,
+            showFavorite: true,
+            onUpdate: hasUpdate ? () => _updateApp(context, app) : null,
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => AppDetailsScreen(app: app),
+                ),
+              );
+            },
           ),
         ).animate().fadeIn(duration: 300.ms, delay: (100 * index).ms);
       },
