@@ -2,6 +2,7 @@ class Repository {
   final int id;
   final String name;
   final String url;
+  final String? fingerprint;
   final bool isEnabled;
   final DateTime? addedAt;
   final DateTime? lastSyncedAt;
@@ -10,6 +11,7 @@ class Repository {
     required this.id,
     required this.name,
     required this.url,
+    this.fingerprint,
     this.isEnabled = true,
     this.addedAt,
     this.lastSyncedAt,
@@ -20,6 +22,7 @@ class Repository {
       id: map['id'] as int,
       name: map['name'] as String,
       url: map['url'] as String,
+      fingerprint: map['fingerprint'] as String?,
       isEnabled: (map['is_enabled'] as int) == 1,
       addedAt: map['added_at'] != null
           ? DateTime.fromMillisecondsSinceEpoch(map['added_at'] as int)
@@ -35,6 +38,7 @@ class Repository {
       'id': id,
       'name': name,
       'url': url,
+      'fingerprint': fingerprint,
       'is_enabled': isEnabled ? 1 : 0,
       'added_at': addedAt?.millisecondsSinceEpoch,
       'last_synced_at': lastSyncedAt?.millisecondsSinceEpoch,
@@ -45,6 +49,7 @@ class Repository {
     int? id,
     String? name,
     String? url,
+    String? fingerprint,
     bool? isEnabled,
     DateTime? addedAt,
     DateTime? lastSyncedAt,
@@ -53,6 +58,7 @@ class Repository {
       id: id ?? this.id,
       name: name ?? this.name,
       url: url ?? this.url,
+      fingerprint: fingerprint ?? this.fingerprint,
       isEnabled: isEnabled ?? this.isEnabled,
       addedAt: addedAt ?? this.addedAt,
       lastSyncedAt: lastSyncedAt ?? this.lastSyncedAt,

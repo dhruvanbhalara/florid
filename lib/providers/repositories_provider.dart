@@ -35,7 +35,11 @@ class RepositoriesProvider extends ChangeNotifier {
   }
 
   /// Adds a new repository
-  Future<void> addRepository(String name, String url) async {
+  Future<void> addRepository(
+    String name,
+    String url, {
+    String? fingerprint,
+  }) async {
     _error = null;
     try {
       // Validate URL format
@@ -52,12 +56,17 @@ class RepositoriesProvider extends ChangeNotifier {
         return;
       }
 
-      final id = await _databaseService.addRepository(name, url);
+      final id = await _databaseService.addRepository(
+        name,
+        url,
+        fingerprint: fingerprint,
+      );
       _repositories.add(
         Repository(
           id: id,
           name: name,
           url: url,
+          fingerprint: fingerprint,
           isEnabled: true,
           addedAt: DateTime.now(),
         ),
@@ -75,8 +84,9 @@ class RepositoriesProvider extends ChangeNotifier {
     int id,
     String name,
     String url,
-    bool isEnabled,
-  ) async {
+    bool isEnabled, {
+    String? fingerprint,
+  }) async {
     _error = null;
     try {
       // Validate URL format
@@ -93,7 +103,13 @@ class RepositoriesProvider extends ChangeNotifier {
         return;
       }
 
-      await _databaseService.updateRepository(id, name, url, isEnabled);
+      await _databaseService.updateRepository(
+        id,
+        name,
+        url,
+        isEnabled,
+        fingerprint: fingerprint,
+      );
 
       final index = _repositories.indexWhere((r) => r.id == id);
       if (index != -1) {
@@ -101,6 +117,7 @@ class RepositoriesProvider extends ChangeNotifier {
           name: name,
           url: url,
           isEnabled: isEnabled,
+          fingerprint: fingerprint,
         );
       }
       notifyListeners();
@@ -131,7 +148,13 @@ class RepositoriesProvider extends ChangeNotifier {
     if (index == -1) return;
 
     final repo = _repositories[index];
-    await updateRepository(id, repo.name, repo.url, !repo.isEnabled);
+    await updateRepository(
+      id,
+      repo.name,
+      repo.url,
+      !repo.isEnabled,
+      fingerprint: repo.fingerprint,
+    );
   }
 
   /// Clears the error message

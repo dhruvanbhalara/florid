@@ -375,21 +375,34 @@ class FDroidApiService {
   /// Fetches repository from a custom URL with automatic SNI bypass fallback
   Future<FDroidRepository> fetchRepositoryFromUrl(String url) async {
     try {
+      // Parse URL and extract fingerprint if present
+      final uri = Uri.parse(url);
+      String baseUrlWithoutFingerprint = uri
+          .replace(queryParameters: {})
+          .toString();
+      if (baseUrlWithoutFingerprint.endsWith('?')) {
+        baseUrlWithoutFingerprint = baseUrlWithoutFingerprint.substring(
+          0,
+          baseUrlWithoutFingerprint.length - 1,
+        );
+      }
+
       // Construct the index URL
       String indexUrl;
-      if (url.endsWith('index-v2.json')) {
+      if (baseUrlWithoutFingerprint.endsWith('index-v2.json')) {
         // Full URL provided
-        indexUrl = url;
-      } else if (url.endsWith('/repo') || url.endsWith('/repo/')) {
+        indexUrl = baseUrlWithoutFingerprint;
+      } else if (baseUrlWithoutFingerprint.endsWith('/repo') ||
+          baseUrlWithoutFingerprint.endsWith('/repo/')) {
         // URL already includes /repo path
-        indexUrl = url.endsWith('/')
-            ? '${url}index-v2.json'
-            : '$url/index-v2.json';
+        indexUrl = baseUrlWithoutFingerprint.endsWith('/')
+            ? '${baseUrlWithoutFingerprint}index-v2.json'
+            : '$baseUrlWithoutFingerprint/index-v2.json';
       } else {
         // Base URL without /repo
-        indexUrl = url.endsWith('/')
-            ? '${url}repo/index-v2.json'
-            : '$url/repo/index-v2.json';
+        indexUrl = baseUrlWithoutFingerprint.endsWith('/')
+            ? '${baseUrlWithoutFingerprint}repo/index-v2.json'
+            : '$baseUrlWithoutFingerprint/repo/index-v2.json';
       }
 
       // Derive repository base (strip the index file and trailing slash)

@@ -7,7 +7,7 @@ import '../models/fdroid_app.dart';
 
 class DatabaseService {
   static const String _databaseName = 'fdroid_repository.db';
-  static const int _databaseVersion = 5;
+  static const int _databaseVersion = 6;
 
   // Table names
   static const String _appsTable = 'apps';
@@ -184,6 +184,12 @@ class DatabaseService {
         _metadataTable,
         where: 'key = ?',
         whereArgs: ['last_sync'],
+      );
+    }
+    if (oldVersion < 6) {
+      // Add fingerprint column to repositories table for v5 to v6 upgrade
+      await db.execute(
+        'ALTER TABLE $_repositoriesTable ADD COLUMN fingerprint TEXT',
       );
     }
   }
@@ -994,11 +1000,16 @@ class DatabaseService {
   // Repository management methods
 
   /// Adds a new repository
-  Future<int> addRepository(String name, String url) async {
+  Future<int> addRepository(
+    String name,
+    String url, {
+    String? fingerprint,
+  }) async {
     final db = await database;
     return await db.insert(_repositoriesTable, {
       'name': name,
       'url': url,
+      'fingerprint': fingerprint,
       'is_enabled': 1,
       'added_at': DateTime.now().millisecondsSinceEpoch,
     });
@@ -1015,12 +1026,18 @@ class DatabaseService {
     int id,
     String name,
     String url,
-    bool isEnabled,
-  ) async {
+    bool isEnabled, {
+    String? fingerprint,
+  }) async {
     final db = await database;
     return await db.update(
       _repositoriesTable,
-      {'name': name, 'url': url, 'is_enabled': isEnabled ? 1 : 0},
+      {
+        'name': name,
+        'url': url,
+        'fingerprint': fingerprint,
+        'is_enabled': isEnabled ? 1 : 0,
+      },
       where: 'id = ?',
       whereArgs: [id],
     );

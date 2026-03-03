@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:florid/l10n/app_localizations.dart';
+import 'package:florid/screens/repository_qr_scanner.dart';
 import 'package:florid/widgets/m_list.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -360,23 +361,115 @@ class _RepositoriesScreenState extends State<RepositoriesScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddRepositoryDialog(context),
-        tooltip: 'Add Repository',
-        child: const Icon(Symbols.add),
+      floatingActionButton: Row(
+        mainAxisSize: MainAxisSize.min,
+        spacing: 4.0,
+        children: [
+          Material(
+            clipBehavior: Clip.antiAlias,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(16),
+                topRight: Radius.circular(4),
+                bottomLeft: Radius.circular(16),
+                bottomRight: Radius.circular(4),
+              ),
+            ),
+            color: Theme.of(context).colorScheme.primaryContainer,
+            child: InkWell(
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => RepositoryQRScanner(
+                    onScan: (url) {
+                      // Parse fingerprint from URL if it exists
+                      String cleanUrl = url;
+                      String? fingerprint;
+                      final uri = Uri.parse(url);
+                      if (uri.queryParameters.containsKey('fingerprint')) {
+                        fingerprint = uri.queryParameters['fingerprint'];
+                        // Remove fingerprint from URL
+                        cleanUrl = uri.replace(queryParameters: {}).toString();
+                        if (cleanUrl.endsWith('?')) {
+                          cleanUrl = cleanUrl.substring(0, cleanUrl.length - 1);
+                        }
+                      }
+
+                      // Show the Add Repository dialog using the parent context
+                      _showAddRepositoryDialog(
+                        context,
+                        prefilledUrl: cleanUrl,
+                        prefilledFingerprint: fingerprint,
+                      );
+                    },
+                  ),
+                ),
+              ),
+              child: SizedBox(
+                height: 56,
+                width: 56,
+                child: Icon(
+                  Symbols.qr_code_2,
+                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+                ),
+              ),
+            ),
+          ),
+          Material(
+            clipBehavior: Clip.antiAlias,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(4),
+                bottomRight: Radius.circular(16),
+                topLeft: Radius.circular(4),
+                topRight: Radius.circular(16),
+              ),
+            ),
+            color: Theme.of(context).colorScheme.primary,
+            child: InkWell(
+              onTap: () => _showAddRepositoryDialog(context),
+              child: SizedBox(
+                height: 56,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Symbols.add,
+                        color: Theme.of(context).colorScheme.onPrimary,
+                      ),
+                      Text(
+                        'Add Repository',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onPrimary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  void _showAddRepositoryDialog(BuildContext context) {
+  void _showAddRepositoryDialog(
+    BuildContext context, {
+    String? prefilledUrl,
+    String? prefilledFingerprint,
+  }) {
     showDialog(
       context: context,
       builder: (context) => _AddRepositoryDialog(
-        onAdd: (name, url) async {
+        prefilledUrl: prefilledUrl,
+        prefilledFingerprint: prefilledFingerprint,
+        onAdd: (name, url, fingerprint) async {
           // Close the add dialog, then run the add flow with a blocking progress dialog.
           Navigator.pop(context);
           final repoProvider = context.read<RepositoriesProvider>();
-          await repoProvider.addRepository(name, url);
+          await repoProvider.addRepository(name, url, fingerprint: fingerprint);
           // Only proceed with modal and refresh if addition succeeded (no error)
           if (repoProvider.error == null && context.mounted) {
             await _runRepositoryActionWithDialog(context, () async {
@@ -388,9 +481,9 @@ class _RepositoriesScreenState extends State<RepositoriesScreen> {
             });
           }
         },
-        onAddPreset: (name, url) async {
+        onAddPreset: (name, url, fingerprint) async {
           final repoProvider = context.read<RepositoriesProvider>();
-          await repoProvider.addRepository(name, url);
+          await repoProvider.addRepository(name, url, fingerprint: fingerprint);
           // Only proceed with modal and refresh if addition succeeded (no error)
           if (repoProvider.error == null && context.mounted) {
             await _runRepositoryActionWithDialog(context, () async {
@@ -513,12 +606,13 @@ class _RepositoryListItem extends StatelessWidget {
       context: context,
       builder: (context) => _EditRepositoryDialog(
         repository: repository,
-        onSave: (name, url) {
+        onSave: (name, url, fingerprint) {
           context.read<RepositoriesProvider>().updateRepository(
             repository.id,
             name,
             url,
             repository.isEnabled,
+            fingerprint: fingerprint,
           );
           Navigator.pop(context);
         },
@@ -723,10 +817,17 @@ Future<void> _runRepositoryActionWithDialog(
 }
 
 class _AddRepositoryDialog extends StatefulWidget {
-  final Function(String name, String url) onAdd;
-  final Function(String name, String url) onAddPreset;
+  final Function(String name, String url, String? fingerprint) onAdd;
+  final Function(String name, String url, String? fingerprint) onAddPreset;
+  final String? prefilledUrl;
+  final String? prefilledFingerprint;
 
-  const _AddRepositoryDialog({required this.onAdd, required this.onAddPreset});
+  const _AddRepositoryDialog({
+    required this.onAdd,
+    required this.onAddPreset,
+    this.prefilledUrl,
+    this.prefilledFingerprint,
+  });
 
   @override
   State<_AddRepositoryDialog> createState() => _AddRepositoryDialogState();
@@ -735,42 +836,24 @@ class _AddRepositoryDialog extends StatefulWidget {
 class _AddRepositoryDialogState extends State<_AddRepositoryDialog> {
   late TextEditingController _nameController;
   late TextEditingController _urlController;
+  late TextEditingController _fingerprintController;
 
   @override
   void initState() {
     super.initState();
     _nameController = TextEditingController();
-    _urlController = TextEditingController();
+    _urlController = TextEditingController(text: widget.prefilledUrl ?? '');
+    _fingerprintController = TextEditingController(
+      text: widget.prefilledFingerprint ?? '',
+    );
     // _loadPresets();
   }
-
-  // Future<void> _loadPresets() async {
-  //   try {
-  //     final jsonString = await DefaultAssetBundle.of(
-  //       context,
-  //     ).loadString('assets/repositories.json');
-  //     final jsonData = jsonDecode(jsonString);
-  //     final repos = (jsonData['repositories'] as List)
-  //         .map(
-  //           (e) => {
-  //             'name': e['name'] as String,
-  //             'url': e['url'] as String,
-  //             'description': e['description'] as String? ?? '',
-  //           },
-  //         )
-  //         .toList();
-  //     setState(() {
-  //       _presets = repos;
-  //     });
-  //   } catch (e) {
-  //     debugPrint('Error loading presets: $e');
-  //   }
-  // }
 
   @override
   void dispose() {
     _nameController.dispose();
     _urlController.dispose();
+    _fingerprintController.dispose();
     super.dispose();
   }
 
@@ -795,6 +878,16 @@ class _AddRepositoryDialogState extends State<_AddRepositoryDialog> {
             labelText: 'Repository URL',
             hintText: 'https://example.com',
             border: OutlineInputBorder(),
+          ),
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          controller: _fingerprintController,
+          decoration: const InputDecoration(
+            labelText: 'Fingerprint (Optional)',
+            hintText: '13784BA6C80FF4E...',
+            border: OutlineInputBorder(),
+            helperText: 'For enhanced security and verification',
           ),
         ),
         const SizedBox(height: 16),
@@ -831,6 +924,7 @@ class _AddRepositoryDialogState extends State<_AddRepositoryDialog> {
   void _addRepository() {
     final name = _nameController.text.trim();
     final url = _urlController.text.trim();
+    final fingerprint = _fingerprintController.text.trim();
 
     if (name.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -846,13 +940,13 @@ class _AddRepositoryDialogState extends State<_AddRepositoryDialog> {
       return;
     }
 
-    widget.onAdd(name, url);
+    widget.onAdd(name, url, fingerprint.isEmpty ? null : fingerprint);
   }
 }
 
 class _EditRepositoryDialog extends StatefulWidget {
   final Repository repository;
-  final Function(String name, String url) onSave;
+  final Function(String name, String url, String? fingerprint) onSave;
 
   const _EditRepositoryDialog({required this.repository, required this.onSave});
 
@@ -863,18 +957,23 @@ class _EditRepositoryDialog extends StatefulWidget {
 class _EditRepositoryDialogState extends State<_EditRepositoryDialog> {
   late TextEditingController _nameController;
   late TextEditingController _urlController;
+  late TextEditingController _fingerprintController;
 
   @override
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.repository.name);
     _urlController = TextEditingController(text: widget.repository.url);
+    _fingerprintController = TextEditingController(
+      text: widget.repository.fingerprint ?? '',
+    );
   }
 
   @override
   void dispose() {
     _nameController.dispose();
     _urlController.dispose();
+    _fingerprintController.dispose();
     super.dispose();
   }
 
@@ -897,6 +996,16 @@ class _EditRepositoryDialogState extends State<_EditRepositoryDialog> {
           decoration: const InputDecoration(
             labelText: 'Repository URL',
             border: OutlineInputBorder(),
+          ),
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          controller: _fingerprintController,
+          decoration: const InputDecoration(
+            labelText: 'Fingerprint (Optional)',
+            hintText: '13784BA6C80FF4E...',
+            border: OutlineInputBorder(),
+            helperText: 'For enhanced security and verification',
           ),
         ),
         const SizedBox(height: 16),
@@ -927,6 +1036,7 @@ class _EditRepositoryDialogState extends State<_EditRepositoryDialog> {
   void _saveRepository() {
     final name = _nameController.text.trim();
     final url = _urlController.text.trim();
+    final fingerprint = _fingerprintController.text.trim();
 
     if (name.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -942,6 +1052,6 @@ class _EditRepositoryDialogState extends State<_EditRepositoryDialog> {
       return;
     }
 
-    widget.onSave(name, url);
+    widget.onSave(name, url, fingerprint.isEmpty ? null : fingerprint);
   }
 }

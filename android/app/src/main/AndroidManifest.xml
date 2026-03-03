@@ -30,6 +30,9 @@
     
     <!-- Permission to vibrate for notification alerts -->
     <uses-permission android:name="android.permission.VIBRATE" />
+    
+    <!-- Permission for camera - used for QR code scanning -->
+    <uses-permission android:name="android.permission.CAMERA" />
 
     <application
         android:label="${appLabel}"
