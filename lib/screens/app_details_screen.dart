@@ -2569,6 +2569,7 @@ class _AppDetailsIconState extends State<_AppDetailsIcon> {
     return Image.network(
       url,
       fit: BoxFit.cover,
+      filterQuality: FilterQuality.high,
       errorBuilder: (context, error, stackTrace) {
         // Move to next candidate or fallback
         _next();
