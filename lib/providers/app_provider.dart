@@ -217,13 +217,13 @@ class AppProvider extends ChangeNotifier {
                 repo,
                 repositoryId: repoId,
               );
+            } else {
+              debugPrint('⚠️ No repository ID found for URL: $url');
             }
           } catch (e) {
             debugPrint('Error importing custom repo to database: $e');
             // Continue even if import fails
           }
-
-          debugPrint('Successfully fetched repository from $url');
           return repo;
         } catch (e) {
           debugPrint('Failed to fetch repository from $url: $e');
@@ -524,6 +524,14 @@ class AppProvider extends ChangeNotifier {
 
       // Fetch all apps from IzzyOnDroid repository
       final allApps = await _apiService.fetchApps(limit: limit * 4);
+
+      // Check what repository URLs we have
+      final repoUrlCounts = <String, int>{};
+      for (final app in allApps) {
+        repoUrlCounts[app.repositoryUrl] =
+            (repoUrlCounts[app.repositoryUrl] ?? 0) + 1;
+      }
+
       final izzyApps = allApps
           .where((app) => app.repositoryUrl == izzyRepo!.url)
           .toList();
@@ -549,7 +557,6 @@ class AppProvider extends ChangeNotifier {
           appStats[app] = downloads;
         } catch (e) {
           // If we fail to get stats, use 0
-          debugPrint('Error fetching stats for ${app.packageName}: $e');
           appStats[app] = 0;
         }
       }
@@ -949,9 +956,26 @@ class AppProvider extends ChangeNotifier {
     _repositoryError = null;
     _categoryApps.clear();
 
-    // Reload data
+    // If we have enabled repositories, fetch from all of them
+    if (repositoriesProvider != null) {
+      final enabledRepos = repositoriesProvider.enabledRepositories;
+      if (enabledRepos.isNotEmpty) {
+        debugPrint('🔄 Refreshing ${enabledRepos.length} enabled repositories');
+        final urls = enabledRepos.map((r) => r.url).toList();
+
+        // Fetch from all enabled repositories
+        await fetchRepositoriesFromUrls(urls);
+      } else {
+        // No custom repos, fetch default
+        await fetchRepository();
+      }
+    } else {
+      // No repository provider, fetch default
+      await fetchRepository();
+    }
+
+    // Reload other data
     await Future.wait([
-      fetchRepository(),
       fetchLatestApps(repositoriesProvider: repositoriesProvider),
       fetchCategories(),
       fetchInstalledApps(),

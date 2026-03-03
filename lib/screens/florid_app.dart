@@ -15,6 +15,7 @@ import 'package:provider/provider.dart';
 import '../providers/app_provider.dart';
 import '../providers/repositories_provider.dart';
 import '../providers/settings_provider.dart';
+import '../services/fdroid_api_service.dart';
 import 'search_screen.dart';
 import 'updates_screen.dart';
 
@@ -46,9 +47,46 @@ class _FloridAppState extends State<FloridApp> {
       final repositoriesProvider = context.read<RepositoriesProvider>();
 
       appProvider.fetchInstalledApps();
-      repositoriesProvider.loadRepositories();
+      repositoriesProvider.loadRepositories().then((_) {
+        // After repositories are loaded, check if any need syncing
+        _autoSyncRepositoriesIfNeeded();
+      });
       _maybeShowWhatsNewDialog();
     });
+  }
+
+  Future<void> _autoSyncRepositoriesIfNeeded() async {
+    try {
+      final repositoriesProvider = context.read<RepositoriesProvider>();
+      final appProvider = context.read<AppProvider>();
+
+      // Check if there are enabled repositories that have never been synced
+      final unsyncedRepos = repositoriesProvider.repositories
+          .where((repo) => repo.isEnabled && repo.lastSyncedAt == null)
+          .toList();
+
+      if (unsyncedRepos.isEmpty) {
+        debugPrint('✅ All enabled repositories are synced');
+        return;
+      }
+
+      debugPrint(
+        '🔄 Auto-syncing ${unsyncedRepos.length} unsynced repositories',
+      );
+      for (final repo in unsyncedRepos) {
+        debugPrint('   - ${repo.name}: ${repo.url}');
+      }
+
+      // Sync repositories in the background
+      final apiService = context.read<FDroidApiService>();
+      await apiService.clearRepositoryCache();
+      await appProvider.refreshAll(repositoriesProvider: repositoriesProvider);
+
+      debugPrint('✅ Auto-sync completed');
+    } catch (e) {
+      debugPrint('Error during auto-sync: $e');
+      // Don't block the app if auto-sync fails
+    }
   }
 
   Future<void> _maybeShowWhatsNewDialog() async {

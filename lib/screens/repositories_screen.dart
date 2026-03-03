@@ -61,6 +61,13 @@ class _RepositoriesScreenState extends State<RepositoriesScreen> {
         slivers: [
           SliverAppBar.large(
             title: Text(AppLocalizations.of(context)!.manage_repositories),
+            actions: [
+              IconButton(
+                icon: const Icon(Symbols.sync),
+                tooltip: 'Rebuild repositories',
+                onPressed: () => _rebuildRepositories(context),
+              ),
+            ],
           ),
           SliverToBoxAdapter(
             child: Consumer<RepositoriesProvider>(
@@ -397,6 +404,17 @@ class _RepositoriesScreenState extends State<RepositoriesScreen> {
         },
       ),
     );
+  }
+
+  Future<void> _rebuildRepositories(BuildContext context) async {
+    final repoProvider = context.read<RepositoriesProvider>();
+    await _runRepositoryActionWithDialog(context, () async {
+      final apiService = context.read<FDroidApiService>();
+      final appProvider = context.read<AppProvider>();
+
+      await apiService.clearRepositoryCache();
+      await appProvider.refreshAll(repositoriesProvider: repoProvider);
+    });
   }
 }
 

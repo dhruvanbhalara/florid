@@ -500,6 +500,15 @@ class FDroidApiService {
             repo,
             repositoryId: repositoryId,
           );
+
+          // Update the last synced timestamp for this repository
+          if (repositoryId != null) {
+            await _databaseService.updateRepositoryLastSynced(repositoryId);
+            debugPrint(
+              'Updated last synced timestamp for repository ID: $repositoryId',
+            );
+          }
+
           debugPrint('Database import completed in background');
         } catch (e) {
           debugPrint('Error importing repository in background: $e');

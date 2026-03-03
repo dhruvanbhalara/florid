@@ -1,6 +1,7 @@
 import 'package:florid/l10n/app_localizations.dart';
 import 'package:florid/providers/download_provider.dart';
 import 'package:florid/providers/settings_provider.dart';
+import 'package:florid/screens/repositories_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -88,6 +89,13 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   bool _isIzzyOnDroidEnabled(RepositoriesProvider repositoriesProvider) {
+    debugPrint('📋 Checking IzzyOnDroid status:');
+    debugPrint(
+      '   Total repositories: ${repositoriesProvider.repositories.length}',
+    );
+    for (final repo in repositoriesProvider.repositories) {
+      debugPrint('   - ${repo.name}: ${repo.url} (enabled: ${repo.isEnabled})');
+    }
     return repositoriesProvider.repositories.any(
       (repo) => repo.name == 'IzzyOnDroid' && repo.isEnabled,
     );
@@ -106,8 +114,8 @@ class _HomeScreenState extends State<HomeScreen>
   Widget build(BuildContext context) {
     super.build(context);
 
-    return Consumer2<AppProvider, SettingsProvider>(
-      builder: (context, appProvider, settingsProvider, child) {
+    return Consumer3<AppProvider, SettingsProvider, RepositoriesProvider>(
+      builder: (context, appProvider, settingsProvider, repositoriesProvider, child) {
         final latestApps = appProvider.latestApps.take(_previewLimit).toList();
         final recentlyUpdatedApps = appProvider.recentlyUpdatedApps
             .take(_previewLimit)
@@ -118,8 +126,6 @@ class _HomeScreenState extends State<HomeScreen>
         final isFlorid = settingsProvider.themeStyle == ThemeStyle.florid;
         final isDarkKnight =
             settingsProvider.themeStyle == ThemeStyle.darkKnight;
-
-        final repositoriesProvider = context.read<RepositoriesProvider>();
 
         Widget buildRecentSection() {
           return LayoutBuilder(
@@ -346,16 +352,44 @@ class _HomeScreenState extends State<HomeScreen>
               else if (carouselApps.isEmpty)
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Center(
-                    child: Column(
-                      children: [
-                        Icon(Symbols.apps, size: 48, color: Colors.grey[400]),
-                        const SizedBox(height: 8),
-                        Text(
-                          'No apps from IzzyOnDroid',
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                      ],
+                  child: Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        children: [
+                          Icon(
+                            Symbols.sync,
+                            size: 48,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            'Sync Required',
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(fontWeight: FontWeight.w600),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'IzzyOnDroid repository needs to be synced to show top apps.',
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                          const SizedBox(height: 12),
+                          FilledButton.tonalIcon(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const RepositoriesScreen(),
+                                ),
+                              );
+                            },
+                            icon: Icon(Symbols.settings),
+                            label: Text('Go to Settings'),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 )
