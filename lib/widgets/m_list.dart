@@ -22,8 +22,19 @@ class MListItemData {
 
 class MListHeader extends StatefulWidget {
   final String title;
+  final String? subtitle;
   final IconData? icon;
-  const MListHeader({super.key, required this.title, this.icon});
+  final Function()? onTap;
+  final Widget? trailing;
+
+  const MListHeader({
+    super.key,
+    required this.title,
+    this.icon,
+    this.subtitle,
+    this.onTap,
+    this.trailing,
+  });
 
   @override
   State<MListHeader> createState() => _MListHeaderState();
@@ -32,22 +43,47 @@ class MListHeader extends StatefulWidget {
 class _MListHeaderState extends State<MListHeader> {
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          if (widget.icon != null) Icon(widget.icon, size: 20),
-          if (widget.icon != null) SizedBox(width: 8),
-          Text(
-            widget.title,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
+    return InkWell(
+      onTap: widget.onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            if (widget.icon != null) Icon(widget.icon, size: 20),
+            if (widget.icon != null) SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.title,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  if (widget.subtitle != null) ...[
+                    Text(
+                      widget.subtitle!,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
             ),
-          ),
-        ],
+            SizedBox(width: 16),
+            if (widget.trailing != null) widget.trailing!,
+          ],
+        ),
       ),
     );
   }

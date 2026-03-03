@@ -2,6 +2,7 @@ import 'package:florid/l10n/app_localizations.dart';
 import 'package:florid/providers/download_provider.dart';
 import 'package:florid/providers/settings_provider.dart';
 import 'package:florid/screens/repositories_screen.dart';
+import 'package:florid/widgets/m_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -136,22 +137,10 @@ class _HomeScreenState extends State<HomeScreen>
               child: Column(
                 spacing: 4.0,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          AppLocalizations.of(context)!.recently_updated,
-                          style: Theme.of(context).textTheme.titleMedium
-                              ?.copyWith(fontWeight: FontWeight.w600),
-                        ),
-                        IconButton(
-                          onPressed: _openRecentlyUpdatedScreen,
-                          icon: Icon(Symbols.arrow_forward),
-                        ),
-                      ],
-                    ),
+                  MListHeader(
+                    title: AppLocalizations.of(context)!.recently_updated,
+                    onTap: _openRecentlyUpdatedScreen,
+                    trailing: Icon(Symbols.arrow_forward),
                   ),
                   if (isLoading && recentlyUpdatedApps.isEmpty)
                     const Padding(
@@ -182,38 +171,40 @@ class _HomeScreenState extends State<HomeScreen>
                     )
                   else
                     SizedBox(
-                      height: 180,
-                      child: Material(
-                        child: GridView.builder(
-                          scrollDirection: Axis.horizontal,
-
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2,
-                                mainAxisSpacing: 8,
-                                crossAxisSpacing: 8,
-                                childAspectRatio: 0.3,
-                              ),
-                          itemCount: recentlyUpdatedApps.length,
-                          itemBuilder: (context, index) {
-                            final app = recentlyUpdatedApps[index];
-                            return AppListItem(
-                              app: app,
-                              showInstallStatus: false,
-                              onTap: () {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        AppDetailsScreen(app: app),
-                                  ),
-                                );
-                              },
-                            ).animate().fadeIn(
-                              duration: 300.ms,
-                              delay: (50 * index).ms,
-                            );
-                          },
+                      height: 200,
+                      child: Card(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: GridView.builder(
+                            scrollDirection: Axis.horizontal,
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 2,
+                                  mainAxisSpacing: 8,
+                                  crossAxisSpacing: 8,
+                                  childAspectRatio: 0.3,
+                                ),
+                            itemCount: recentlyUpdatedApps.length,
+                            itemBuilder: (context, index) {
+                              final app = recentlyUpdatedApps[index];
+                              return AppListItem(
+                                app: app,
+                                showInstallStatus: false,
+                                onTap: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          AppDetailsScreen(app: app),
+                                    ),
+                                  );
+                                },
+                              ).animate().fadeIn(
+                                duration: 300.ms,
+                                delay: (50 * index).ms,
+                              );
+                            },
+                          ),
                         ),
                       ),
                     ),
@@ -228,23 +219,10 @@ class _HomeScreenState extends State<HomeScreen>
             spacing: 4.0,
             children: [
               // New Releases Section
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'New Releases',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: _openLatestScreen,
-                      icon: Icon(Symbols.arrow_forward),
-                    ),
-                  ],
-                ),
+              MListHeader(
+                title: 'New Releases',
+                onTap: _openLatestScreen,
+                trailing: Icon(Symbols.arrow_forward),
               ),
               if (isLoading && latestApps.isEmpty)
                 const Padding(
@@ -270,28 +248,30 @@ class _HomeScreenState extends State<HomeScreen>
                   ),
                 )
               else
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  itemCount: latestApps.length,
-                  itemBuilder: (context, index) {
-                    final app = latestApps[index];
-                    return AppListItem(
-                      app: app,
-                      showInstallStatus: false,
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => AppDetailsScreen(app: app),
-                          ),
-                        );
-                      },
-                    ).animate().fadeIn(
-                      duration: 300.ms,
-                      delay: (50 * index).ms,
-                    );
-                  },
+                Card(
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    itemCount: latestApps.length,
+                    itemBuilder: (context, index) {
+                      final app = latestApps[index];
+                      return AppListItem(
+                        app: app,
+                        showInstallStatus: false,
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => AppDetailsScreen(app: app),
+                            ),
+                          );
+                        },
+                      ).animate().fadeIn(
+                        duration: 300.ms,
+                        delay: (50 * index).ms,
+                      );
+                    },
+                  ),
                 ),
             ],
           );
@@ -308,39 +288,14 @@ class _HomeScreenState extends State<HomeScreen>
               appProvider.topAppsState == LoadingState.loading;
 
           return Column(
-            spacing: 16.0,
+            spacing: 4.0,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Monthly Top Apps',
-                          style: Theme.of(context).textTheme.titleMedium
-                              ?.copyWith(fontWeight: FontWeight.w600),
-                        ),
-                        Text(
-                          'from IzzyOnDroid',
-                          style: Theme.of(context).textTheme.labelSmall
-                              ?.copyWith(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurfaceVariant,
-                              ),
-                        ),
-                      ],
-                    ),
-                    IconButton(
-                      onPressed: _openTopAppsScreen,
-                      icon: Icon(Symbols.arrow_forward),
-                    ),
-                  ],
-                ),
+              MListHeader(
+                title: 'Monthly Top Apps',
+                subtitle: 'from IzzyOnDroid',
+                onTap: _openTopAppsScreen,
+                trailing: Icon(Symbols.arrow_forward),
               ),
               if (isTopAppsLoading && carouselApps.isEmpty)
                 const Padding(
@@ -565,28 +520,31 @@ class _HomeScreenState extends State<HomeScreen>
                   ),
                 ),
                 if (listApps.isNotEmpty)
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    itemCount: listApps.length,
-                    itemBuilder: (context, index) {
-                      final app = listApps[index];
-                      return AppListItem(
-                        app: app,
-                        showInstallStatus: false,
-                        onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => AppDetailsScreen(app: app),
-                            ),
-                          );
-                        },
-                      ).animate().fadeIn(
-                        duration: 300.ms,
-                        delay: (50 * index).ms,
-                      );
-                    },
+                  Card(
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      itemCount: listApps.length,
+                      itemBuilder: (context, index) {
+                        final app = listApps[index];
+                        return AppListItem(
+                          app: app,
+                          showInstallStatus: false,
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    AppDetailsScreen(app: app),
+                              ),
+                            );
+                          },
+                        ).animate().fadeIn(
+                          duration: 300.ms,
+                          delay: (50 * index).ms,
+                        );
+                      },
+                    ),
                   ),
               ],
             ],
@@ -608,7 +566,7 @@ class _HomeScreenState extends State<HomeScreen>
                 } else {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    spacing: 24,
+                    spacing: 16,
                     children: [
                       SizedBox(height: 4),
                       if (settingsProvider.showKeepAndroidOpenCard)
