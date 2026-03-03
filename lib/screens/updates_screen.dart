@@ -362,44 +362,42 @@ class _UpdatesScreenState extends State<UpdatesScreen>
       body: Column(
         children: [
           // Header
-          SafeArea(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Material(
-                color: Theme.of(context).colorScheme.primaryContainer,
-                borderRadius: BorderRadius.circular(99),
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          '${updatableApps.length} ${updatableApps.length == 1 ? 'update' : 'updates'} available',
-                          style: Theme.of(context).textTheme.titleMedium
-                              ?.copyWith(
-                                fontWeight: FontWeight.w600,
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onPrimaryContainer,
-                              ),
-                        ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Material(
+              color: Theme.of(context).colorScheme.primaryContainer,
+              borderRadius: BorderRadius.circular(99),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        '${updatableApps.length} ${updatableApps.length == 1 ? 'update' : 'updates'} available',
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onPrimaryContainer,
+                            ),
                       ),
+                    ),
 
-                      TextButton(
-                        onPressed: () => _updateAllApps(context, updatableApps),
-                        style: TextButton.styleFrom(
-                          foregroundColor: Theme.of(
-                            context,
-                          ).colorScheme.onPrimaryContainer,
-                        ),
-                        child: const Text('Update All'),
+                    TextButton(
+                      onPressed: () => _updateAllApps(context, updatableApps),
+                      style: TextButton.styleFrom(
+                        foregroundColor: Theme.of(
+                          context,
+                        ).colorScheme.onPrimaryContainer,
                       ),
-                    ],
-                  ),
+                      child: const Text('Update All'),
+                    ),
+                  ],
                 ),
               ),
             ),
