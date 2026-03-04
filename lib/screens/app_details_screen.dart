@@ -573,63 +573,67 @@ class _AppDetailsScreenState extends State<AppDetailsScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        isDownloaded
-                            ? AppLocalizations.of(
-                                context,
-                              )!.install_from_repository
-                            : AppLocalizations.of(
-                                context,
-                              )!.download_from_repository,
-                        style: Theme.of(dialogContext).textTheme.titleLarge,
-                      ),
-                      Text(
-                        AppLocalizations.of(
-                          context,
-                        )!.choose_repository_for_action(
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
                           isDownloaded
-                              ? AppLocalizations.of(context)!.install
-                              : AppLocalizations.of(context)!.download,
-                        ),
-                        style: Theme.of(dialogContext).textTheme.labelMedium,
-                      ),
-                      if (trackedRepo != null)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 4.0),
-                          child: Builder(
-                            builder: (context) {
-                              final trackedRepoSource = availableRepos
-                                  .firstWhere(
-                                    (r) => r.url == trackedRepo,
-                                    orElse: () => RepositorySource(
-                                      name: AppLocalizations.of(
-                                        context,
-                                      )!.unknown,
-                                      url: trackedRepo,
-                                    ),
-                                  );
-                              return Text(
-                                AppLocalizations.of(
+                              ? AppLocalizations.of(
                                   context,
-                                )!.previously_installed_from(
-                                  trackedRepoSource.name,
-                                ),
-                                style: Theme.of(dialogContext)
-                                    .textTheme
-                                    .bodySmall
-                                    ?.copyWith(
-                                      color: Theme.of(
-                                        dialogContext,
-                                      ).colorScheme.primary,
-                                    ),
-                              );
-                            },
-                          ),
+                                )!.install_from_repository
+                              : AppLocalizations.of(
+                                  context,
+                                )!.download_from_repository,
+                          style: Theme.of(dialogContext).textTheme.titleLarge,
                         ),
-                    ],
+                        Text(
+                          AppLocalizations.of(
+                            context,
+                          )!.choose_repository_for_action(
+                            isDownloaded
+                                ? AppLocalizations.of(context)!.install
+                                : AppLocalizations.of(context)!.download,
+                          ),
+                          style: Theme.of(dialogContext).textTheme.labelMedium,
+                        ),
+                        if (trackedRepo != null)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4.0),
+                            child: Builder(
+                              builder: (context) {
+                                final trackedRepoSource = availableRepos
+                                    .firstWhere(
+                                      (r) => r.url == trackedRepo,
+                                      orElse: () => RepositorySource(
+                                        name: AppLocalizations.of(
+                                          context,
+                                        )!.unknown,
+                                        url: trackedRepo,
+                                      ),
+                                    );
+                                return Text(
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.previously_installed_from(
+                                    trackedRepoSource.name,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: Theme.of(dialogContext)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.copyWith(
+                                        color: Theme.of(
+                                          dialogContext,
+                                        ).colorScheme.primary,
+                                      ),
+                                );
+                              },
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
                 ],
               ),
