@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 class WhatsNewSection {
@@ -22,7 +21,6 @@ class WhatsNewLoader {
     try {
       final changelog = await _loadChangelog();
       if (changelog == null || changelog.trim().isEmpty) {
-        debugPrint('[WhatsNew] Changelog asset missing or empty');
         return null;
       }
       final candidates = <String>{version};
@@ -70,7 +68,6 @@ class WhatsNewLoader {
     for (final path in candidates) {
       try {
         final data = await rootBundle.loadString(path);
-        debugPrint('[WhatsNew] Loaded changelog from $path');
         return data;
       } catch (_) {
         // Try next candidate
@@ -101,12 +98,7 @@ class WhatsNewLoader {
   }
 
   static WhatsNewData? _parseBlock(String version, String block) {
-    debugPrint('[WhatsNew] Block length=${block.length}');
-    final previewEnd = block.length.clamp(0, 200);
-    debugPrint('[WhatsNew] Block preview=${block.substring(0, previewEnd)}');
-
     final lines = const LineSplitter().convert(block);
-    debugPrint('[WhatsNew] Line count=${lines.length}');
     final sections = <WhatsNewSection>[];
     String? currentTitle;
     final currentItems = <String>[];
@@ -142,15 +134,6 @@ class WhatsNewLoader {
       }
     }
     pushSection();
-
-    if (sections.isNotEmpty) {
-      final itemCount = sections.fold<int>(0, (sum, s) => sum + s.items.length);
-      debugPrint(
-        '[WhatsNew] Parsed version=$version sections=${sections.length} items=$itemCount',
-      );
-    } else {
-      debugPrint('[WhatsNew] Parsed version=$version with no sections/items');
-    }
 
     if (sections.isEmpty) return null;
     return WhatsNewData(version: version, sections: sections);

@@ -557,7 +557,6 @@ class AppProvider extends ChangeNotifier {
       final appStats = <FDroidApp, int>{};
 
       // Fetch download stats for each app
-      debugPrint('📊 Fetching download stats for ${izzyApps.length} apps...');
       for (final app in izzyApps) {
         try {
           final stats = await _izzyStatsService.fetchStatsForPackage(
@@ -568,15 +567,8 @@ class AppProvider extends ChangeNotifier {
           if (downloads > 0) {
             appStats[app] = downloads;
           }
-          // Only Log apps with significant downloads
-          if (downloads > 100) {
-            debugPrint(
-              '  📥 ${app.packageName}: $downloads downloads (30 days)',
-            );
-          }
         } catch (e) {
           // If we fail to get stats, skip this app (don't use it)
-          debugPrint('  ⚠️ ${app.packageName}: Failed to get stats: $e');
         }
       }
 
@@ -585,9 +577,6 @@ class AppProvider extends ChangeNotifier {
       sortedApps.sort((a, b) => b.value.compareTo(a.value));
 
       _topApps = sortedApps.take(limit).map((e) => e.key).toList();
-      debugPrint(
-        '✅ Processed ${appStats.length} apps, returning top ${_topApps.length}',
-      );
 
       // Store download counts for UI display
       _topAppsDownloads = {};

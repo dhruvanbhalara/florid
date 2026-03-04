@@ -21,7 +21,6 @@ class SNIBypassService {
     // Disable SNI by default for all connections
     client.badCertificateCallback =
         (X509Certificate cert, String host, int port) {
-          debugPrint('$_tag: Certificate verification for $host:$port');
           // Accept self-signed certificates (necessary for SNI bypass)
           return true;
         };
@@ -47,10 +46,6 @@ class SNIBypassService {
     // Allow self-signed certificates (necessary for SNI bypass)
     client.badCertificateCallback =
         (X509Certificate cert, String host, int port) {
-          debugPrint(
-            '$_tag: Certificate verification bypassed for $host:$port '
-            '(disableSni: $disableSni)',
-          );
           return disableSni;
         };
 
@@ -68,8 +63,6 @@ class SNIBypassService {
     final client = createOptimizedHttpClient(timeout: timeout);
     try {
       final uri = Uri.parse(url);
-
-      debugPrint('$_tag: Making GET request to $url with SNI bypass');
 
       final request = await client.getUrl(uri);
 

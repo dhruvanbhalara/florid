@@ -230,9 +230,6 @@ class NotificationService {
   }
 
   void _onNotificationTapped(NotificationResponse response) {
-    debugPrint(
-      '[NotificationService] Notification tapped: ${response.payload}',
-    );
     _handleNotificationPayload(response.payload);
   }
 

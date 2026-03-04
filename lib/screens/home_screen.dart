@@ -90,13 +90,6 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   bool _isIzzyOnDroidEnabled(RepositoriesProvider repositoriesProvider) {
-    debugPrint('📋 Checking IzzyOnDroid status:');
-    debugPrint(
-      '   Total repositories: ${repositoriesProvider.repositories.length}',
-    );
-    for (final repo in repositoriesProvider.repositories) {
-      debugPrint('   - ${repo.name}: ${repo.url} (enabled: ${repo.isEnabled})');
-    }
     return repositoriesProvider.repositories.any(
       (repo) => repo.name == 'IzzyOnDroid' && repo.isEnabled,
     );
