@@ -1,3 +1,4 @@
+import 'package:florid/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
@@ -28,6 +29,7 @@ class _ChangelogPreviewState extends State<ChangelogPreview> {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final localizations = AppLocalizations.of(context)!;
 
     _changelogFuture ??= _resolveTextOrFetch(context);
 
@@ -56,7 +58,7 @@ class _ChangelogPreviewState extends State<ChangelogPreview> {
                   ),
                 ),
                 Text(
-                  'Loading changelog...',
+                  localizations.loading_changelog,
                   style: textTheme.bodySmall?.copyWith(
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
@@ -120,7 +122,7 @@ class _ChangelogPreviewState extends State<ChangelogPreview> {
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                       Text(
-                        'What\'s New',
+                        localizations.whats_new,
                         style: textTheme.bodyMedium?.copyWith(
                           fontWeight: FontWeight.w600,
                           color: Theme.of(context).colorScheme.onSurfaceVariant,

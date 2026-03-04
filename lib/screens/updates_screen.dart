@@ -122,7 +122,7 @@ class _UpdatesScreenState extends State<UpdatesScreen>
                 ElevatedButton.icon(
                   onPressed: _loadData,
                   icon: const Icon(Symbols.refresh),
-                  label: const Text('Retry'),
+                  label: Text(AppLocalizations.of(context)!.retry),
                 ),
               ],
             ),
@@ -163,7 +163,7 @@ class _UpdatesScreenState extends State<UpdatesScreen>
                     surfaceTintColor: isDarkKnight
                         ? null
                         : Theme.of(context).colorScheme.surfaceContainerLow,
-                    title: const Text('Apps'),
+                    title:  Text(AppLocalizations.of(context)!.apps),
                     scrolledUnderElevation: isDarkKnight ? 0 : null,
                     // pinned: false,
                     actions: [
@@ -260,10 +260,10 @@ class _UpdatesScreenState extends State<UpdatesScreen>
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
+          children:  [
             CircularProgressIndicator(year2023: false),
             SizedBox(height: 12),
-            Text('Loading repository…'),
+            Text(AppLocalizations.of(context)!.loading_repository),
           ],
         ),
       );
@@ -313,13 +313,13 @@ class _UpdatesScreenState extends State<UpdatesScreen>
                   FilledButton.icon(
                     onPressed: _loadData,
                     icon: const Icon(Symbols.refresh),
-                    label: const Text('Retry'),
+                    label: Text(AppLocalizations.of(context)!.retry),
                   ),
                   const SizedBox(width: 12),
                   OutlinedButton.icon(
                     onPressed: () => MenuActions.showSettings(context),
                     icon: const Icon(Symbols.settings),
-                    label: const Text('Settings'),
+                    label: Text(AppLocalizations.of(context)!.settings),
                   ),
                 ],
               ),
@@ -395,7 +395,7 @@ class _UpdatesScreenState extends State<UpdatesScreen>
                           context,
                         ).colorScheme.onPrimaryContainer,
                       ),
-                      child: const Text('Update All'),
+                      child: Text(AppLocalizations.of(context)!.update_all),
                     ),
                   ],
                 ),
@@ -625,11 +625,11 @@ class _UpdatesScreenState extends State<UpdatesScreen>
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Update All'),
+            child: Text(AppLocalizations.of(context)!.update_all),
           ),
         ],
       ),

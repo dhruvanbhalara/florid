@@ -90,6 +90,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () {
@@ -108,7 +109,7 @@ class _SearchScreenState extends State<SearchScreen> {
               controller: _searchController,
               focusNode: _searchFocus,
               decoration: InputDecoration(
-                hintText: 'Search F-Droid apps...',
+                hintText: localizations.search_fdroid_apps,
                 prefixIcon: const Icon(Symbols.search),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
@@ -145,7 +146,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
               if (query.isNotEmpty && results.isNotEmpty) {
                 return Text(
-                  '${results.length} results for "$query"',
+                  localizations.search_results_for_query(results.length, query),
                   style: Theme.of(context).textTheme.titleMedium,
                 );
               }
@@ -159,7 +160,7 @@ class _SearchScreenState extends State<SearchScreen> {
               child: IconButton.filledTonal(
                 onPressed: _openFilters,
                 icon: const Icon(Symbols.filter_list),
-                tooltip: 'Filters',
+                tooltip: localizations.filters,
               ),
             ),
             SizedBox(width: 8),
@@ -190,7 +191,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Search Apps',
+                      localizations.search_apps,
                       style: Theme.of(context).textTheme.headlineSmall,
                     ),
                     const SizedBox(height: 32),
@@ -234,12 +235,12 @@ class _SearchScreenState extends State<SearchScreen> {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Search failed',
+                      localizations.search_failed,
                       style: Theme.of(context).textTheme.headlineSmall,
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      error ?? 'Unknown error occurred',
+                      error ?? localizations.unknown_error_occurred,
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -269,12 +270,12 @@ class _SearchScreenState extends State<SearchScreen> {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'No apps found',
+                      localizations.no_apps_found,
                       style: Theme.of(context).textTheme.headlineSmall,
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Try different keywords or check spelling',
+                      localizations.try_different_keywords,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
@@ -339,13 +340,14 @@ class _SearchSuggestions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Text(
-            'Popular searches:',
+            localizations.popular_searches,
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
@@ -431,6 +433,7 @@ class _FilterBottomSheetState extends State<_FilterBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return DraggableScrollableSheet(
       initialChildSize: 0.7,
       minChildSize: 0.5,
@@ -465,12 +468,12 @@ class _FilterBottomSheetState extends State<_FilterBottomSheet> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Filters',
+                        localizations.filters,
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                       TextButton(
                         onPressed: _clearAllFilters,
-                        child: const Text('Clear all'),
+                        child: Text(localizations.clear_all),
                       ),
                     ],
                   ),
@@ -485,7 +488,7 @@ class _FilterBottomSheetState extends State<_FilterBottomSheet> {
                     children: [
                       // Sort by section
                       Text(
-                        'Sort by',
+                        localizations.sort_by,
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                       const SizedBox(height: 8),
@@ -494,35 +497,35 @@ class _FilterBottomSheetState extends State<_FilterBottomSheet> {
                         runSpacing: 8,
                         children: [
                           _SortChip(
-                            label: 'Relevance',
+                            label: localizations.relevance,
                             selected: _selectedSort == SortOption.relevance,
                             onSelected: () => setState(
                               () => _selectedSort = SortOption.relevance,
                             ),
                           ),
                           _SortChip(
-                            label: 'Name (A-Z)',
+                            label: localizations.name_az,
                             selected: _selectedSort == SortOption.nameAsc,
                             onSelected: () => setState(
                               () => _selectedSort = SortOption.nameAsc,
                             ),
                           ),
                           _SortChip(
-                            label: 'Name (Z-A)',
+                            label: localizations.name_za,
                             selected: _selectedSort == SortOption.nameDesc,
                             onSelected: () => setState(
                               () => _selectedSort = SortOption.nameDesc,
                             ),
                           ),
                           _SortChip(
-                            label: 'Recently Added',
+                            label: localizations.recently_added,
                             selected: _selectedSort == SortOption.dateAddedDesc,
                             onSelected: () => setState(
                               () => _selectedSort = SortOption.dateAddedDesc,
                             ),
                           ),
                           _SortChip(
-                            label: 'Recently Updated',
+                            label: localizations.recently_updated,
                             selected:
                                 _selectedSort == SortOption.dateUpdatedDesc,
                             onSelected: () => setState(
@@ -536,7 +539,7 @@ class _FilterBottomSheetState extends State<_FilterBottomSheet> {
 
                       // Categories section
                       Text(
-                        'Categories',
+                        localizations.categories,
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                       const SizedBox(height: 8),
@@ -551,7 +554,7 @@ class _FilterBottomSheetState extends State<_FilterBottomSheet> {
                         Padding(
                           padding: const EdgeInsets.all(16.0),
                           child: Text(
-                            'No categories available',
+                            localizations.no_categories_available,
                             style: Theme.of(context).textTheme.bodyMedium,
                           ),
                         )
@@ -581,7 +584,7 @@ class _FilterBottomSheetState extends State<_FilterBottomSheet> {
                       // Repositories section
                       if (repositories.length > 1) ...[
                         Text(
-                          'Repositories',
+                          localizations.repositories,
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                         const SizedBox(height: 8),
@@ -620,7 +623,7 @@ class _FilterBottomSheetState extends State<_FilterBottomSheet> {
                       child: FilledButton.icon(
                         onPressed: _applyFilters,
                         icon: const Icon(Symbols.check),
-                        label: const Text('Apply Filters'),
+                        label: Text(localizations.apply_filters),
                       ),
                     ),
                   ),

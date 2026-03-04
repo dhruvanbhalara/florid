@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:florid/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
@@ -30,6 +31,7 @@ class AppListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final localizations = AppLocalizations.of(context)!;
     return ListTile(
       onTap: onTap,
       onLongPress: () => _showQuickViewModal(context),
@@ -129,7 +131,7 @@ class AppListItem extends StatelessWidget {
                           ? hasUpdate
                                 ? TextButton(
                                     onPressed: onUpdate,
-                                    child: const Text('Update'),
+                                    child: Text(localizations.update),
                                   )
                                 : isInstalled
                                 ? Icon(Symbols.check_circle, weight: 400)
@@ -143,8 +145,8 @@ class AppListItem extends StatelessWidget {
                           if (showFavorite)
                             IconButton(
                               tooltip: isFavorite
-                                  ? 'Remove from Favourites'
-                                  : 'Add to Favourites',
+                                  ? localizations.remove_from_favourites
+                                  : localizations.add_to_favourites,
                               icon: Icon(
                                 Symbols.favorite_rounded,
                                 fill: isFavorite ? 1 : 0,
@@ -258,6 +260,7 @@ class _QuickViewModal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final localizations = AppLocalizations.of(context)!;
 
     return Consumer2<AppProvider, DownloadProvider>(
       builder: (context, appProvider, downloadProvider, _) {
@@ -380,7 +383,7 @@ class _QuickViewModal extends StatelessWidget {
                 children: [
                   if (isInstalled)
                     Chip(
-                      label: const Text('Installed'),
+                      label: Text(localizations.installed),
                       avatar: const Icon(Symbols.check_circle, size: 18),
                       backgroundColor: theme.colorScheme.primaryContainer,
                       labelStyle: TextStyle(
@@ -421,7 +424,7 @@ class _QuickViewModal extends StatelessWidget {
                               }
                             : null,
                         icon: const Icon(Symbols.info),
-                        label: const Text('View Details'),
+                        label: Text(localizations.view_details),
                       ),
                     ),
                     if (version != null)
@@ -441,7 +444,7 @@ class _QuickViewModal extends StatelessWidget {
                                       theme.colorScheme.errorContainer,
                                 ),
                                 icon: const Icon(Symbols.close),
-                                label: const Text('Cancel'),
+                                label: Text(localizations.cancel),
                               )
                             : FilledButton.icon(
                                 onPressed: () async {
@@ -462,9 +465,10 @@ class _QuickViewModal extends StatelessWidget {
                                             ScaffoldMessenger.of(
                                               context,
                                             ).showSnackBar(
-                                              const SnackBar(
+                                              SnackBar(
                                                 content: Text(
-                                                  'Install access required',
+                                                  localizations
+                                                      .install_permission_required,
                                                 ),
                                               ),
                                             );
@@ -484,7 +488,10 @@ class _QuickViewModal extends StatelessWidget {
                                           ).showSnackBar(
                                             SnackBar(
                                               content: Text(
-                                                '${app.name} installation started!',
+                                                localizations
+                                                    .installation_started(
+                                                      app.name,
+                                                    ),
                                               ),
                                             ),
                                           );
@@ -497,7 +504,10 @@ class _QuickViewModal extends StatelessWidget {
                                         ).showSnackBar(
                                           SnackBar(
                                             content: Text(
-                                              'Installation failed: ${e.toString()}',
+                                              localizations
+                                                  .installation_failed_with_error(
+                                                    e.toString(),
+                                                  ),
                                             ),
                                           ),
                                         );
@@ -513,7 +523,9 @@ class _QuickViewModal extends StatelessWidget {
                                         ).showSnackBar(
                                           SnackBar(
                                             content: Text(
-                                              '${app.name} download started!',
+                                              localizations.download_started(
+                                                app.name,
+                                              ),
                                             ),
                                           ),
                                         );
@@ -525,7 +537,10 @@ class _QuickViewModal extends StatelessWidget {
                                         ).showSnackBar(
                                           SnackBar(
                                             content: Text(
-                                              'Download failed: ${e.toString()}',
+                                              localizations
+                                                  .download_failed_with_error(
+                                                    e.toString(),
+                                                  ),
                                             ),
                                           ),
                                         );
@@ -539,7 +554,9 @@ class _QuickViewModal extends StatelessWidget {
                                       : Symbols.download,
                                 ),
                                 label: Text(
-                                  isDownloaded ? 'Install' : 'Download',
+                                  isDownloaded
+                                      ? localizations.install
+                                      : localizations.download,
                                 ),
                               ),
                       ),

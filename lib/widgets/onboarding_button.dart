@@ -1,3 +1,4 @@
+import 'package:florid/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class OnboardingPrimaryButton extends StatelessWidget {
@@ -18,6 +19,7 @@ class OnboardingPrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     final isRepoStep = currentPage == 2;
     final isEnabled = !isFinishing && (!isRepoStep || canProceedFromRepos);
 
@@ -31,7 +33,9 @@ class OnboardingPrimaryButton extends StatelessWidget {
             }
           };
 
-    final label = isRepoStep ? 'Start Setup' : 'Continue';
+    final label = isRepoStep
+        ? localizations.start_setup
+        : localizations.continue_text;
 
     final button = isRepoStep
         ? FilledButton(onPressed: onPressed, child: Text(label))

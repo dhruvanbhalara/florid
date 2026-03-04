@@ -1,3 +1,4 @@
+import 'package:florid/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -61,13 +62,13 @@ class _RecentlyUpdatedScreenState extends State<RecentlyUpdatedScreen>
 
   Widget _buildBody(LoadingState state, List<FDroidApp> apps, String? error) {
     if (state == LoadingState.loading && apps.isEmpty) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             CircularProgressIndicator(year2023: false),
             SizedBox(height: 16),
-            Text('Loading recently updated apps...'),
+            Text(AppLocalizations.of(context)!.loading_recently_updated_apps),
           ],
         ),
       );
@@ -85,7 +86,7 @@ class _RecentlyUpdatedScreenState extends State<RecentlyUpdatedScreen>
             ),
             const SizedBox(height: 16),
             Text(
-              'Failed to load apps',
+              AppLocalizations.of(context)!.failed_to_load_apps,
               style: Theme.of(context).textTheme.headlineSmall,
             ),
             const SizedBox(height: 8),
@@ -100,7 +101,7 @@ class _RecentlyUpdatedScreenState extends State<RecentlyUpdatedScreen>
             ElevatedButton.icon(
               onPressed: _loadData,
               icon: const Icon(Symbols.refresh),
-              label: const Text('Retry'),
+              label: Text(AppLocalizations.of(context)!.retry),
             ),
           ],
         ),
@@ -127,7 +128,7 @@ class _RecentlyUpdatedScreenState extends State<RecentlyUpdatedScreen>
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Recently Updated')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.recently_updated)),
       body: RefreshIndicator(
         onRefresh: _onRefresh,
         child: ListView.builder(

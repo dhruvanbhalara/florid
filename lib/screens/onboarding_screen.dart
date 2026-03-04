@@ -27,7 +27,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final Map<String, bool> _selectedRepos = {};
   final bool _isFinishing = false;
   int _currentPage = 0;
-  String _progressStatus = 'Initializing...';
+  String _progressStatus = '';
   double _progressValue = 0.0;
   List<Map<String, dynamic>> _presets = [];
   bool _notificationsGranted = false;
@@ -36,6 +36,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   void initState() {
     super.initState();
+    _progressStatus = 'Initializing...';
     // Ensure repositories are loaded so duplicate checks work
     Future.microtask(() {
       final repos = context.read<RepositoriesProvider>();
@@ -111,7 +112,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
       // Step 1: Load repositories
       setState(() {
-        _progressStatus = 'Loading repository configuration...';
+        _progressStatus = AppLocalizations.of(
+          context,
+        )!.loading_repository_configuration;
         _progressValue = 0.1;
       });
       await repos.loadRepositories();
@@ -120,7 +123,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       // Step 2: Add selected repositories
       if (_selectedRepos.values.any((selected) => selected)) {
         setState(() {
-          _progressStatus = 'Adding selected repositories...';
+          _progressStatus = AppLocalizations.of(
+            context,
+          )!.adding_selected_repositories;
           _progressValue = 0.2;
         });
 
@@ -139,14 +144,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
       // Step 3: Fetch official F-Droid repository
       setState(() {
-        _progressStatus = 'Fetching F-Droid repository index...';
+        _progressStatus = AppLocalizations.of(
+          context,
+        )!.fetching_fdroid_repository_index;
         _progressValue = 0.3;
       });
       await appProvider.fetchRepository();
 
       // Step 4: Wait for database import to complete
       setState(() {
-        _progressStatus = 'Importing apps to database...';
+        _progressStatus = AppLocalizations.of(
+          context,
+        )!.importing_apps_to_database;
         _progressValue = 0.4;
       });
 
@@ -171,8 +180,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         final progress = 0.4 + (elapsed.inSeconds / maxWait.inSeconds * 0.3);
         setState(() {
           _progressValue = progress.clamp(0.4, 0.7);
-          _progressStatus =
-              'Importing apps to database... (${elapsed.inSeconds}s)';
+          _progressStatus = AppLocalizations.of(
+            context,
+          )!.importing_apps_to_database_seconds(elapsed.inSeconds);
         });
 
         await Future.delayed(const Duration(milliseconds: 500));
@@ -181,7 +191,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       // Step 5: Fetch custom repos if enabled (after main DB is ready)
       if (_selectedRepos.values.any((selected) => selected)) {
         setState(() {
-          _progressStatus = 'Loading custom repositories...';
+          _progressStatus = AppLocalizations.of(
+            context,
+          )!.loading_custom_repositories;
           _progressValue = 0.75;
         });
         await repos.loadRepositories();
@@ -193,20 +205,20 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
       // Step 6: Fetch initial data
       setState(() {
-        _progressStatus = 'Loading latest apps...';
+        _progressStatus = AppLocalizations.of(context)!.loading_latest_apps;
         _progressValue = 0.85;
       });
       await appProvider.fetchLatestApps(repositoriesProvider: repos, limit: 50);
 
       setState(() {
-        _progressStatus = 'Loading categories...';
+        _progressStatus = AppLocalizations.of(context)!.loading_categories;
         _progressValue = 0.95;
       });
       await appProvider.fetchCategories();
 
       // Step 7: Complete
       setState(() {
-        _progressStatus = 'Setup complete!';
+        _progressStatus = AppLocalizations.of(context)!.setup_complete;
         _progressValue = 1.0;
       });
       await Future.delayed(const Duration(milliseconds: 500));
@@ -220,7 +232,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _progressStatus = 'Error: ${e.toString()}';
+        _progressStatus =
+            '${AppLocalizations.of(context)!.error}: ${e.toString()}';
       });
       await Future.delayed(const Duration(seconds: 2));
       if (!mounted) return;
@@ -325,6 +338,7 @@ class _IntroStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -339,7 +353,7 @@ class _IntroStep extends StatelessWidget {
           ).animate().fadeIn(duration: 500.ms),
           const SizedBox(height: 16),
           Text(
-            'Welcome to',
+            localizations.welcome_to,
             style: TextStyle(
               fontSize: 24,
               fontVariations: [
@@ -363,7 +377,7 @@ class _IntroStep extends StatelessWidget {
           ).animate().fadeIn(duration: 500.ms, delay: 200.ms),
           const SizedBox(height: 12),
           Text(
-            'A modern F-Droid client to browse, search, and download open-source Android apps with ease.',
+            localizations.onboarding_intro_subtitle,
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
               color: colorScheme.onSurfaceVariant,
             ),
@@ -374,13 +388,13 @@ class _IntroStep extends StatelessWidget {
             runSpacing: 12,
             children: [
               _Pill(
-                text: 'Curated open-source apps',
+                text: localizations.curated_open_source_apps,
               ).animate().fadeIn(duration: 500.ms, delay: 500.ms),
               _Pill(
-                text: 'Safe downloads',
+                text: localizations.safe_downloads,
               ).animate().fadeIn(duration: 500.ms, delay: 700.ms),
               _Pill(
-                text: 'Updates & notifications',
+                text: localizations.updates_and_notifications,
               ).animate().fadeIn(duration: 500.ms, delay: 900.ms),
             ],
           ),
@@ -403,6 +417,7 @@ class _ReposStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
 
     return Column(
@@ -419,13 +434,13 @@ class _ReposStep extends StatelessWidget {
                 children: [
                   CircleAvatar(child: Icon(Symbols.dns)),
                   Text(
-                    'Add extra repositories',
+                    localizations.add_extra_repositories,
                     style: Theme.of(context).textTheme.headlineSmall,
                   ),
                 ],
               ).animate().fadeIn(duration: 500.ms),
               Text(
-                'Florid ships with the official F-Droid repo. You can also include trusted community repos to get more apps.',
+                localizations.repos_step_description,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   color: colorScheme.onSurfaceVariant,
                 ),
@@ -438,7 +453,7 @@ class _ReposStep extends StatelessWidget {
           children: [
             if (presets.isNotEmpty)
               MListHeader(
-                title: 'Available Repositories',
+                title: localizations.available_repositories,
               ).animate().fadeIn(duration: 500.ms, delay: 400.ms),
             if (presets.isEmpty)
               Center(child: CircularProgressIndicator())
@@ -462,7 +477,7 @@ class _ReposStep extends StatelessWidget {
           ],
         ),
         Text(
-          'You can add or remove repositories anytime in Settings.',
+          localizations.manage_repositories_anytime,
           style: Theme.of(
             context,
           ).textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
@@ -513,6 +528,7 @@ class _PermissionsStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
 
     return SingleChildScrollView(
@@ -526,13 +542,13 @@ class _PermissionsStep extends StatelessWidget {
               children: [
                 CircleAvatar(child: Icon(Symbols.notifications_active)),
                 Text(
-                  'Request Permissions',
+                  localizations.request_permissions,
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
               ],
             ).animate().fadeIn(duration: 500.ms),
             Text(
-              'Florid needs a few permissions to provide you with the best experience.',
+              localizations.permissions_step_description,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                 color: colorScheme.onSurfaceVariant,
               ),
@@ -542,22 +558,22 @@ class _PermissionsStep extends StatelessWidget {
               children: [
                 _PermissionCard(
                   icon: Symbols.notifications,
-                  title: 'Notifications',
-                  description: 'Get notified when apps are updated',
+                  title: localizations.notifications,
+                  description: localizations.get_notified_updates,
                   isGranted: notificationsGranted,
                   onRequest: onRequestNotifications,
                 ).animate().fadeIn(duration: 500.ms, delay: 400.ms),
                 _PermissionCard(
                   icon: Symbols.install_mobile,
-                  title: 'App Installation',
-                  description: 'Allow Florid to install downloaded apps',
+                  title: localizations.app_installation,
+                  description: localizations.allow_florid_install_apps,
                   isGranted: installPermissionGranted,
                   onRequest: onRequestInstallPermission,
                 ).animate().fadeIn(duration: 500.ms, delay: 600.ms),
               ],
             ),
             Text(
-              'You can enable these permissions anytime in Settings.',
+              localizations.enable_permissions_anytime,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: colorScheme.onSurfaceVariant,
               ),
@@ -646,7 +662,7 @@ class _PermissionCard extends StatelessWidget {
               height: 32,
               child: FilledButton.tonal(
                 onPressed: onRequest,
-                child: const Text('Allow'),
+                child: Text(AppLocalizations.of(context)!.allow),
               ),
             ),
         ],
@@ -668,6 +684,7 @@ class _ProgressStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -687,7 +704,7 @@ class _ProgressStep extends StatelessWidget {
           ),
           const SizedBox(height: 32),
           Text(
-            'Setting up Florid',
+            localizations.setting_up_florid,
             style: Theme.of(context).textTheme.headlineSmall,
           ),
           const SizedBox(height: 24),

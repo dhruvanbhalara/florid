@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:florid/l10n/app_localizations.dart';
 import 'package:florid/screens/permissions_screen.dart';
 import 'package:florid/widgets/changelog_preview.dart';
 import 'package:florid/widgets/m_list.dart';
@@ -441,7 +442,9 @@ class _AppDetailsScreenState extends State<AppDetailsScreen> {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(
-                                'Auto-install failed: ${e.toString()}',
+                                AppLocalizations.of(
+                                  context,
+                                )!.auto_install_failed_with_error(e.toString()),
                               ),
                             ),
                           );
@@ -459,7 +462,13 @@ class _AppDetailsScreenState extends State<AppDetailsScreen> {
                 }
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Installing ${widget.app.name}...')),
+                    SnackBar(
+                      content: Text(
+                        AppLocalizations.of(
+                          context,
+                        )!.installing_app(widget.app.name),
+                      ),
+                    ),
                   );
                 }
 
@@ -474,7 +483,11 @@ class _AppDetailsScreenState extends State<AppDetailsScreen> {
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('Auto-install failed: ${e.toString()}'),
+                      content: Text(
+                        AppLocalizations.of(
+                          context,
+                        )!.auto_install_failed_with_error(e.toString()),
+                      ),
                     ),
                   );
                 }
@@ -518,7 +531,13 @@ class _AppDetailsScreenState extends State<AppDetailsScreen> {
             !errorMsg.contains('Cancelled')) {
           if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Download failed: $errorMsg')),
+              SnackBar(
+                content: Text(
+                  AppLocalizations.of(
+                    context,
+                  )!.download_failed_with_error(errorMsg),
+                ),
+              ),
             );
           }
         }
@@ -559,13 +578,22 @@ class _AppDetailsScreenState extends State<AppDetailsScreen> {
                     children: [
                       Text(
                         isDownloaded
-                            ? 'Install from Repository'
-                            : 'Download from Repository',
+                            ? AppLocalizations.of(
+                                context,
+                              )!.install_from_repository
+                            : AppLocalizations.of(
+                                context,
+                              )!.download_from_repository,
                         style: Theme.of(dialogContext).textTheme.titleLarge,
                       ),
                       Text(
-                        'You can choose which repository to use to '
-                        '${isDownloaded ? 'install' : 'download'} this app.',
+                        AppLocalizations.of(
+                          context,
+                        )!.choose_repository_for_action(
+                          isDownloaded
+                              ? AppLocalizations.of(context)!.install
+                              : AppLocalizations.of(context)!.download,
+                        ),
                         style: Theme.of(dialogContext).textTheme.labelMedium,
                       ),
                       if (trackedRepo != null)
@@ -577,12 +605,18 @@ class _AppDetailsScreenState extends State<AppDetailsScreen> {
                                   .firstWhere(
                                     (r) => r.url == trackedRepo,
                                     orElse: () => RepositorySource(
-                                      name: 'Unknown',
+                                      name: AppLocalizations.of(
+                                        context,
+                                      )!.unknown,
                                       url: trackedRepo,
                                     ),
                                   );
                               return Text(
-                                'Previously installed from: ${trackedRepoSource.name}',
+                                AppLocalizations.of(
+                                  context,
+                                )!.previously_installed_from(
+                                  trackedRepoSource.name,
+                                ),
                                 style: Theme.of(dialogContext)
                                     .textTheme
                                     .bodySmall
@@ -613,7 +647,11 @@ class _AppDetailsScreenState extends State<AppDetailsScreen> {
                       ? Icon(Symbols.check)
                       : null,
                   title: repo.name,
-                  subtitle: isTracked ? 'Previously installed from here' : null,
+                  subtitle: isTracked
+                      ? AppLocalizations.of(
+                          context,
+                        )!.previously_installed_from_here
+                      : null,
                   onTap: () {
                     Navigator.of(dialogContext).pop();
                     _handleInstall(
@@ -640,7 +678,7 @@ class _AppDetailsScreenState extends State<AppDetailsScreen> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        'Default',
+                        AppLocalizations.of(context)!.default_repository,
                         style: Theme.of(dialogContext).textTheme.labelSmall
                             ?.copyWith(
                               color: Theme.of(
@@ -656,7 +694,7 @@ class _AppDetailsScreenState extends State<AppDetailsScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: FilledButton.tonal(
-                child: const Text('Cancel'),
+                child: Text(AppLocalizations.of(context)!.cancel),
                 onPressed: () => Navigator.of(dialogContext).pop(),
               ),
             ),
@@ -798,7 +836,10 @@ class _AppDetailsScreenState extends State<AppDetailsScreen> {
                             ),
                           ),
                           Text(
-                            'by ${widget.app.authorName ?? 'Unknown'}',
+                            AppLocalizations.of(context)!.by_author(
+                              widget.app.authorName ??
+                                  AppLocalizations.of(context)!.unknown,
+                            ),
                             style: TextStyle(
                               fontSize: 12,
                               fontVariations: [FontVariation('ROND', 100)],
@@ -818,8 +859,8 @@ class _AppDetailsScreenState extends State<AppDetailsScreen> {
                     );
                     return IconButton(
                       tooltip: isFavorite
-                          ? 'Remove from Favourites'
-                          : 'Add to Favourites',
+                          ? AppLocalizations.of(context)!.remove_from_favourites
+                          : AppLocalizations.of(context)!.add_to_favourites,
                       style: ButtonStyle(
                         backgroundColor: WidgetStateProperty.all(
                           Theme.of(context).colorScheme.surface,
@@ -846,8 +887,10 @@ class _AppDetailsScreenState extends State<AppDetailsScreen> {
                   onPressed: () {
                     SharePlus.instance.share(
                       ShareParams(
-                        text:
-                            'Check out ${widget.app.name} on F-Droid: https://f-droid.org/packages/${widget.app.packageName}/',
+                        text: AppLocalizations.of(context)!.check_out_on_fdroid(
+                          widget.app.name,
+                          widget.app.packageName,
+                        ),
                       ),
                     );
                   },
@@ -880,29 +923,33 @@ class _AppDetailsScreenState extends State<AppDetailsScreen> {
                   },
                   itemBuilder: (context) => [
                     if (widget.app.webSite != null)
-                      const PopupMenuItem(
+                      PopupMenuItem(
                         value: 'website',
                         child: ListTile(
                           leading: Icon(Symbols.public),
-                          title: Text('Website'),
+                          title: Text(AppLocalizations.of(context)!.website),
                           contentPadding: EdgeInsets.zero,
                         ),
                       ),
                     if (widget.app.sourceCode != null)
-                      const PopupMenuItem(
+                      PopupMenuItem(
                         value: 'source',
                         child: ListTile(
                           leading: Icon(Symbols.code),
-                          title: Text('Source Code'),
+                          title: Text(
+                            AppLocalizations.of(context)!.source_code,
+                          ),
                           contentPadding: EdgeInsets.zero,
                         ),
                       ),
                     if (widget.app.issueTracker != null)
-                      const PopupMenuItem(
+                      PopupMenuItem(
                         value: 'issues',
                         child: ListTile(
                           leading: Icon(Symbols.bug_report),
-                          title: Text('Issue Tracker'),
+                          title: Text(
+                            AppLocalizations.of(context)!.issue_tracker,
+                          ),
                           contentPadding: EdgeInsets.zero,
                         ),
                       ),
@@ -1709,7 +1756,7 @@ class _InstallActionsSection extends StatelessWidget {
                                 }
                               },
                               icon: const Icon(Symbols.upgrade),
-                              label: const Text('Update'),
+                              label: Text(AppLocalizations.of(context)!.update),
                             ),
                           ),
                         ),
@@ -1742,7 +1789,7 @@ class _InstallActionsSection extends StatelessWidget {
                               }
                             },
                             icon: const Icon(Symbols.open_in_new_rounded),
-                            label: const Text('Open'),
+                            label: Text(AppLocalizations.of(context)!.open),
                           ),
                         ),
                         SizedBox(
@@ -1769,7 +1816,6 @@ class _InstallActionsSection extends StatelessWidget {
                                 }
                               }
                             },
-                            // label: const Text('Uninstall'),
                             style: FilledButton.styleFrom(
                               foregroundColor: Theme.of(
                                 context,
@@ -1815,7 +1861,7 @@ class _InstallActionsSection extends StatelessWidget {
                           }
                         },
                         icon: const Icon(Symbols.delete_rounded, fill: 1),
-                        label: const Text('Uninstall'),
+                        label: Text(AppLocalizations.of(context)!.uninstall),
                         style: FilledButton.styleFrom(
                           foregroundColor: Theme.of(
                             context,
@@ -1854,7 +1900,7 @@ class _InstallActionsSection extends StatelessWidget {
                           }
                         },
                         icon: const Icon(Symbols.open_in_new_rounded),
-                        label: const Text('Open'),
+                        label: Text(AppLocalizations.of(context)!.open),
                       ),
                     ),
                   ),
@@ -2103,7 +2149,11 @@ class _AppInfoSection extends StatelessWidget {
                                       )
                                       .toList(),
                                 )
-                              : const Text('No anti-features listed'),
+                              : Text(
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.no_antifeature_listed,
+                                ),
                         ),
                       ),
                     ],
@@ -2875,7 +2925,7 @@ class _VersionDownloadButton extends StatelessWidget {
                     }
                   },
                   icon: const Icon(Symbols.delete_rounded, fill: 1, size: 18),
-                  label: const Text('Uninstall'),
+                  label: Text(AppLocalizations.of(context)!.uninstall),
                   style: FilledButton.styleFrom(
                     foregroundColor: Theme.of(context).colorScheme.onError,
                     backgroundColor: Theme.of(context).colorScheme.error,
@@ -2906,7 +2956,7 @@ class _VersionDownloadButton extends StatelessWidget {
                     }
                   },
                   icon: const Icon(Symbols.download, size: 18),
-                  label: const Text('Download'),
+                  label: Text(AppLocalizations.of(context)!.download),
                 ),
               ),
             ],
@@ -2957,7 +3007,7 @@ class _VersionDownloadButton extends StatelessWidget {
                           );
                         },
                         icon: const Icon(Symbols.close, size: 18),
-                        label: const Text('Cancel'),
+                        label: Text(AppLocalizations.of(context)!.cancel),
                       ),
                     ],
                   ),
@@ -3008,7 +3058,7 @@ class _VersionDownloadButton extends StatelessWidget {
                         Symbols.install_mobile_rounded,
                         size: 18,
                       ),
-                      label: const Text('Install'),
+                      label: Text(AppLocalizations.of(context)!.install),
                     ),
                   ),
                   OutlinedButton.icon(
@@ -3033,7 +3083,7 @@ class _VersionDownloadButton extends StatelessWidget {
                       }
                     },
                     icon: const Icon(Symbols.delete_rounded, size: 18),
-                    label: const Text('Delete'),
+                    label: Text(AppLocalizations.of(context)!.delete),
                   ),
                 ],
               );
@@ -3057,7 +3107,7 @@ class _VersionDownloadButton extends StatelessWidget {
                       }
                     },
                     icon: const Icon(Symbols.download_rounded, size: 18),
-                    label: const Text('Download'),
+                    label: Text(AppLocalizations.of(context)!.download),
                   ),
                 ),
                 FilledButton.tonalIcon(
@@ -3066,7 +3116,7 @@ class _VersionDownloadButton extends StatelessWidget {
                     launchUrl(Uri.parse(url));
                   },
                   icon: const Icon(Symbols.open_in_new_rounded, size: 18),
-                  label: const Text('Open link'),
+                  label: Text(AppLocalizations.of(context)!.open_link),
                 ),
               ],
             );
@@ -3114,16 +3164,16 @@ Future<void> _handleShizukuUnavailable(
                   }
                 }
               },
-              child: const Text('Open Shizuku'),
+              child: Text(AppLocalizations.of(context)!.open_shizuku),
             ),
             FilledButton.tonal(
               onPressed: () =>
                   Navigator.of(context).pop(_ShizukuAction.switchToSystem),
-              child: const Text('Use System Installer'),
+              child: Text(AppLocalizations.of(context)!.use_system_installer),
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(_ShizukuAction.cancel),
-              child: const Text('Cancel'),
+              child: Text(AppLocalizations.of(context)!.cancel),
             ),
           ],
         ),

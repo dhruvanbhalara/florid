@@ -1,3 +1,4 @@
+import 'package:florid/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -59,6 +60,7 @@ class _TopAppsScreenState extends State<TopAppsScreen>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    final localizations = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
@@ -67,7 +69,7 @@ class _TopAppsScreenState extends State<TopAppsScreen>
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              'Monthly Top Apps',
+              localizations.monthly_top_apps,
               style: TextStyle(
                 fontVariations: [
                   FontVariation('wght', 700),
@@ -77,7 +79,7 @@ class _TopAppsScreenState extends State<TopAppsScreen>
               ),
             ),
             Text(
-              'from IzzyOnDroid',
+              localizations.from_izzyondroid,
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
@@ -103,19 +105,21 @@ class _TopAppsScreenState extends State<TopAppsScreen>
     AppProvider appProvider,
   ) {
     if (state == LoadingState.loading && apps.isEmpty) {
+      final localizations = AppLocalizations.of(context)!;
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             CircularProgressIndicator(year2023: false),
             SizedBox(height: 16),
-            Text('Loading top apps...'),
+            Text(localizations.loading_top_apps),
           ],
         ),
       );
     }
 
     if (state == LoadingState.error && apps.isEmpty) {
+      final localizations = AppLocalizations.of(context)!;
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -127,12 +131,12 @@ class _TopAppsScreenState extends State<TopAppsScreen>
             ),
             const SizedBox(height: 16),
             Text(
-              'Failed to load apps',
+              localizations.failed_to_load_apps,
               style: Theme.of(context).textTheme.headlineSmall,
             ),
             const SizedBox(height: 8),
             SelectableText(
-              error ?? 'Unknown error occurred',
+              error ?? localizations.unknown_error_occurred,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -142,7 +146,7 @@ class _TopAppsScreenState extends State<TopAppsScreen>
             ElevatedButton.icon(
               onPressed: _loadData,
               icon: Icon(Symbols.refresh),
-              label: Text('Try Again'),
+              label: Text(localizations.try_again),
             ),
           ],
         ),
@@ -150,6 +154,7 @@ class _TopAppsScreenState extends State<TopAppsScreen>
     }
 
     if (apps.isEmpty) {
+      final localizations = AppLocalizations.of(context)!;
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -161,7 +166,7 @@ class _TopAppsScreenState extends State<TopAppsScreen>
             ),
             const SizedBox(height: 16),
             Text(
-              'No apps from IzzyOnDroid',
+              localizations.no_apps_from_izzyondroid,
               style: Theme.of(context).textTheme.bodyLarge,
             ),
           ],

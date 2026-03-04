@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:android_intent_plus/android_intent.dart';
+import 'package:florid/l10n/app_localizations.dart';
 import 'package:florid/providers/settings_provider.dart';
 import 'package:florid/services/update_check_service.dart';
 import 'package:florid/widgets/m_list.dart';
@@ -31,12 +32,15 @@ class _AppManagementScreenState extends State<AppManagementScreen> {
     _loadBatteryOptimizationStatus();
   }
 
-  String _installMethodLabel(InstallMethod method) {
+  String _installMethodLabel(
+    AppLocalizations localizations,
+    InstallMethod method,
+  ) {
     switch (method) {
       case InstallMethod.shizuku:
-        return 'Shizuku';
+        return localizations.shizuku;
       case InstallMethod.system:
-        return 'System installer';
+        return localizations.system_installer;
     }
   }
 
@@ -44,10 +48,11 @@ class _AppManagementScreenState extends State<AppManagementScreen> {
     BuildContext context,
     SettingsProvider settings,
   ) async {
+    final localizations = AppLocalizations.of(context)!;
     await showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Installation method'),
+        title: Text(localizations.installation_method),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: InstallMethod.values
@@ -55,10 +60,10 @@ class _AppManagementScreenState extends State<AppManagementScreen> {
                 (method) => RadioListTile<InstallMethod>(
                   value: method,
                   groupValue: settings.installMethod,
-                  title: Text(_installMethodLabel(method)),
+                  title: Text(_installMethodLabel(localizations, method)),
                   subtitle: method == InstallMethod.shizuku
-                      ? const Text('Requires Shizuku to be running')
-                      : const Text('Uses the standard system installer'),
+                      ? Text(localizations.requires_shizuku_running)
+                      : Text(localizations.uses_standard_system_installer),
                   onChanged: (value) async {
                     if (value == null) return;
                     await settings.setInstallMethod(value);
@@ -72,7 +77,7 @@ class _AppManagementScreenState extends State<AppManagementScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Close'),
+            child: Text(localizations.close),
           ),
         ],
       ),
@@ -109,33 +114,36 @@ class _AppManagementScreenState extends State<AppManagementScreen> {
     await _loadBatteryOptimizationStatus();
   }
 
-  String _updateNetworkPolicyLabel(UpdateNetworkPolicy policy) {
+  String _updateNetworkPolicyLabel(
+    AppLocalizations localizations,
+    UpdateNetworkPolicy policy,
+  ) {
     switch (policy) {
       case UpdateNetworkPolicy.wifiOnly:
-        return 'Wi-Fi only';
+        return localizations.wifi_only;
       case UpdateNetworkPolicy.wifiAndCharging:
-        return 'Wi-Fi + charging';
+        return localizations.wifi_and_charging;
       case UpdateNetworkPolicy.any:
-        return 'Mobile data or Wi-Fi';
+        return localizations.mobile_data_or_wifi;
     }
   }
 
-  String _updateIntervalLabel(int hours) {
+  String _updateIntervalLabel(AppLocalizations localizations, int hours) {
     switch (hours) {
       case 1:
-        return 'Every 1 hour';
+        return localizations.every_1_hour;
       case 2:
-        return 'Every 2 hours';
+        return localizations.every_2_hours;
       case 3:
-        return 'Every 3 hours';
+        return localizations.every_3_hours;
       case 6:
-        return 'Every 6 hours';
+        return localizations.every_6_hours;
       case 12:
-        return 'Every 12 hours';
+        return localizations.every_12_hours;
       case 24:
-        return 'Daily';
+        return localizations.daily;
       default:
-        return 'Every $hours hours';
+        return localizations.every_hours(hours);
     }
   }
 
@@ -143,10 +151,11 @@ class _AppManagementScreenState extends State<AppManagementScreen> {
     BuildContext context,
     SettingsProvider settings,
   ) async {
+    final localizations = AppLocalizations.of(context)!;
     await showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Update network'),
+        title: Text(localizations.update_network),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: UpdateNetworkPolicy.values
@@ -154,7 +163,7 @@ class _AppManagementScreenState extends State<AppManagementScreen> {
                 (policy) => RadioListTile<UpdateNetworkPolicy>(
                   value: policy,
                   groupValue: settings.updateNetworkPolicy,
-                  title: Text(_updateNetworkPolicyLabel(policy)),
+                  title: Text(_updateNetworkPolicyLabel(localizations, policy)),
                   onChanged: (value) async {
                     if (value == null) return;
                     await settings.setUpdateNetworkPolicy(value);
@@ -169,7 +178,7 @@ class _AppManagementScreenState extends State<AppManagementScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Close'),
+            child: Text(localizations.close),
           ),
         ],
       ),
@@ -180,11 +189,12 @@ class _AppManagementScreenState extends State<AppManagementScreen> {
     BuildContext context,
     SettingsProvider settings,
   ) async {
+    final localizations = AppLocalizations.of(context)!;
     const intervals = [1, 2, 3, 6, 12, 24];
     await showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Update interval'),
+        title: Text(localizations.update_interval),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: intervals
@@ -192,7 +202,7 @@ class _AppManagementScreenState extends State<AppManagementScreen> {
                 (hours) => RadioListTile<int>(
                   value: hours,
                   groupValue: settings.updateIntervalHours,
-                  title: Text(_updateIntervalLabel(hours)),
+                  title: Text(_updateIntervalLabel(localizations, hours)),
                   onChanged: (value) async {
                     if (value == null) return;
                     await settings.setUpdateIntervalHours(value);
@@ -207,7 +217,7 @@ class _AppManagementScreenState extends State<AppManagementScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Close'),
+            child: Text(localizations.close),
           ),
         ],
       ),
@@ -218,10 +228,11 @@ class _AppManagementScreenState extends State<AppManagementScreen> {
   Widget build(BuildContext context) {
     return Consumer<SettingsProvider>(
       builder: (context, settings, _) {
+        final localizations = AppLocalizations.of(context)!;
         return Scaffold(
           body: CustomScrollView(
             slivers: [
-              SliverAppBar.large(title: Text('App Management')),
+              SliverAppBar.large(title: Text(localizations.app_management)),
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 16.0),
@@ -232,15 +243,19 @@ class _AppManagementScreenState extends State<AppManagementScreen> {
                       Column(
                         spacing: 4,
                         children: [
-                          MListHeader(title: 'Installation method'),
+                          MListHeader(title: localizations.installation_method),
                           MRadioListView<InstallMethod>(
                             items: InstallMethod.values
                                 .map(
                                   (method) => MRadioListItemData<InstallMethod>(
-                                    title: _installMethodLabel(method),
+                                    title: _installMethodLabel(
+                                      localizations,
+                                      method,
+                                    ),
                                     subtitle: method == InstallMethod.shizuku
-                                        ? 'Requires Shizuku to be running'
-                                        : 'Uses the standard system installer',
+                                        ? localizations.requires_shizuku_running
+                                        : localizations
+                                              .uses_standard_system_installer,
                                     value: method,
                                     suffix: method == InstallMethod.shizuku
                                         ? Container(
@@ -260,7 +275,7 @@ class _AppManagementScreenState extends State<AppManagementScreen> {
                                                       vertical: 2.0,
                                                     ),
                                                 child: Text(
-                                                  'Alpha',
+                                                  localizations.alpha,
                                                   style: TextStyle(
                                                     color: Theme.of(
                                                       context,
@@ -285,18 +300,21 @@ class _AppManagementScreenState extends State<AppManagementScreen> {
                       Column(
                         spacing: 4,
                         children: [
-                          MListHeader(title: 'Downloads & Storage'),
+                          MListHeader(
+                            title: localizations.downloads_and_storage,
+                          ),
                           MListView(
                             items: [
                               MListItemData(
-                                title: 'Auto-install after download',
+                                title:
+                                    localizations.auto_install_after_download,
                                 onTap: () {
                                   settings.setAutoInstallApk(
                                     !settings.autoInstallApk,
                                   );
                                 },
-                                subtitle:
-                                    'Install APKs automatically once download finishes',
+                                subtitle: localizations
+                                    .auto_install_after_download_subtitle,
                                 suffix: Switch(
                                   value: settings.autoInstallApk,
                                   onChanged: (value) {
@@ -305,14 +323,14 @@ class _AppManagementScreenState extends State<AppManagementScreen> {
                                 ),
                               ),
                               MListItemData(
-                                title: 'Delete APK after install',
+                                title: localizations.delete_apk_after_install,
                                 onTap: () {
                                   settings.setAutoInstallApk(
                                     !settings.autoInstallApk,
                                   );
                                 },
-                                subtitle:
-                                    'Remove installer files after successful installation',
+                                subtitle: localizations
+                                    .delete_apk_after_install_subtitle,
                                 suffix: Switch(
                                   value: settings.autoDeleteApk,
                                   onChanged: (value) {
@@ -327,13 +345,15 @@ class _AppManagementScreenState extends State<AppManagementScreen> {
                       Column(
                         spacing: 4,
                         children: [
-                          MListHeader(title: 'Background updates'),
+                          MListHeader(title: localizations.background_updates),
                           MListView(
                             items: [
                               MListItemData(
                                 leading: Icon(Symbols.notifications),
-                                title: 'Check for updates in background',
-                                subtitle: 'Notify when updates are available',
+                                title:
+                                    localizations.check_updates_in_background,
+                                subtitle:
+                                    localizations.notify_when_updates_available,
                                 onTap: () async {
                                   await settings.setBackgroundUpdatesEnabled(
                                     !settings.backgroundUpdatesEnabled,
@@ -352,8 +372,9 @@ class _AppManagementScreenState extends State<AppManagementScreen> {
                               ),
                               MListItemData(
                                 leading: Icon(Symbols.network_check),
-                                title: 'Update network',
+                                title: localizations.update_network,
                                 subtitle: _updateNetworkPolicyLabel(
+                                  localizations,
                                   settings.updateNetworkPolicy,
                                 ),
                                 onTap: () => _showUpdateNetworkPolicyDialog(
@@ -364,8 +385,9 @@ class _AppManagementScreenState extends State<AppManagementScreen> {
                               ),
                               MListItemData(
                                 leading: Icon(Symbols.schedule),
-                                title: 'Update interval',
+                                title: localizations.update_interval,
                                 subtitle: _updateIntervalLabel(
+                                  localizations,
                                   settings.updateIntervalHours,
                                 ),
                                 onTap: () => _showUpdateIntervalDialog(
@@ -383,7 +405,7 @@ class _AppManagementScreenState extends State<AppManagementScreen> {
                         children: [
                           if (settings.backgroundUpdatesEnabled &&
                               _isIgnoringBatteryOptimizations == false)
-                            MListHeader(title: 'Reliability'),
+                            MListHeader(title: localizations.reliability),
                           MListView(
                             items: [
                               if (settings.backgroundUpdatesEnabled &&
@@ -394,27 +416,29 @@ class _AppManagementScreenState extends State<AppManagementScreen> {
                                     fill: 1,
                                     color: Theme.of(context).colorScheme.error,
                                   ),
-                                  title: 'Disable battery optimization',
-                                  subtitle:
-                                      'Allow background checks to run reliably',
+                                  title: localizations
+                                      .disable_battery_optimization,
+                                  subtitle: localizations
+                                      .allow_background_checks_reliably,
                                   onTap: _requestDisableBatteryOptimizations,
                                 ),
                               if (kDebugMode)
                                 MListItemData(
                                   leading: Icon(Symbols.bolt),
-                                  title: 'Run debug check in 10s',
-                                  subtitle:
-                                      'Shows a test notification and runs after 10s',
+                                  title: localizations.run_debug_check_10s,
+                                  subtitle: localizations
+                                      .run_debug_check_10s_subtitle,
                                   onTap: () async {
                                     await UpdateCheckService.showDebugNotificationNow(
-                                      'Debug check scheduled',
+                                      localizations.debug_check_scheduled,
                                     );
                                     await UpdateCheckService.runDebugInApp();
                                     if (!context.mounted) return;
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
+                                      SnackBar(
                                         content: Text(
-                                          'Debug update check will run in 10 seconds',
+                                          localizations
+                                              .debug_update_check_runs_10s,
                                         ),
                                       ),
                                     );

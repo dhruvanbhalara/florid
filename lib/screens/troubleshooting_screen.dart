@@ -1,3 +1,4 @@
+import 'package:florid/l10n/app_localizations.dart';
 import 'package:florid/providers/download_provider.dart';
 import 'package:florid/providers/settings_provider.dart';
 import 'package:florid/services/fdroid_api_service.dart';
@@ -27,7 +28,7 @@ class TroubleshootingScreen extends StatelessWidget {
     await showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Installation method'),
+        title: Text(AppLocalizations.of(context)!.installation_method),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: InstallMethod.values
@@ -37,8 +38,16 @@ class TroubleshootingScreen extends StatelessWidget {
                   groupValue: settings.installMethod,
                   title: Text(_installMethodLabel(method)),
                   subtitle: method == InstallMethod.shizuku
-                      ? const Text('Requires Shizuku to be running')
-                      : const Text('Uses the standard system installer'),
+                      ? Text(
+                          AppLocalizations.of(
+                            context,
+                          )!.requires_shizuku_running,
+                        )
+                      : Text(
+                          AppLocalizations.of(
+                            context,
+                          )!.uses_standard_system_installer,
+                        ),
                   onChanged: (value) async {
                     if (value == null) return;
                     await settings.setInstallMethod(value);
@@ -52,7 +61,7 @@ class TroubleshootingScreen extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Close'),
+            child: Text(AppLocalizations.of(context)!.close),
           ),
         ],
       ),
@@ -99,7 +108,9 @@ class TroubleshootingScreen extends StatelessWidget {
         return Scaffold(
           body: CustomScrollView(
             slivers: [
-              SliverAppBar.large(title: Text('Troubleshooting')),
+              SliverAppBar.large(
+                title: Text(AppLocalizations.of(context)!.troubleshooting),
+              ),
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 16.0),

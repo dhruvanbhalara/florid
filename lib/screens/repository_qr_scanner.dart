@@ -1,3 +1,4 @@
+import 'package:florid/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
@@ -41,8 +42,9 @@ class _RepositoryQRScannerState extends State<RepositoryQRScanner> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: const Text('Scan')),
+      appBar: AppBar(title: Text(localizations.scan)),
       body: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -92,7 +94,7 @@ class _RepositoryQRScannerState extends State<RepositoryQRScanner> {
                       Padding(
                         padding: const EdgeInsets.only(top: 16.0),
                         child: Text(
-                          'Point camera at QR code',
+                          localizations.point_camera_qr,
                           style: Theme.of(context).textTheme.titleMedium
                               ?.copyWith(
                                 color: Colors.white,
@@ -120,7 +122,7 @@ class _RepositoryQRScannerState extends State<RepositoryQRScanner> {
                         child: Padding(
                           padding: const EdgeInsets.only(bottom: 16.0),
                           child: Text(
-                            'Tap keyboard to enter URL manually',
+                            localizations.tap_keyboard_enter_url,
                             style: Theme.of(context).textTheme.labelSmall
                                 ?.copyWith(
                                   color: Colors.white,

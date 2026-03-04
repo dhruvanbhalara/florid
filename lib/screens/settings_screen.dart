@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:florid/l10n/app_localizations.dart';
 import 'package:florid/providers/app_update_provider.dart';
 import 'package:florid/screens/app_management_screen.dart';
 import 'package:florid/screens/app_updater.dart';
@@ -58,7 +59,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: const Text('Checking for updates'),
+        title: Text(AppLocalizations.of(context)!.checking_for_updates),
         content: const SizedBox(
           height: 60,
           child: Center(child: CircularProgressIndicator()),
@@ -183,24 +184,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
       context: context,
       builder: (context) => AlertDialog(
         icon: const Icon(Symbols.star),
-        title: const Text('Import favourites'),
+        title: Text(AppLocalizations.of(context)!.import_favourites),
         content: Text(
           'Found ${parsed.length} favourite${parsed.length == 1 ? '' : 's'} in ${file.name}.',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context)!.close),
           ),
           TextButton(
             onPressed: () =>
                 Navigator.of(context).pop(_FavoritesImportAction.merge),
-            child: const Text('Merge'),
+            child: Text(AppLocalizations.of(context)!.merge),
           ),
           FilledButton(
             onPressed: () =>
                 Navigator.of(context).pop(_FavoritesImportAction.replace),
-            child: const Text('Replace'),
+            child: Text(AppLocalizations.of(context)!.replace),
           ),
         ],
       ),
@@ -232,22 +233,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final result = await showDialog<String>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Your name'),
+        title: Text(AppLocalizations.of(context)!.your_name),
         content: TextField(
           controller: controller,
           autofocus: true,
           textInputAction: TextInputAction.done,
-          decoration: const InputDecoration(hintText: 'Enter your name'),
+          decoration:  InputDecoration(hintText: AppLocalizations.of(context)!.enter_your_name),
           onSubmitted: (value) => Navigator.of(dialogContext).pop(value),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context)!.close),
           ),
           FilledButton(
             onPressed: () => Navigator.of(dialogContext).pop(controller.text),
-            child: const Text('Save'),
+            child: Text(AppLocalizations.of(context)!.save),
           ),
         ],
       ),
@@ -300,7 +301,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     }
                                   });
                                 },
-                                label: Text('Learn More'),
+                                label: Text(
+                                  AppLocalizations.of(context)!.learn_more,
+                                ),
                                 icon: Icon(Symbols.open_in_new),
                               ),
                             ],
@@ -610,7 +613,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
+            child: Text(AppLocalizations.of(context)!.close),
           ),
         ],
       ),

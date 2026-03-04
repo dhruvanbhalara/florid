@@ -53,14 +53,15 @@ class _UserScreenState extends State<UserScreen>
     LoadingState repositoryState,
     String? repositoryError,
   ) {
+    final localizations = AppLocalizations.of(context)!;
     if (repositoryState == LoadingState.loading && !repositoryLoaded) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            CircularProgressIndicator(year2023: false),
-            SizedBox(height: 12),
-            Text('Loading repository…'),
+          children: [
+            const CircularProgressIndicator(year2023: false),
+            const SizedBox(height: 12),
+            Text(localizations.loading_repository),
           ],
         ),
       );
@@ -83,7 +84,7 @@ class _UserScreenState extends State<UserScreen>
                 color: Theme.of(context).colorScheme.error,
               ),
               Text(
-                'Unable to load repository',
+                localizations.unable_to_load_repository,
                 style: Theme.of(context).textTheme.headlineSmall,
                 textAlign: TextAlign.center,
               ),
@@ -96,7 +97,7 @@ class _UserScreenState extends State<UserScreen>
                   ),
                 ),
               Text(
-                'Check your connection or repository settings, then try again.',
+                localizations.repository_loading_error_descrption,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -109,13 +110,13 @@ class _UserScreenState extends State<UserScreen>
                   FilledButton.icon(
                     onPressed: _loadData,
                     icon: const Icon(Symbols.refresh),
-                    label: const Text('Retry'),
+                    label: Text(localizations.retry),
                   ),
                   const SizedBox(width: 12),
                   OutlinedButton.icon(
                     onPressed: () => MenuActions.showSettings(context),
                     icon: const Icon(Symbols.settings),
-                    label: const Text('Settings'),
+                    label: Text(localizations.settings),
                   ),
                 ],
               ),
@@ -146,7 +147,7 @@ class _UserScreenState extends State<UserScreen>
               ),
               const SizedBox(height: 16),
               Text(
-                    'No favourites yet',
+                    localizations.no_favourites_yet,
                     style: Theme.of(context).textTheme.headlineSmall,
                   )
                   .animate()
@@ -154,7 +155,7 @@ class _UserScreenState extends State<UserScreen>
                   .fade(delay: Duration(milliseconds: 100), duration: 500.ms),
               const SizedBox(height: 8),
               Text(
-                    'Tap the star on any app to save it here',
+                    localizations.tap_star_to_save,
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -206,6 +207,7 @@ class _UserScreenState extends State<UserScreen>
 
   Future<void> _updateApp(BuildContext context, FDroidApp app) async {
     final downloadProvider = context.read<DownloadProvider>();
+    final localizations = AppLocalizations.of(context)!;
 
     // Check if already downloading
     final downloadInfo = downloadProvider.getDownloadInfo(
@@ -238,9 +240,11 @@ class _UserScreenState extends State<UserScreen>
       final errorMsg = e.toString();
       if (!errorMsg.contains('cancelled') && !errorMsg.contains('Cancelled')) {
         if (context.mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text('Update failed: $errorMsg')));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(localizations.update_failed_with_error(errorMsg)),
+            ),
+          );
         }
       }
     }
@@ -250,6 +254,7 @@ class _UserScreenState extends State<UserScreen>
   Widget build(BuildContext context) {
     final appProvider = context.watch<AppProvider>();
     final settingsProvider = context.watch<SettingsProvider>();
+    final localizations = AppLocalizations.of(context)!;
     final repositoryLoaded = appProvider.repository != null;
     final isDarkKnight = settingsProvider.themeStyle == ThemeStyle.darkKnight;
 
@@ -288,7 +293,7 @@ class _UserScreenState extends State<UserScreen>
                   child: Text(
                     settingsProvider.userName.isNotEmpty
                         ? settingsProvider.userName
-                        : 'User',
+                        : localizations.user,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),

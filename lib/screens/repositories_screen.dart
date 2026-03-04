@@ -58,15 +58,16 @@ class _RepositoriesScreenState extends State<RepositoriesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return Scaffold(
       body: CustomScrollView(
         slivers: [
           SliverAppBar.large(
-            title: Text(AppLocalizations.of(context)!.manage_repositories),
+            title: Text(localizations.manage_repositories),
             actions: [
               IconButton(
                 icon: const Icon(Symbols.sync),
-                tooltip: 'Rebuild repositories',
+                tooltip: localizations.rebuild_repositories,
                 onPressed: () => _rebuildRepositories(context),
               ),
             ],
@@ -101,7 +102,8 @@ class _RepositoriesScreenState extends State<RepositoriesScreen> {
                                   const SizedBox(width: 12),
                                   Expanded(
                                     child: Text(
-                                      provider.error ?? 'Unknown error',
+                                      provider.error ??
+                                          localizations.unknown_error_occurred,
                                       style: TextStyle(
                                         color: Colors.red.shade700,
                                       ),
@@ -123,7 +125,7 @@ class _RepositoriesScreenState extends State<RepositoriesScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           spacing: 4.0,
                           children: [
-                            MListHeader(title: 'Preset'),
+                            MListHeader(title: localizations.preset),
                             MListViewBuilder(
                               itemCount: _presets.length,
                               itemBuilder: (index) {
@@ -222,7 +224,7 @@ class _RepositoriesScreenState extends State<RepositoriesScreen> {
                       Column(
                         spacing: 4.0,
                         children: [
-                          MListHeader(title: 'Your Repositories'),
+                          MListHeader(title: localizations.your_repositories),
                           provider.repositories
                                   .where(
                                     (repo) => !_presets.any(
@@ -242,14 +244,15 @@ class _RepositoriesScreenState extends State<RepositoriesScreen> {
                                       ),
                                       const SizedBox(height: 16),
                                       Text(
-                                        'No custom repositories added',
+                                        localizations.no_custom_repositories,
                                         style: Theme.of(
                                           context,
                                         ).textTheme.titleMedium,
                                       ),
                                       const SizedBox(height: 8),
                                       Text(
-                                        'Add a custom F-Droid repository to get started',
+                                        localizations
+                                            .add_custom_repository_to_start,
                                         style: Theme.of(
                                           context,
                                         ).textTheme.bodySmall,
@@ -321,7 +324,11 @@ class _RepositoriesScreenState extends State<RepositoriesScreen> {
                                                   spacing: 16.0,
                                                   children: [
                                                     Icon(Symbols.edit_rounded),
-                                                    Text('Edit'),
+                                                    Text(
+                                                      AppLocalizations.of(
+                                                        context,
+                                                      )!.edit,
+                                                    ),
                                                   ],
                                                 ),
                                               ),
@@ -588,13 +595,21 @@ class _RepositoryListItem extends StatelessWidget {
                           break;
                       }
                     },
-                    itemBuilder: (context) => const [
+                    itemBuilder: (context) => [
                       PopupMenuItem(
                         value: 'toggle',
-                        child: Text('Enable/Disable'),
+                        child: Text(
+                          AppLocalizations.of(context)!.enable_disable,
+                        ),
                       ),
-                      PopupMenuItem(value: 'edit', child: Text('Edit')),
-                      PopupMenuItem(value: 'delete', child: Text('Delete')),
+                      PopupMenuItem(
+                        value: 'edit',
+                        child: Text(AppLocalizations.of(context)!.edit),
+                      ),
+                      PopupMenuItem(
+                        value: 'delete',
+                        child: Text(AppLocalizations.of(context)!.delete),
+                      ),
                     ],
                   ),
                 ],
@@ -633,19 +648,26 @@ class _RepositoryListItem extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Repository'),
-        content: Text('Are you sure you want to remove "${repository.name}"?'),
+        title: Text(AppLocalizations.of(context)!.delete_repository),
+        content: Text(
+          AppLocalizations.of(
+            context,
+          )!.delete_repository_confirm(repository.name, repository),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             onPressed: () {
               provider.deleteRepository(repository.id);
               Navigator.pop(context);
             },
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+            child: Text(
+              AppLocalizations.of(context)!.delete,
+              style: TextStyle(color: Colors.red),
+            ),
           ),
         ],
       ),
@@ -865,12 +887,12 @@ class _AddRepositoryDialogState extends State<_AddRepositoryDialog> {
   @override
   Widget build(BuildContext context) {
     return SimpleDialog(
-      title: const Text('Add Repository'),
+      title: Text(AppLocalizations.of(context)!.add_repository),
       contentPadding: EdgeInsets.all(24),
       children: [
         TextField(
           controller: _nameController,
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
             labelText: 'Repository Name',
             hintText: 'e.g., MyRepo',
             border: OutlineInputBorder(),
@@ -910,14 +932,14 @@ class _AddRepositoryDialogState extends State<_AddRepositoryDialog> {
               height: 48,
               child: FilledButton(
                 onPressed: _addRepository,
-                child: const Text('Add'),
+                child: Text(AppLocalizations.of(context)!.add),
               ),
             ),
             SizedBox(
               height: 48,
               child: FilledButton.tonal(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
+                child: Text(AppLocalizations.of(context)!.cancel),
               ),
             ),
           ],
@@ -985,7 +1007,7 @@ class _EditRepositoryDialogState extends State<_EditRepositoryDialog> {
   @override
   Widget build(BuildContext context) {
     return SimpleDialog(
-      title: const Text('Edit Repository'),
+      title: Text(AppLocalizations.of(context)!.edit_repository),
       contentPadding: EdgeInsets.all(24),
       children: [
         TextField(
@@ -1022,14 +1044,14 @@ class _EditRepositoryDialogState extends State<_EditRepositoryDialog> {
               height: 48,
               child: FilledButton(
                 onPressed: _saveRepository,
-                child: const Text('Save'),
+                child: Text(AppLocalizations.of(context)!.save),
               ),
             ),
             SizedBox(
               height: 48,
               child: FilledButton.tonal(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
+                child: Text(AppLocalizations.of(context)!.cancel),
               ),
             ),
           ],

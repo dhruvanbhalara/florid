@@ -112,5 +112,239 @@
   "update": "Update",
   "downloading": "Downloading...",
   "installing": "Installing...",
-  "downloadFailed": "Failed to download APK"
+  "downloadFailed": "Failed to download APK",
+  "remove_from_favourites": "Remove from Favourites",
+  "add_to_favourites": "Add to Favourites",
+  "view_details": "View Details",
+  "installation_started": "{appName} installation started!",
+  "@installation_started": {
+    "placeholders": {
+      "appName": {}
+    }
+  },
+  "installation_failed_with_error": "Installation failed: {error}",
+  "@installation_failed_with_error": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "download_started": "{appName} download started!",
+  "@download_started": {
+    "placeholders": {
+      "appName": {}
+    }
+  },
+  "download_failed_with_error": "Download failed: {error}",
+  "@download_failed_with_error": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "start_setup": "Start Setup",
+  "continue_text": "Continue",
+  "loading_changelog": "Loading changelog...",
+  "appearance": "Appearance",
+  "theme_mode": "Theme Mode",
+  "follow_system_theme": "Follow system theme",
+  "light_theme": "Light theme",
+  "dark_theme": "Dark theme",
+  "dynamic_color": "Dynamic Color",
+  "material_you_dynamic": "Material You Dynamic",
+  "use_system_colors_supported_android": "Use system colors on supported Android devices",
+  "theme_style": "Theme Style",
+  "material_style": "Material style",
+  "dark_knight": "Dark Knight",
+  "dark_knight_subtitle": "A dark, high-contrast Florid-inspired theme",
+  "florid_style": "Florid style",
+  "beta": "Beta",
+  "other": "Other",
+  "show_whats_new": "Show What's New",
+  "feedback_on_florid_theme": "Feedback on Florid theme",
+  "help_improve_florid_theme_feedback": "Help improve the Florid theme by providing feedback",
+  "system_installer": "System installer",
+  "shizuku":"Shizuku",
+  "installation_method": "Installation method",
+  "requires_shizuku_running": "Requires Shizuku to be running",
+  "uses_standard_system_installer": "Uses the standard system installer",
+  "open_shizuku":"Open Shizuku",
+  "use_system_installer":"Use System Installer",
+  "close": "Close",
+  "wifi_only": "Wi-Fi only",
+  "wifi_and_charging": "Wi-Fi + charging",
+  "mobile_data_or_wifi": "Mobile data or Wi-Fi",
+  "every_1_hour": "Every 1 hour",
+  "every_2_hours": "Every 2 hours",
+  "every_3_hours": "Every 3 hours",
+  "every_6_hours": "Every 6 hours",
+  "every_12_hours": "Every 12 hours",
+  "daily": "Daily",
+  "every_hours": "Every {hours} hours",
+  "@every_hours": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "update_network": "Update network",
+  "update_interval": "Update interval",
+  "app_management": "App Management",
+  "alpha": "Alpha",
+  "downloads_and_storage": "Downloads & Storage",
+  "auto_install_after_download": "Auto-install after download",
+  "auto_install_after_download_subtitle": "Install APKs automatically once download finishes",
+  "delete_apk_after_install": "Delete APK after install",
+  "delete_apk_after_install_subtitle": "Remove installer files after successful installation",
+  "background_updates": "Background updates",
+  "check_updates_in_background": "Check for updates in background",
+  "notify_when_updates_available": "Notify when updates are available",
+  "reliability": "Reliability",
+  "disable_battery_optimization": "Disable battery optimization",
+  "allow_background_checks_reliably": "Allow background checks to run reliably",
+  "run_debug_check_10s": "Run debug check in 10s",
+  "run_debug_check_10s_subtitle": "Shows a test notification and runs after 10s",
+  "debug_check_scheduled": "Debug check scheduled",
+  "debug_update_check_runs_10s": "Debug update check will run in 10 seconds",
+  "no_recently_updated_apps": "No recently updated apps",
+  "no_new_apps": "No new apps",
+  "monthly_top_apps": "Monthly Top Apps",
+  "from_izzyondroid": "from IzzyOnDroid",
+  "sync_required": "Sync Required",
+  "izzyondroid_sync_required_message": "IzzyOnDroid repository needs to be synced to show top apps.",
+  "go_to_settings": "Go to Settings",
+  "keep_android_open": "Keep Android Open",
+  "keep_android_open_message": "From 2026/2027 onward, Google will require developer verification for all Android apps on certified devices, including those installed outside of the Play Store.",
+  "ignore": "Ignore",
+  "learn_more": "Learn More",
+  "search_fdroid_apps": "Search F-Droid apps...",
+  "filters": "Filters",
+  "search_apps": "Search Apps",
+  "search_failed": "Search failed",
+  "unknown_error_occurred": "Unknown error occurred",
+  "try_different_keywords": "Try different keywords or check spelling",
+  "popular_searches": "Popular searches:",
+  "clear_all": "Clear all",
+  "sort_by": "Sort by",
+  "relevance": "Relevance",
+  "name_az": "Name (A-Z)",
+  "name_za": "Name (Z-A)",
+  "recently_added": "Recently Added",
+  "no_categories_available": "No categories available",
+  "repositories": "Repositories",
+  "apply_filters": "Apply Filters",
+  "search_results_for_query": "{count} results for \"{query}\"",
+  "@search_results_for_query": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "query": {}
+    }
+  },
+  "loading_top_apps": "Loading top apps...",
+  "failed_to_load_apps": "Failed to load apps",
+  "try_again": "Try Again",
+  "no_apps_from_izzyondroid": "No apps from IzzyOnDroid",
+  "no_favourites_yet": "No favourites yet",
+  "tap_star_to_save": "Tap the star on any app to save it here",
+  "update_failed_with_error": "Update failed: {error}",
+  "@update_failed_with_error": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "user": "User",
+  "auto_install_failed_with_error": "Auto-install failed: {error}",
+  "@auto_install_failed_with_error": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "installing_app": "Installing {appName}...",
+  "@installing_app": {
+    "placeholders": {
+      "appName": {}
+    }
+  },
+  "install_from_repository": "Install from Repository",
+  "download_from_repository": "Download from Repository",
+  "choose_repository_for_action": "You can choose which repository to use to {action} this app.",
+  "@choose_repository_for_action": {
+    "placeholders": {
+      "action": {}
+    }
+  },
+  "unknown": "Unknown",
+  "previously_installed_from": "Previously installed from: {repositoryName}",
+  "@previously_installed_from": {
+    "placeholders": {
+      "repositoryName": {}
+    }
+  },
+  "previously_installed_from_here": "Previously installed from here",
+  "default_repository": "Default",
+  "by_author": "by {author}",
+  "@by_author": {
+    "placeholders": {
+      "author": {}
+    }
+  },
+  "check_out_on_fdroid": "Check out {appName} on F-Droid: https://f-droid.org/packages/{packageName}/",
+  "@check_out_on_fdroid": {
+    "placeholders": {
+      "appName": {},
+      "packageName": {}
+    }
+  },
+  "rebuild_repositories": "Rebuild repositories",
+  "preset": "Preset",
+  "your_repositories": "Your Repositories",
+  "no_custom_repositories": "No custom repositories added",
+  "add_custom_repository_to_start": "Add a custom F-Droid repository to get started",
+  "scan": "Scan",
+  "point_camera_qr": "Point camera at QR code",
+  "tap_keyboard_enter_url": "Tap keyboard to enter URL manually",
+  "loading_repository_configuration": "Loading repository configuration...",
+  "adding_selected_repositories": "Adding selected repositories...",
+  "fetching_fdroid_repository_index": "Fetching F-Droid repository index...",
+  "importing_apps_to_database": "Importing apps to database...",
+  "importing_apps_to_database_seconds": "Importing apps to database... ({seconds}s)",
+  "@importing_apps_to_database_seconds": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "loading_custom_repositories": "Loading custom repositories...",
+  "setup_complete": "Setup complete!",
+  "welcome_to": "Welcome to",
+  "onboarding_intro_subtitle": "A modern F-Droid client to browse, search, and download open-source Android apps with ease.",
+  "curated_open_source_apps": "Curated open-source apps",
+  "safe_downloads": "Safe downloads",
+  "updates_and_notifications": "Updates & notifications",
+  "add_extra_repositories": "Add extra repositories",
+  "repos_step_description": "Florid ships with the official F-Droid repo. You can also include trusted community repos to get more apps.",
+  "available_repositories": "Available Repositories",
+  "manage_repositories_anytime": "You can add or remove repositories anytime in Settings.",
+  "request_permissions": "Request Permissions",
+  "permissions_step_description": "Florid needs a few permissions to provide you with the best experience.",
+  "notifications": "Notifications",
+  "get_notified_updates": "Get notified when apps are updated",
+  "app_installation": "App Installation",
+  "allow_florid_install_apps": "Allow Florid to install downloaded apps",
+  "enable_permissions_anytime": "You can enable these permissions anytime in Settings.",
+  "setting_up_florid": "Setting up Florid",
+  "no_antifeature_listed": "No anti-features listed",
+  "open_link":"Open link",
+  "loading_recently_updated_apps":"Loading recently updated apps...",
+  "checking_for_updates":"Checking for updates",
+  "import_favourites":"Import favourites",
+  "merge":"Merge",
+  "update_all": "Update All",
+  "apps": "Apps",
+  "troubleshooting":"Troubleshooting",
+  "replace":"Replace",
+  "your_name":"Your name",
+  "enter_your_name":"Enter your name"
 }

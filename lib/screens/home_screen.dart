@@ -162,7 +162,9 @@ class _HomeScreenState extends State<HomeScreen>
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              'No recently updated apps',
+                              AppLocalizations.of(
+                                context,
+                              )!.no_recently_updated_apps,
                               style: Theme.of(context).textTheme.bodyMedium,
                             ),
                           ],
@@ -240,7 +242,7 @@ class _HomeScreenState extends State<HomeScreen>
                         Icon(Symbols.apps, size: 48, color: Colors.grey[400]),
                         const SizedBox(height: 8),
                         Text(
-                          'No new apps',
+                          AppLocalizations.of(context)!.no_new_apps,
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
                       ],
@@ -292,8 +294,8 @@ class _HomeScreenState extends State<HomeScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               MListHeader(
-                title: 'Monthly Top Apps',
-                subtitle: 'from IzzyOnDroid',
+                title: AppLocalizations.of(context)!.monthly_top_apps,
+                subtitle: AppLocalizations.of(context)!.from_izzyondroid,
                 onTap: _openTopAppsScreen,
                 trailing: Icon(Symbols.arrow_forward),
               ),
@@ -319,13 +321,15 @@ class _HomeScreenState extends State<HomeScreen>
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            'Sync Required',
+                            AppLocalizations.of(context)!.sync_required,
                             style: Theme.of(context).textTheme.titleMedium
                                 ?.copyWith(fontWeight: FontWeight.w600),
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'IzzyOnDroid repository needs to be synced to show top apps.',
+                            AppLocalizations.of(
+                              context,
+                            )!.izzyondroid_sync_required_message,
                             textAlign: TextAlign.center,
                             style: Theme.of(context).textTheme.bodyMedium,
                           ),
@@ -341,7 +345,9 @@ class _HomeScreenState extends State<HomeScreen>
                               );
                             },
                             icon: Icon(Symbols.settings),
-                            label: Text('Go to Settings'),
+                            label: Text(
+                              AppLocalizations.of(context)!.go_to_settings,
+                            ),
                           ),
                         ],
                       ),
@@ -584,7 +590,9 @@ class _HomeScreenState extends State<HomeScreen>
                                     spacing: 12.0,
                                     children: [
                                       Text(
-                                        'Keep Android Open',
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.keep_android_open,
                                         style: Theme.of(context)
                                             .textTheme
                                             .titleMedium
@@ -593,7 +601,9 @@ class _HomeScreenState extends State<HomeScreen>
                                             ),
                                       ),
                                       Text(
-                                        'From 2026/2027 onward, Google will require developer verification for all Android apps on certified devices, including those installed outside of the Play Store.',
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.keep_android_open_message,
                                       ),
                                       Row(
                                         mainAxisAlignment:
@@ -612,7 +622,11 @@ class _HomeScreenState extends State<HomeScreen>
                                                 context,
                                               ).colorScheme.error,
                                             ),
-                                            child: Text('Ignore'),
+                                            child: Text(
+                                              AppLocalizations.of(
+                                                context,
+                                              )!.ignore,
+                                            ),
                                           ),
                                           FilledButton.tonalIcon(
                                             onPressed: () {
@@ -630,7 +644,11 @@ class _HomeScreenState extends State<HomeScreen>
                                                 }
                                               });
                                             },
-                                            label: Text('Learn More'),
+                                            label: Text(
+                                              AppLocalizations.of(
+                                                context,
+                                              )!.learn_more,
+                                            ),
                                             icon: Icon(Symbols.open_in_new),
                                           ),
                                         ],

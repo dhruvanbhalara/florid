@@ -1,3 +1,4 @@
+import 'package:florid/l10n/app_localizations.dart';
 import 'package:florid/providers/settings_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -13,10 +14,11 @@ class AppearanceScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<SettingsProvider>(
       builder: (context, settings, _) {
+        final localizations = AppLocalizations.of(context)!;
         return Scaffold(
           body: CustomScrollView(
             slivers: [
-              SliverAppBar.large(title: Text('Appearance')),
+              SliverAppBar.large(title: Text(localizations.appearance)),
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 16.0),
@@ -27,23 +29,23 @@ class AppearanceScreen extends StatelessWidget {
                       Column(
                         spacing: 4,
                         children: [
-                          MListHeader(title: 'Theme Mode'),
+                          MListHeader(title: localizations.theme_mode),
                           MRadioListView(
                             items: [
                               MRadioListItemData<ThemeMode>(
-                                title: 'Follow system theme',
+                                title: localizations.follow_system_theme,
                                 subtitle: '',
                                 value: ThemeMode.system,
                                 suffix: Icon(Symbols.settings_suggest),
                               ),
                               MRadioListItemData<ThemeMode>(
-                                title: 'Light theme',
+                                title: localizations.light_theme,
                                 subtitle: '',
                                 value: ThemeMode.light,
                                 suffix: Icon(Symbols.light_mode_rounded),
                               ),
                               MRadioListItemData<ThemeMode>(
-                                title: 'Dark theme',
+                                title: localizations.dark_theme,
                                 subtitle: '',
                                 value: ThemeMode.dark,
                                 suffix: Icon(Symbols.dark_mode_rounded),
@@ -59,14 +61,14 @@ class AppearanceScreen extends StatelessWidget {
                       Column(
                         spacing: 4,
                         children: [
-                          MListHeader(title: 'Dynamic Color'),
+                          MListHeader(title: localizations.dynamic_color),
                           MListView(
                             items: [
                               MListItemData(
                                 leading: Icon(Symbols.palette),
-                                title: 'Material You Dynamic',
-                                subtitle:
-                                    'Use system colors on supported Android devices',
+                                title: localizations.material_you_dynamic,
+                                subtitle: localizations
+                                    .use_system_colors_supported_android,
                                 onTap: () {
                                   settings.setDynamicColorEnabled(
                                     !settings.dynamicColorEnabled,
@@ -86,22 +88,21 @@ class AppearanceScreen extends StatelessWidget {
                       Column(
                         spacing: 4,
                         children: [
-                          MListHeader(title: 'Theme Style'),
+                          MListHeader(title: localizations.theme_style),
                           MRadioListView(
                             items: [
                               MRadioListItemData<ThemeStyle>(
-                                title: 'Material style',
+                                title: localizations.material_style,
                                 subtitle: '',
                                 value: ThemeStyle.material,
                               ),
                               MRadioListItemData<ThemeStyle>(
-                                title: 'Dark Knight',
-                                subtitle:
-                                    'A dark, high-contrast Florid-inspired theme',
+                                title: localizations.dark_knight,
+                                subtitle: localizations.dark_knight_subtitle,
                                 value: ThemeStyle.darkKnight,
                               ),
                               MRadioListItemData<ThemeStyle>(
-                                title: 'Florid style',
+                                title: localizations.florid_style,
                                 subtitle: '',
                                 suffix: Container(
                                   margin: const EdgeInsets.only(right: 8.0),
@@ -116,7 +117,7 @@ class AppearanceScreen extends StatelessWidget {
                                         vertical: 2.0,
                                       ),
                                       child: Text(
-                                        'Beta',
+                                        localizations.beta,
                                         style: TextStyle(
                                           color: Theme.of(
                                             context,
@@ -137,11 +138,11 @@ class AppearanceScreen extends StatelessWidget {
                           Column(
                             spacing: 4.0,
                             children: [
-                              MListHeader(title: 'Other'),
+                              MListHeader(title: localizations.other),
                               MListView(
                                 items: [
                                   MListItemData(
-                                    title: 'Show What\'s New',
+                                    title: localizations.show_whats_new,
                                     onTap: () {
                                       settings.setShowWhatsNew(
                                         !settings.showWhatsNew,
@@ -163,9 +164,9 @@ class AppearanceScreen extends StatelessWidget {
                             items: [
                               MListItemData(
                                 leading: Icon(Symbols.feedback),
-                                title: 'Fedback on Florid theme',
-                                subtitle:
-                                    'Help improve the Florid theme by providing feedback',
+                                title: localizations.feedback_on_florid_theme,
+                                subtitle: localizations
+                                  .help_improve_florid_theme_feedback,
                                 onTap: () {
                                   // Keep the same URL used in Settings.
                                   launchUrl(
