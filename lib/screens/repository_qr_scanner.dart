@@ -1,6 +1,6 @@
 import 'package:florid/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:qr_code_scanner_plus/qr_code_scanner_plus.dart';
 
 class RepositoryQRScanner extends StatefulWidget {
   final Function(String url) onScan;
@@ -12,24 +12,9 @@ class RepositoryQRScanner extends StatefulWidget {
 }
 
 class _RepositoryQRScannerState extends State<RepositoryQRScanner> {
-  late MobileScannerController _cameraController;
+  final GlobalKey _qrKey = GlobalKey(debugLabel: 'RepositoryQRScanner');
+  QRViewController? _cameraController;
   bool _isProcessing = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _cameraController = MobileScannerController(
-      formats: [BarcodeFormat.qrCode],
-      torchEnabled: false,
-      returnImage: false,
-    );
-  }
-
-  @override
-  void dispose() {
-    _cameraController.dispose();
-    super.dispose();
-  }
 
   bool _isValidUrl(String text) {
     try {
@@ -38,6 +23,36 @@ class _RepositoryQRScannerState extends State<RepositoryQRScanner> {
     } catch (e) {
       return false;
     }
+  }
+
+  void _onQRViewCreated(QRViewController controller) {
+    _cameraController = controller;
+    controller.scannedDataStream.listen((scanData) {
+      if (_isProcessing) return;
+
+      final String? rawValue = scanData.code;
+      debugPrint(
+        '[QR Scanner] Barcode value: $rawValue, type: ${scanData.format}',
+      );
+
+      if (rawValue != null && _isValidUrl(rawValue)) {
+        debugPrint('[QR Scanner] Valid URL detected: $rawValue');
+        _isProcessing = true;
+        _cameraController?.pauseCamera();
+        final onScan = widget.onScan;
+        if (!mounted) return;
+
+        // Close the QR scanner page first.
+        Navigator.pop(context);
+
+        // Trigger callback after the pop completes.
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          onScan(rawValue);
+        });
+      } else if (rawValue != null) {
+        debugPrint('[QR Scanner] Invalid URL format: $rawValue');
+      }
+    });
   }
 
   @override
@@ -51,40 +66,10 @@ class _RepositoryQRScannerState extends State<RepositoryQRScanner> {
           Expanded(
             child: Stack(
               children: [
-                MobileScanner(
-                  tapToFocus: true,
-                  controller: _cameraController,
-                  onDetect: (capture) {
-                    if (_isProcessing) return;
-
-                    final List<Barcode> barcodes = capture.barcodes;
-                    print(
-                      '[QR Scanner] Detected ${barcodes.length} barcode(s)',
-                    );
-                    for (final barcode in barcodes) {
-                      final String? rawValue = barcode.rawValue;
-                      print(
-                        '[QR Scanner] Barcode value: $rawValue, type: ${barcode.format}',
-                      );
-                      if (rawValue != null && _isValidUrl(rawValue)) {
-                        print('[QR Scanner] Valid URL detected: $rawValue');
-                        _isProcessing = true;
-
-                        // Close the QR scanner page first
-                        Navigator.pop(context);
-
-                        // Then trigger the callback to show the Add Repository dialog
-                        // This ensures we're back on the repositories_screen before showing the dialog
-                        Future.delayed(const Duration(milliseconds: 100), () {
-                          widget.onScan(rawValue);
-                        });
-
-                        return;
-                      } else if (rawValue != null) {
-                        print('[QR Scanner] Invalid URL format: $rawValue');
-                      }
-                    }
-                  },
+                QRView(
+                  key: _qrKey,
+                  onQRViewCreated: _onQRViewCreated,
+                  formatsAllowed: const [BarcodeFormat.qrcode],
                 ),
                 // Overlay with scanning frame and instructions
                 Center(
