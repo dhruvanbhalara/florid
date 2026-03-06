@@ -1,5 +1,13 @@
 # Changelogs
 
+## v1.1.2+12
+Hotfix update
+
+### Improvements
+
+- Replaced QR code scanning library with a more reliable one. This should improve the QR code scanning experience and reduce the chances of scanning failures.
+- Performance improvements and bug fixes.
+
 ## v1.1.1+11
 
 ### Improvements
