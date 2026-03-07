@@ -74,10 +74,7 @@ jobs:
           working-directory: ./
 
       - name: Build APK (Universal)
-        uses: cedvdb/action-flutter-build-android@v1
-        with:
-          build-cmd: flutter build apk
-          working-directory: ./
+        run: flutter build apk
 
       - name: Rename APK files
         run: |
