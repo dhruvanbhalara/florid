@@ -20,10 +20,10 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../providers/app_provider.dart';
 import '../../providers/repositories_provider.dart';
 import '../../providers/settings_provider.dart';
+import '../../services/fdroid_api_service.dart';
 import 'appearance_screen.dart';
 import 'repositories_screen.dart';
 import 'troubleshooting_screen.dart';
-import '../../services/fdroid_api_service.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -261,6 +261,40 @@ class _SettingsScreenState extends State<SettingsScreen> {
     await settingsProvider.setUserName(result.trim());
   }
 
+  Widget buildListIcon(IconData? iconData, {bool primary = false}) {
+    return Container(
+      padding: EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outlineVariant,
+          width: 0.5,
+        ),
+        gradient: LinearGradient(
+          colors: [
+            if (primary)
+              Theme.of(context).colorScheme.primary.withValues(alpha: 0.12)
+            else
+              Theme.of(context).colorScheme.surfaceContainerHigh,
+
+            if (primary)
+              Theme.of(context).colorScheme.primary
+            else
+              Theme.of(context).colorScheme.surfaceContainer,
+          ],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
+      ),
+      child: Icon(
+        iconData,
+        fill: 1,
+        weight: 300,
+        color: primary ? Theme.of(context).colorScheme.onPrimary : null,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<SettingsProvider>(
@@ -329,22 +363,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     MListView(
                       items: [
                         MListItemData(
-                          leading: CircleAvatar(
-                            backgroundColor: Theme.of(
-                              context,
-                            ).colorScheme.primaryContainer,
-                            foregroundColor: Theme.of(
-                              context,
-                            ).colorScheme.onPrimaryContainer,
-                            child: settings.userName.isNotEmpty
-                                ? Text(
-                                    settings.userName
-                                        .trim()
-                                        .substring(0, 1)
-                                        .toUpperCase(),
-                                  )
-                                : Icon(Symbols.person, fill: 1),
-                          ),
+                          // leading: CircleAvatar(
+                          //   backgroundColor: Theme.of(
+                          //     context,
+                          //   ).colorScheme.primaryContainer,
+                          //   foregroundColor: Theme.of(
+                          //     context,
+                          //   ).colorScheme.onPrimaryContainer,
+                          //   child: settings.userName.isNotEmpty
+                          //       ? Text(
+                          //           settings.userName
+                          //               .trim()
+                          //               .substring(0, 1)
+                          //               .toUpperCase(),
+                          //         )
+                          //       : Icon(Symbols.person, fill: 1),
+                          // ),
+                          leading: buildListIcon(Symbols.person, primary: true),
                           title: settings.userName.isNotEmpty
                               ? settings.userName
                               : 'User',
@@ -353,7 +388,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           suffix: Icon(Symbols.edit),
                         ),
                         MListItemData(
-                          leading: Icon(Symbols.palette),
+                          leading: buildListIcon(Symbols.palette),
                           title: 'Appearance',
                           subtitle: 'Theme mode and style',
                           onTap: () {
@@ -367,7 +402,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           suffix: Icon(Symbols.chevron_right),
                         ),
                         MListItemData(
-                          leading: Icon(Symbols.language),
+                          leading: buildListIcon(Symbols.language),
                           title: 'App content language',
                           onTap: () => _showLanguageDialog(context, settings),
                           subtitle: SettingsProvider.getLocaleDisplayName(
@@ -392,7 +427,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     MListView(
                       items: [
                         MListItemData(
-                          leading: Icon(Symbols.cloud),
+                          leading: buildListIcon(Symbols.cloud),
                           title: 'Manage repositories',
                           onTap: () {
                             Navigator.push(
@@ -407,7 +442,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           suffix: Icon(Symbols.chevron_right),
                         ),
                         MListItemData(
-                          leading: Icon(Symbols.discover_tune),
+                          leading: buildListIcon(Symbols.discover_tune_rounded),
                           title: 'App Management',
                           subtitle:
                               'Manage settings regarding installs and updates',
@@ -439,13 +474,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     MListView(
                       items: [
                         MListItemData(
-                          leading: Icon(Symbols.file_upload),
+                          leading: buildListIcon(Symbols.file_upload_rounded),
                           title: 'Export favourites',
                           subtitle: 'Save a JSON file to Downloads',
                           onTap: () => _exportFavorites(context),
                         ),
                         MListItemData(
-                          leading: Icon(Symbols.file_download),
+                          leading: buildListIcon(Symbols.file_download_rounded),
                           title: 'Import favourites',
                           subtitle: 'Import favourites from a JSON file',
                           onTap: () => _importFavorites(context),
@@ -455,7 +490,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     MListView(
                       items: [
                         MListItemData(
-                          leading: Icon(Symbols.build),
+                          leading: buildListIcon(Symbols.build_rounded),
                           title: 'Troubleshooting',
                           subtitle: 'Storage, cache, and downloads',
                           onTap: () {
@@ -483,22 +518,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     MListView(
                       items: [
                         MListItemData(
-                          leading: Icon(Symbols.info),
-                          title: 'Version',
+                          leading: buildListIcon(Symbols.info),
+                          title: AppLocalizations.of(context)!.version,
                           subtitle: _appVersion.isEmpty
                               ? 'Loading…'
                               : _appVersion,
                           onTap: () {},
                         ),
                         MListItemData(
-                          leading: Icon(Symbols.system_update),
+                          leading: buildListIcon(Symbols.system_update_rounded),
                           title: 'Check for updates',
                           subtitle: 'Manually check for new Florid versions',
                           suffix: Icon(Symbols.chevron_right),
                           onTap: () => _showUpdateDialog(context),
                         ),
                         MListItemData(
-                          leading: Icon(Symbols.code_rounded),
+                          leading: buildListIcon(Symbols.code_rounded),
                           title: 'Source code',
                           subtitle: 'View the Florid source code on GitHub',
                           suffix: Icon(Symbols.open_in_new),
@@ -512,7 +547,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           },
                         ),
                         MListItemData(
-                          leading: Icon(Symbols.bug_report_rounded),
+                          leading: buildListIcon(Symbols.bug_report_rounded),
                           title: 'Report an issue',
                           subtitle: 'Found a bug? Let us know!',
                           suffix: Icon(Symbols.open_in_new),
@@ -526,7 +561,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           },
                         ),
                         MListItemData(
-                          leading: Icon(Symbols.volunteer_activism),
+                          leading: buildListIcon(Symbols.volunteer_activism),
                           title: 'Donate',
                           subtitle: 'Support continued development of Florid',
                           suffix: Icon(Symbols.open_in_new),
@@ -540,7 +575,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           },
                         ),
                         MListItemData(
-                          leading: Icon(Symbols.share),
+                          leading: buildListIcon(Symbols.share),
                           title: 'Share Florid',
                           subtitle: 'Let your nerdy friends know about Florid!',
                           onTap: () {
