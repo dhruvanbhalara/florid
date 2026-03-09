@@ -1,0 +1,349 @@
+{
+  "@@locale": "zh_CN",
+  "app_name": "Florid",
+  "welcome": "欢迎使用 Florid",
+  "search": "搜索",
+  "settings": "设置",
+  "home": "主页",
+  "categories": "分类",
+  "updates": "更新",
+  "installed": "已安装",
+  "download": "下载",
+  "install": "安装",
+  "uninstall": "卸载",
+  "open": "启动",
+  "cancel": "取消",
+  "update_available": "可用更新",
+  "downloading": "下载中……",
+  "install_permission_required": "安装权限要求",
+  "storage_permission_required": "需要存储权限",
+  "cancel_download": "取消下载",
+  "version": "版本",
+  "size": "大小",
+  "description": "描述",
+  "permissions": "权限",
+  "screenshots": "屏幕截图",
+  "no_version_available": "无可用版本",
+  "app_information": "应用信息",
+  "package_name": "包名",
+  "license": "协议",
+  "added": "额外",
+  "last_updated": "最后更新",
+  "version_information": "版本信息",
+  "version_name": "版本名称",
+  "version_code": "版本代码",
+  "min_sdk": "最小 SDK",
+  "target_sdk": "目标 SDK",
+  "all_versions": "所以版本",
+  "latest": "最新",
+  "released": "发行版",
+  "loading": "加载中……",
+  "error": "错误",
+  "retry": "重试",
+  "share": "分享",
+  "website": "网站",
+  "source_code": "源代码",
+  "issue_tracker": "问题追踪器",
+  "whats_new": "最新动态",
+  "show_more": "显示更多",
+  "show_less": "显示更少",
+  "downloads_stats": "下载统计",
+  "last_day": "最近一天",
+  "last_30_days": "近30天",
+  "last_365_days": "近365天",
+  "not_available": "不可用",
+  "download_failed": "下载失败",
+  "installation_failed": "安装失败",
+  "uninstall_failed": "卸载失败",
+  "open_failed": "启动失败",
+  "device": "本地",
+  "recently_updated": "最近更新",
+  "refresh": "刷新",
+  "about": "关于",
+  "refreshing_data": "刷新数据中……",
+  "data_refreshed": "数据已刷新",
+  "refresh_failed": "刷新失败",
+  "loading_latest_apps": "加载最新应用中……",
+  "latest_apps": "最新应用",
+  "no_apps_found": "未找到应用",
+  "searching": "搜索中……",
+  "setup_failed": "配置失败",
+  "back": "返回",
+  "allow": "允许",
+  "manage_repositories": "管理存储库",
+  "enable_disable": "启用/禁用",
+  "edit": "编辑",
+  "delete": "删除",
+  "delete_repository": "删除存储库",
+  "delete_repository_confirm": "确定要移除“{name}”吗？",
+  "@delete_repository_confirm": {
+    "description": "Confirmation message for deleting a repository. {name} is the repository name.",
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "updating_repository": "正在更新存储库",
+  "touch_grass_message": "现在是摸草的好时机！",
+  "add_repository": "添加存储库",
+  "add": "添加",
+  "save": "保存",
+  "enter_repository_name": "请输入一个存储库名称",
+  "enter_repository_url": "请输入一个存储库链接",
+  "edit_repository": "编辑存储库",
+  "loading_apps": "正在加载应用……",
+  "no_apps_in_category": "{category} 分类下没有应用",
+  "@no_apps_in_category": {
+    "description": "Message shown when no apps are found in a category. {category} is the category name.",
+    "placeholders": {
+      "category": {}
+    }
+  },
+  "loading_categories": "加载分类中……",
+  "no_categories_found": "无分类",
+  "on_device": "此设备",
+  "favourites": "收藏",
+  "loading_repository": "加载存储库…",
+  "unable_to_load_repository": "无法加载存储库",
+  "repository_loading_error_descrption": "请检查您的网络连接或存储库设置，然后重试。",
+  "appUpdateAvailable": "可用更新",
+  "releaseNotes": "发行版记录",
+  "dismiss": "忽略",
+  "viewOnGithub": "在 GitHub 中查看",
+  "update": "更新",
+  "installing": "安装中……",
+  "downloadFailed": "APK 下载失败",
+  "remove_from_favourites": "取消收藏",
+  "add_to_favourites": "添加收藏",
+  "view_details": "查看详情",
+  "installation_started": "{appName} 开始安装！",
+  "@installation_started": {
+    "placeholders": {
+      "appName": {}
+    }
+  },
+  "installation_failed_with_error": "安装失败：{error}",
+  "@installation_failed_with_error": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "download_started": "{appName} 开始下载！",
+  "@download_started": {
+    "placeholders": {
+      "appName": {}
+    }
+  },
+  "download_failed_with_error": "下载失败：{error}",
+  "@download_failed_with_error": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "start_setup": "开始设置",
+  "continue_text": "继续",
+  "loading_changelog": "加载更新日志中……",
+  "appearance": "外观",
+  "theme_mode": "主题",
+  "follow_system_theme": "跟随系统设置",
+  "light_theme": "浅色主题",
+  "dark_theme": "暗色主题",
+  "dynamic_color": "动态颜色",
+  "material_you_dynamic": "Material You Dynamic",
+  "use_system_colors_supported_android": "使用系统支持的颜色",
+  "theme_style": "主题样式",
+  "material_style": "Material 样式",
+  "dark_knight": "Dark Knight",
+  "dark_knight_subtitle": "深色、高对比度的Florid启发主题",
+  "florid_style": "Florid 样式",
+  "beta": "Beta",
+  "other": "其他",
+  "show_whats_new": "查看最新内容",
+  "feedback_on_florid_theme": "反馈Florid主题",
+  "help_improve_florid_theme_feedback": "通过提供反馈帮助改善Florid的主题",
+  "system_installer": "系统安装程序",
+  "shizuku": "Shizuku",
+  "installation_method": "安装方式",
+  "requires_shizuku_running": "需要Shizuku运行",
+  "uses_standard_system_installer": "使用标准系统安装程序",
+  "open_shizuku": "打开 Shizuku",
+  "use_system_installer": "使用系统安装程序",
+  "close": "关闭",
+  "wifi_only": "仅无线网络",
+  "wifi_and_charging": "无线网络且充电状态下",
+  "mobile_data_or_wifi": "移动数据或无线网络",
+  "every_1_hour": "每1小时",
+  "every_2_hours": "每2小时",
+  "every_3_hours": "每3小时",
+  "every_6_hours": "每6小时",
+  "every_12_hours": "每12小时",
+  "daily": "每日",
+  "every_hours": "每{hours}小时",
+  "@every_hours": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "update_network": "更新网络",
+  "update_interval": "更新间隔",
+  "app_management": "应用管理",
+  "alpha": "Alpha",
+  "downloads_and_storage": "下载 & 存储",
+  "auto_install_after_download": "下载后自动安装",
+  "auto_install_after_download_subtitle": "下载完成后自动安装 APK",
+  "delete_apk_after_install": "安装后删除 APK",
+  "delete_apk_after_install_subtitle": "成功安装后删除安装程序文件",
+  "background_updates": "后台更新",
+  "check_updates_in_background": "在后台检查更新",
+  "notify_when_updates_available": "更新可用时通知",
+  "reliability": "可用性",
+  "disable_battery_optimization": "禁用电池优化",
+  "allow_background_checks_reliably": "允许后台检查可用性",
+  "run_debug_check_10s": "运行10秒的调试检查",
+  "run_debug_check_10s_subtitle": "显示测试通知并在10秒后运行",
+  "debug_check_scheduled": "已排程侦错检查",
+  "debug_update_check_runs_10s": "侦错更新检查将在10秒后执行",
+  "no_recently_updated_apps": "无最近更新的应用程序",
+  "no_new_apps": "无新应用",
+  "monthly_top_apps": "月度热门应用",
+  "from_izzyondroid": "来自 IzzyOnDroid",
+  "sync_required": "需要同步",
+  "izzyondroid_sync_required_message": "需要同步 IzzyOnDroid 存储库以显示热门应用程序。",
+  "go_to_settings": "前往设置",
+  "keep_android_open": "保持 Android 开放",
+  "keep_android_open_message": "从 2026/2027 年开始，谷歌将要求所有在认证设备上安装的 Android 应用（包括从 Play 商店之外安装的应用）都必须经过开发者验证。",
+  "ignore": "忽略",
+  "learn_more": "了解更多",
+  "search_fdroid_apps": "搜索 F-Droid 应用……",
+  "filters": "筛选",
+  "search_apps": "搜索应用",
+  "search_failed": "搜索失败",
+  "unknown_error_occurred": "发生未知错误",
+  "try_different_keywords": "尝试不同的关键字或检查拼写",
+  "popular_searches": "热门搜索：",
+  "clear_all": "清除所有",
+  "sort_by": "排序",
+  "relevance": "关系程度",
+  "name_az": "名称(A-Z)",
+  "name_za": "名称(Z-A)",
+  "recently_added": "最近添加",
+  "no_categories_available": "无分类可用",
+  "repositories": "存储库",
+  "apply_filters": "应用筛选",
+  "search_results_for_query": "找到 {count} 条关于 “{query}” 的结果",
+  "@search_results_for_query": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "query": {}
+    }
+  },
+  "loading_top_apps": "正在加载热门应用……",
+  "failed_to_load_apps": "加载应用失败",
+  "try_again": "重试",
+  "no_apps_from_izzyondroid": "没有来自 IzzyOnDroid 的应用",
+  "no_favourites_yet": "无收藏应用",
+  "tap_star_to_save": "点击星形以将其保存在此处",
+  "update_failed_with_error": "更新失败：{error}",
+  "@update_failed_with_error": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "user": "用户",
+  "auto_install_failed_with_error": "自动安装失败：{error}",
+  "@auto_install_failed_with_error": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "installing_app": "安装 {appName} 中……",
+  "@installing_app": {
+    "placeholders": {
+      "appName": {}
+    }
+  },
+  "install_from_repository": "从存储库安装",
+  "download_from_repository": "从存储库下载",
+  "choose_repository_for_action": "你可以选择使用哪个仓库来{action}这个应用。",
+  "@choose_repository_for_action": {
+    "placeholders": {
+      "action": {}
+    }
+  },
+  "unknown": "未知",
+  "previously_installed_from": "此前安装来源：{repositoryName}",
+  "@previously_installed_from": {
+    "placeholders": {
+      "repositoryName": {}
+    }
+  },
+  "previously_installed_from_here": "以前从此处安装",
+  "default_repository": "默认",
+  "by_author": "来自 {author}",
+  "@by_author": {
+    "placeholders": {
+      "author": {}
+    }
+  },
+  "check_out_on_fdroid": "在 F-Droid 上查看 {appName}：https://f-droid.org/packages/{packageName}/",
+  "@check_out_on_fdroid": {
+    "placeholders": {
+      "appName": {},
+      "packageName": {}
+    }
+  },
+  "rebuild_repositories": "重建存储库",
+  "preset": "预设",
+  "your_repositories": "你的存储库",
+  "no_custom_repositories": "未添加自定义存储库",
+  "add_custom_repository_to_start": "添加自定义 F-Droid 源以开始",
+  "scan": "扫描",
+  "point_camera_qr": "将镜头对准二维码",
+  "tap_keyboard_enter_url": "点击键盘输入 URL",
+  "loading_repository_configuration": "加载存储库配置中……",
+  "adding_selected_repositories": "正在导入选中的存储库……",
+  "fetching_fdroid_repository_index": "正在同步 F-Droid 仓库索引……",
+  "importing_apps_to_database": "正在将应用导入数据库……",
+  "importing_apps_to_database_seconds": "正在将应用导入数据库...（{seconds} 秒）",
+  "@importing_apps_to_database_seconds": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "loading_custom_repositories": "正在加载自定义存储库……",
+  "setup_complete": "已配置完成！",
+  "welcome_to": "欢迎使用",
+  "onboarding_intro_subtitle": "一款现代 F-Droid 客户端，让你轻松浏览、搜索和下载开源 Android 应用。",
+  "curated_open_source_apps": "精选开源应用",
+  "safe_downloads": "保存下载",
+  "updates_and_notifications": "更新 & 通知",
+  "add_extra_repositories": "添加额外存储库",
+  "repos_step_description": "Florid 预装了官方 F-Droid 软件源。您还可以添加可信的社区软件源来获取更多应用。",
+  "available_repositories": "可用存储库",
+  "manage_repositories_anytime": "您可以在“设置”中随时添加或删除存储库。",
+  "request_permissions": "请求权限",
+  "permissions_step_description": "Florid 需要一些权限才能为您提供最佳体验。",
+  "notifications": "通知",
+  "get_notified_updates": "应用更新时收到通知",
+  "app_installation": "应用安装",
+  "allow_florid_install_apps": "允许 Florid 安装下载的应用",
+  "enable_permissions_anytime": "您可以随时在设置中启用这些权限。",
+  "setting_up_florid": "配置 Florid",
+  "no_antifeature_listed": "未列出反特性",
+  "open_link": "打开链接",
+  "loading_recently_updated_apps": "加载最近更新的应用程序……",
+  "checking_for_updates": "检查更新中",
+  "import_favourites": "导入收藏夹",
+  "merge": "合并",
+  "update_all": "更新所有",
+  "apps": "应用",
+  "troubleshooting": "故障排除",
+  "replace": "替换",
+  "your_name": "你的昵称",
+  "enter_your_name": "输入你的昵称"
+}
