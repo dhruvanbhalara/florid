@@ -6,6 +6,7 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../themes/app_themes.dart';
 import '../../widgets/m_list.dart';
 
 class AppearanceScreen extends StatelessWidget {
@@ -16,6 +17,7 @@ class AppearanceScreen extends StatelessWidget {
     return Consumer<SettingsProvider>(
       builder: (context, settings, _) {
         final localizations = AppLocalizations.of(context)!;
+        final useDynamic = settings.dynamicColorEnabled;
         return DynamicColorBuilder(
           builder: (lightDynamic, darkDynamic) {
             final dynamicColorSupported =
@@ -93,58 +95,26 @@ class AppearanceScreen extends StatelessWidget {
                                 ),
                               ],
                             ),
+                          MListView(
+                            items: [
+                              MListItemData(
+                                leading: Icon(Symbols.style),
+                                title: localizations.theme_style,
+                                subtitle: '',
+                                suffix: Icon(Symbols.chevron_right),
+                                onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const ThemeStyleScreen(),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                           Column(
                             spacing: 4,
                             children: [
-                              MListHeader(title: localizations.theme_style),
-                              MRadioListView(
-                                items: [
-                                  MRadioListItemData<ThemeStyle>(
-                                    title: localizations.material_style,
-                                    subtitle: '',
-                                    value: ThemeStyle.material,
-                                  ),
-                                  MRadioListItemData<ThemeStyle>(
-                                    title: localizations.dark_knight,
-                                    subtitle: '',
-                                    value: ThemeStyle.darkKnight,
-                                    suffix: Container(
-                                      margin: const EdgeInsets.only(right: 8.0),
-                                      child: Material(
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.secondary,
-                                        borderRadius: BorderRadius.circular(
-                                          99.0,
-                                        ),
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 12.0,
-                                            vertical: 2.0,
-                                          ),
-                                          child: Text(
-                                            localizations.beta,
-                                            style: TextStyle(
-                                              color: Theme.of(
-                                                context,
-                                              ).colorScheme.onSecondary,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  MRadioListItemData<ThemeStyle>(
-                                    title: localizations.florid_style,
-                                    subtitle: '',
-                                    value: ThemeStyle.florid,
-                                  ),
-                                ],
-                                groupValue: settings.themeStyle,
-                                onChanged: (style) {
-                                  settings.setThemeStyle(style);
-                                },
-                              ),
                               Column(
                                 spacing: 4.0,
                                 children: [
@@ -202,6 +172,277 @@ class AppearanceScreen extends StatelessWidget {
           },
         );
       },
+    );
+  }
+}
+
+class ThemeStyleScreen extends StatefulWidget {
+  const ThemeStyleScreen({super.key});
+
+  @override
+  State<ThemeStyleScreen> createState() => _ThemeStyleScreenState();
+}
+
+class _ThemeStyleScreenState extends State<ThemeStyleScreen> {
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<SettingsProvider>(
+      builder: (context, settings, _) {
+        final localizations = AppLocalizations.of(context)!;
+        final useDynamic = settings.dynamicColorEnabled;
+        return DynamicColorBuilder(
+          builder: (lightDynamic, darkDynamic) {
+            return Scaffold(
+              body: CustomScrollView(
+                slivers: [
+                  SliverAppBar.medium(title: Text(localizations.theme_style)),
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: Scrollbar(
+                      scrollbarOrientation: ScrollbarOrientation.bottom,
+                      interactive: true,
+                      trackVisibility: true,
+                      thumbVisibility: true,
+                      radius: Radius.circular(20),
+                      thickness: 8,
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            ThemeStylePreviewCard(
+                              isSelected:
+                                  settings.themeStyle == ThemeStyle.florid,
+                              themeData:
+                                  Theme.of(context).brightness ==
+                                      Brightness.light
+                                  ? AppThemes.floridLightTheme(
+                                      colorScheme: useDynamic
+                                          ? lightDynamic
+                                          : null,
+                                    )
+                                  : AppThemes.floridDarkTheme(
+                                      colorScheme: useDynamic
+                                          ? darkDynamic
+                                          : null,
+                                    ),
+                              onTap: () =>
+                                  settings.setThemeStyle(ThemeStyle.florid),
+                              headerBuilder: (previewContext) => Text(
+                                localizations.florid_style,
+                                style: Theme.of(previewContext)
+                                    .textTheme
+                                    .headlineSmall!
+                                    .copyWith(
+                                      fontFamily: 'Google Sans Flex',
+                                      fontVariations: [
+                                        FontVariation('wght', 700),
+                                        FontVariation('ROND', 100),
+                                        FontVariation('wdth', 125),
+                                      ],
+                                    ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                            ThemeStylePreviewCard(
+                              isSelected:
+                                  settings.themeStyle == ThemeStyle.material,
+                              themeData:
+                                  Theme.of(context).brightness ==
+                                      Brightness.light
+                                  ? AppThemes.materialLightTheme(
+                                      colorScheme: useDynamic
+                                          ? lightDynamic
+                                          : null,
+                                    )
+                                  : AppThemes.materialDarkTheme(
+                                      colorScheme: useDynamic
+                                          ? darkDynamic
+                                          : null,
+                                    ),
+                              onTap: () =>
+                                  settings.setThemeStyle(ThemeStyle.material),
+                              headerBuilder: (previewContext) => Text(
+                                localizations.material_style,
+                                style: Theme.of(
+                                  previewContext,
+                                ).textTheme.headlineSmall,
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                            ThemeStylePreviewCard(
+                              isSelected:
+                                  settings.themeStyle == ThemeStyle.darkKnight,
+                              themeData:
+                                  Theme.of(context).brightness ==
+                                      Brightness.light
+                                  ? AppThemes.darkKnightTheme(
+                                      colorScheme: useDynamic
+                                          ? lightDynamic
+                                          : null,
+                                    )
+                                  : AppThemes.darkKnightTheme(
+                                      colorScheme: useDynamic
+                                          ? darkDynamic
+                                          : null,
+                                    ),
+                              onTap: () =>
+                                  settings.setThemeStyle(ThemeStyle.darkKnight),
+                              headerBuilder: (previewContext) => Column(
+                                spacing: 4.0,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    localizations.dark_knight,
+                                    style: Theme.of(
+                                      previewContext,
+                                    ).textTheme.headlineSmall,
+                                  ),
+                                  Container(
+                                    margin: const EdgeInsets.only(right: 8.0),
+                                    child: Material(
+                                      color: Theme.of(
+                                        previewContext,
+                                      ).colorScheme.secondary,
+                                      borderRadius: BorderRadius.circular(99.0),
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12.0,
+                                          vertical: 2.0,
+                                        ),
+                                        child: Text(
+                                          localizations.beta,
+                                          style: TextStyle(
+                                            color: Theme.of(
+                                              previewContext,
+                                            ).colorScheme.onSecondary,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
+class ThemeStylePreviewCard extends StatelessWidget {
+  const ThemeStylePreviewCard({
+    super.key,
+    required this.isSelected,
+    required this.themeData,
+    required this.onTap,
+    required this.headerBuilder,
+  });
+
+  final bool isSelected;
+  final ThemeData themeData;
+  final VoidCallback onTap;
+  final Widget Function(BuildContext context) headerBuilder;
+
+  @override
+  Widget build(BuildContext context) {
+    return Theme(
+      data: themeData,
+      child: Builder(
+        builder: (previewContext) {
+          final colorScheme = Theme.of(previewContext).colorScheme;
+          return Card(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16.0),
+              side: BorderSide(
+                color: isSelected
+                    ? colorScheme.primary
+                    : colorScheme.outlineVariant.withValues(alpha: 0.6),
+                // width: isSelected ? 2.0 : 1.0,
+              ),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: InkWell(
+              onTap: onTap,
+              child: SizedBox(
+                width: 280,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    // horizontal: 16.0,
+                    // vertical: 24.0,
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      AppBar(
+                        title: Text('AppBar'),
+                        actions: [
+                          Icon(Symbols.search),
+                          SizedBox(width: 8),
+                          Icon(Symbols.more_vert),
+                        ],
+                      ),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: Column(
+                            children: [
+                              Chip(label: Text('Chip')),
+                              SizedBox(height: 8),
+                              Row(
+                                spacing: 4.0,
+                                children: [
+                                  IconButton.filled(
+                                    onPressed: () {},
+                                    icon: Icon(Symbols.share),
+                                  ),
+                                  IconButton.filledTonal(
+                                    onPressed: () {},
+                                    icon: Icon(Symbols.share),
+                                  ),
+                                  FloatingActionButton.small(
+                                    onPressed: () {},
+                                    child: const Icon(Symbols.add),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              const LinearProgressIndicator(value: 0.4),
+                              const SizedBox(height: 8),
+                              FilledButton(
+                                onPressed: () {},
+                                child: const Text('Button'),
+                              ),
+                              FilledButton.tonal(
+                                onPressed: () {},
+                                child: const Text('Button'),
+                              ),
+                              Switch(value: true, onChanged: (_) {}),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 16.0),
+                        child: headerBuilder(previewContext),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 }
