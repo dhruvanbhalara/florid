@@ -362,6 +362,7 @@ class FDroidRepository {
   factory FDroidRepository.fromJson(
     Map<String, dynamic> json, {
     String? repositoryUrl,
+    String? locale,
   }) {
     final repoMeta =
         (json['repo'] as Map?)?.cast<String, dynamic>() ?? <String, dynamic>{};
@@ -410,15 +411,34 @@ class FDroidRepository {
 
         // Helper to extract a localized string: metadata fields sometimes
         // appear as {'en-US': 'Value', 'de-DE': 'Wert'} instead of a plain String.
+        final normalizedLocale = locale?.replaceAll('_', '-');
+
         String extractLocalized(dynamic raw, {String? fallbackKey}) {
           if (raw == null) return '';
           // Plain string
           if (raw is String) return raw;
           if (raw is Map) {
+            final localePrefs = <String>[];
+            if (normalizedLocale != null && normalizedLocale.isNotEmpty) {
+              localePrefs.add(normalizedLocale);
+              localePrefs.add(normalizedLocale.replaceAll('-', '_'));
+
+              final language = normalizedLocale.split('-').first;
+              if (language.isNotEmpty) {
+                localePrefs.add(language);
+              }
+            }
+
             // Try exact fallback key first
             if (fallbackKey != null && raw[fallbackKey] is String) {
               return raw[fallbackKey] as String;
             }
+
+            // Try requested locale keys first.
+            for (final key in localePrefs) {
+              if (raw[key] is String) return raw[key] as String;
+            }
+
             // Try common English keys
             const englishPrefs = ['en-US', 'en', 'en_GB'];
             for (final key in englishPrefs) {

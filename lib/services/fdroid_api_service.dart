@@ -25,6 +25,7 @@ class FDroidApiService {
   final DatabaseService _databaseService;
   String _userAgent = 'Florid';
   bool _sniBypassEnabled = true;
+  String _currentLocale = 'en-US';
 
   /// Cache of what worked for each URL to optimize future requests
   final Map<String, bool> _workingSniBypassSettings = {};
@@ -296,6 +297,7 @@ class FDroidApiService {
         final result = await compute(_parseRepositoryDataHelper, {
           'body': body,
           'repositoryUrl': null,
+          'locale': _currentLocale,
         });
 
         final jsonData = result['json'] as Map<String, dynamic>;
@@ -431,6 +433,7 @@ class FDroidApiService {
         final result = await compute(_parseRepositoryDataHelper, {
           'body': response.body,
           'repositoryUrl': repoBase,
+          'locale': _currentLocale,
         });
         final repo = result['repo'] as FDroidRepository;
         debugPrint('Successfully fetched repository from $url');
@@ -455,6 +458,7 @@ class FDroidApiService {
           final result = await compute(_parseRepositoryDataHelper, {
             'body': response.body,
             'repositoryUrl': repoBase,
+            'locale': _currentLocale,
           });
           final repo = result['repo'] as FDroidRepository;
           return repo;
@@ -797,7 +801,23 @@ class FDroidApiService {
 
   /// Sets the locale for the database service
   void setLocale(String locale) {
+    _currentLocale = locale;
     _databaseService.setLocale(locale);
+  }
+
+  /// Forces a fresh network fetch/import for the configured repository.
+  Future<FDroidRepository> refreshRepository() async {
+    if (!hasRepositoryUrl()) {
+      throw Exception(
+        'No repository URL configured. Call setRepositoryUrl() first.',
+      );
+    }
+    final repo = await _fetchRepositoryWithAutoFallback(repoIndexUrl!);
+
+    // For immediate locale switching, ensure DB is updated before callers read lists.
+    await _databaseService.importRepository(repo);
+
+    return repo;
   }
 
   /// Downloads an APK file with progress tracking and cancellation support
@@ -1348,11 +1368,13 @@ extension on http.StreamedResponse {
 Map<String, dynamic> _parseRepositoryDataHelper(Map<String, dynamic> args) {
   final body = args['body'] as String;
   final repositoryUrl = args['repositoryUrl'] as String?;
+  final locale = args['locale'] as String?;
 
   final jsonData = json.decode(body) as Map<String, dynamic>;
   final repo = FDroidRepository.fromJson(
     jsonData,
     repositoryUrl: repositoryUrl,
+    locale: locale,
   );
 
   return {'repo': repo, 'json': jsonData};

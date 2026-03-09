@@ -8,6 +8,7 @@ enum UpdateNetworkPolicy { any, wifiOnly, wifiAndCharging }
 enum InstallMethod { system, shizuku }
 
 class SettingsProvider extends ChangeNotifier {
+  static const String systemLocale = 'system';
   static const _themeModeKey = 'theme_mode';
   static const _themeStyleKey = 'theme_style';
   static const _autoInstallKey = 'auto_install_apk';
@@ -30,7 +31,7 @@ class SettingsProvider extends ChangeNotifier {
   bool _autoInstallApk = true;
   bool _autoDeleteApk = true;
   InstallMethod _installMethod = InstallMethod.system;
-  String _locale = 'en-US';
+  String _locale = systemLocale;
   bool _onboardingComplete = false;
   bool _sniBypassEnabled = true;
   bool _dynamicColorEnabled = false;
@@ -67,6 +68,7 @@ class SettingsProvider extends ChangeNotifier {
 
   /// Available locales for F-Droid repository data
   static const List<String> availableLocales = [
+    systemLocale,
     'en-US',
     'en',
     'de-DE',
@@ -83,6 +85,8 @@ class SettingsProvider extends ChangeNotifier {
   /// Get locale display name
   static String getLocaleDisplayName(String locale) {
     switch (locale) {
+      case systemLocale:
+        return 'System default';
       case 'en-US':
         return 'English (US)';
       case 'en':
@@ -131,7 +135,7 @@ class SettingsProvider extends ChangeNotifier {
         installMethodIndex < InstallMethod.values.length) {
       _installMethod = InstallMethod.values[installMethodIndex];
     }
-    _locale = prefs.getString(_localeKey) ?? 'en-US';
+    _locale = prefs.getString(_localeKey) ?? systemLocale;
     _onboardingComplete = prefs.getBool(_onboardingCompleteKey) ?? false;
     _sniBypassEnabled = prefs.getBool(_sniBypassKey) ?? true;
     _dynamicColorEnabled = prefs.getBool(_dynamicColorKey) ?? false;
@@ -194,6 +198,49 @@ class SettingsProvider extends ChangeNotifier {
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_localeKey, locale);
+  }
+
+  String get effectiveLocale => resolveEffectiveLocale(_locale);
+
+  static String resolveEffectiveLocale(String locale) {
+    if (locale != systemLocale) {
+      return locale;
+    }
+
+    final systemLocaleValue = WidgetsBinding.instance.platformDispatcher.locale;
+    final language = systemLocaleValue.languageCode.toLowerCase();
+    final country = (systemLocaleValue.countryCode ?? '').toUpperCase();
+    final regionCandidate = country.isNotEmpty ? '$language-$country' : null;
+
+    if (regionCandidate != null && availableLocales.contains(regionCandidate)) {
+      return regionCandidate;
+    }
+    if (availableLocales.contains(language)) {
+      return language;
+    }
+
+    switch (language) {
+      case 'de':
+        return 'de-DE';
+      case 'es':
+        return 'es-ES';
+      case 'fr':
+        return 'fr-FR';
+      case 'it':
+        return 'it-IT';
+      case 'ja':
+        return 'ja-JP';
+      case 'ko':
+        return 'ko-KR';
+      case 'pt':
+        return 'pt-BR';
+      case 'ru':
+        return 'ru-RU';
+      case 'zh':
+        return 'zh-CN';
+      default:
+        return 'en-US';
+    }
   }
 
   Future<void> setOnboardingComplete([bool value = true]) async {

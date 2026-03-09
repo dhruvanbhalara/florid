@@ -216,7 +216,7 @@ class AppProvider extends ChangeNotifier {
           try {
             final repoId = await _apiService.getRepositoryIdByUrl(url);
             if (repoId != null) {
-              _apiService.importRepositoryInBackground(
+              await _apiService.importRepositoryToDatabase(
                 repo,
                 repositoryId: repoId,
               );
@@ -244,6 +244,8 @@ class AppProvider extends ChangeNotifier {
 
       // Merge all repositories into one
       final mergedRepo = _mergeRepositories(repositories);
+      _repository = mergedRepo;
+      _repositoryState = LoadingState.success;
       notifyListeners();
       return mergedRepo;
     } catch (e) {
@@ -981,7 +983,17 @@ class AppProvider extends ChangeNotifier {
   }
 
   /// Refreshes all data
-  Future<void> refreshAll({RepositoriesProvider? repositoriesProvider}) async {
+  Future<void> refreshAll({
+    RepositoriesProvider? repositoriesProvider,
+    bool forceRepositoryRefresh = false,
+  }) async {
+    // Re-resolve locale at refresh time so system-language changes are honored
+    // even when SettingsProvider is set to `system` and hasn't emitted a change.
+    final settings = _settingsProvider;
+    if (settings != null) {
+      _apiService.setLocale(settings.effectiveLocale);
+    }
+
     // Clear cached data
     _repository = null;
     _repositoryState = LoadingState.idle;
@@ -992,6 +1004,11 @@ class AppProvider extends ChangeNotifier {
 
     // If we have enabled repositories, fetch from all of them
     if (repositoriesProvider != null) {
+      if (repositoriesProvider.repositories.isEmpty &&
+          !repositoriesProvider.isLoading) {
+        await repositoriesProvider.loadRepositories();
+      }
+
       final enabledRepos = repositoriesProvider.enabledRepositories;
       if (enabledRepos.isNotEmpty) {
         debugPrint('🔄 Refreshing ${enabledRepos.length} enabled repositories');
@@ -1001,11 +1018,27 @@ class AppProvider extends ChangeNotifier {
         await fetchRepositoriesFromUrls(urls);
       } else {
         // No custom repos, fetch default
-        await fetchRepository();
+        if (forceRepositoryRefresh) {
+          _repositoryState = LoadingState.loading;
+          notifyListeners();
+          _repository = await _apiService.refreshRepository();
+          _repositoryState = LoadingState.success;
+          notifyListeners();
+        } else {
+          await fetchRepository();
+        }
       }
     } else {
       // No repository provider, fetch default
-      await fetchRepository();
+      if (forceRepositoryRefresh) {
+        _repositoryState = LoadingState.loading;
+        notifyListeners();
+        _repository = await _apiService.refreshRepository();
+        _repositoryState = LoadingState.success;
+        notifyListeners();
+      } else {
+        await fetchRepository();
+      }
     }
 
     // Must reload repositories provider FIRST to ensure it's up-to-date

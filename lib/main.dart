@@ -44,12 +44,12 @@ class MainApp extends StatelessWidget {
           update: (context, settings, previous) {
             if (previous != null) {
               // Update existing service with new locale
-              previous.setLocale(settings.locale);
+              previous.setLocale(settings.effectiveLocale);
               return previous;
             }
             // Create new service with current locale
             final service = FDroidApiService();
-            service.setLocale(settings.locale);
+            service.setLocale(settings.effectiveLocale);
             // Set default F-Droid repository immediately (synchronously)
             service.setRepositoryUrl('https://f-droid.org/repo');
             // Then try to load from config asynchronously
@@ -85,7 +85,7 @@ class MainApp extends StatelessWidget {
           ),
           update: (context, apiService, settings, previous) {
             // Update locale when settings change
-            apiService.setLocale(settings.locale);
+            apiService.setLocale(settings.effectiveLocale);
 
             if (previous == null) {
               return DownloadProvider(apiService, settings);

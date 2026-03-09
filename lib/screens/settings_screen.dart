@@ -18,6 +18,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../providers/app_provider.dart';
+import '../providers/repositories_provider.dart';
 import '../providers/settings_provider.dart';
 import '../screens/appearance_screen.dart';
 import '../screens/repositories_screen.dart';
@@ -238,7 +239,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
           controller: controller,
           autofocus: true,
           textInputAction: TextInputAction.done,
-          decoration:  InputDecoration(hintText: AppLocalizations.of(context)!.enter_your_name),
+          decoration: InputDecoration(
+            hintText: AppLocalizations.of(context)!.enter_your_name,
+          ),
           onSubmitted: (value) => Navigator.of(dialogContext).pop(value),
         ),
         actions: [
@@ -567,16 +570,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
     BuildContext context,
     SettingsProvider settings,
   ) async {
+    final parentContext = context;
+    final navigator = Navigator.of(parentContext, rootNavigator: true);
+    final messenger = ScaffoldMessenger.of(parentContext);
+    final apiService = parentContext.read<FDroidApiService>();
+    final appProvider = parentContext.read<AppProvider>();
+    final repositoriesProvider = parentContext.read<RepositoriesProvider>();
+
     await showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: const Text('Select Language'),
         content: SizedBox(
           width: double.maxFinite,
           child: ListView.builder(
             shrinkWrap: true,
             itemCount: SettingsProvider.availableLocales.length,
-            itemBuilder: (context, index) {
+            itemBuilder: (_, index) {
               final locale = SettingsProvider.availableLocales[index];
               final displayName = SettingsProvider.getLocaleDisplayName(locale);
 
@@ -588,19 +598,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 onChanged: (value) async {
                   if (value != null) {
                     await settings.setLocale(value);
-                    if (!context.mounted) return;
+                    if (!mounted) return;
 
                     // Update API service locale
-                    final apiService = context.read<FDroidApiService>();
-                    apiService.setLocale(value);
+                    apiService.setLocale(settings.effectiveLocale);
 
-                    Navigator.pop(context);
+                    // Refresh repository data immediately so app metadata reflects the selected language.
+                    await appProvider.refreshAll(
+                      repositoriesProvider: repositoriesProvider,
+                      forceRepositoryRefresh: true,
+                    );
 
-                    // Show message that data will be refreshed
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
+                    if (!mounted) return;
+                    if (navigator.canPop()) {
+                      navigator.pop();
+                    }
+
+                    // Show message that data has been refreshed.
+                    messenger.showSnackBar(
+                      SnackBar(
                         content: Text(
-                          'Language changed. Repository will refresh on next load.',
+                          'Language changed to ${SettingsProvider.getLocaleDisplayName(value)}.',
                         ),
                       ),
                     );
