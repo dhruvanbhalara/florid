@@ -17,7 +17,6 @@ class AppearanceScreen extends StatelessWidget {
     return Consumer<SettingsProvider>(
       builder: (context, settings, _) {
         final localizations = AppLocalizations.of(context)!;
-        final useDynamic = settings.dynamicColorEnabled;
         return DynamicColorBuilder(
           builder: (lightDynamic, darkDynamic) {
             final dynamicColorSupported =
@@ -65,36 +64,6 @@ class AppearanceScreen extends StatelessWidget {
                               ),
                             ],
                           ),
-                          if (dynamicColorSupported)
-                            Column(
-                              spacing: 4,
-                              children: [
-                                MListHeader(title: localizations.dynamic_color),
-                                MListView(
-                                  items: [
-                                    MListItemData(
-                                      leading: Icon(Symbols.palette),
-                                      title: localizations.material_you_dynamic,
-                                      subtitle: localizations
-                                          .use_system_colors_supported_android,
-                                      onTap: () {
-                                        settings.setDynamicColorEnabled(
-                                          !settings.dynamicColorEnabled,
-                                        );
-                                      },
-                                      suffix: Switch(
-                                        value: settings.dynamicColorEnabled,
-                                        onChanged: (value) {
-                                          settings.setDynamicColorEnabled(
-                                            value,
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
                           MListView(
                             items: [
                               MListItemData(
@@ -184,6 +153,14 @@ class ThemeStyleScreen extends StatefulWidget {
 }
 
 class _ThemeStyleScreenState extends State<ThemeStyleScreen> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<SettingsProvider>(
@@ -192,150 +169,179 @@ class _ThemeStyleScreenState extends State<ThemeStyleScreen> {
         final useDynamic = settings.dynamicColorEnabled;
         return DynamicColorBuilder(
           builder: (lightDynamic, darkDynamic) {
+            final dynamicColorSupported =
+                lightDynamic != null || darkDynamic != null;
             return Scaffold(
               body: CustomScrollView(
                 slivers: [
-                  SliverAppBar.medium(title: Text(localizations.theme_style)),
+                  SliverAppBar(title: Text(localizations.theme_style)),
                   SliverFillRemaining(
                     hasScrollBody: false,
-                    child: SafeArea(
-                      child: Scrollbar(
-                        scrollbarOrientation: ScrollbarOrientation.bottom,
-                        interactive: true,
-                        trackVisibility: true,
-                        thumbVisibility: true,
-                        radius: Radius.circular(20),
-                        thickness: 8,
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Row(
-                            children: [
-                              ThemeStylePreviewCard(
-                                isSelected:
-                                    settings.themeStyle == ThemeStyle.florid,
-                                themeData:
-                                    Theme.of(context).brightness ==
-                                        Brightness.light
-                                    ? AppThemes.floridLightTheme(
-                                        colorScheme: useDynamic
-                                            ? lightDynamic
-                                            : null,
-                                      )
-                                    : AppThemes.floridDarkTheme(
-                                        colorScheme: useDynamic
-                                            ? darkDynamic
-                                            : null,
-                                      ),
-                                onTap: () =>
-                                    settings.setThemeStyle(ThemeStyle.florid),
-                                headerBuilder: (previewContext) => Text(
-                                  localizations.florid_style,
-                                  style: Theme.of(previewContext)
-                                      .textTheme
-                                      .headlineSmall!
-                                      .copyWith(
-                                        fontFamily: 'Google Sans Flex',
-                                        fontVariations: [
-                                          FontVariation('wght', 700),
-                                          FontVariation('ROND', 100),
-                                          FontVariation('wdth', 125),
-                                        ],
-                                      ),
-                                  textAlign: TextAlign.center,
-                                ),
+                    child: Scrollbar(
+                      scrollbarOrientation: ScrollbarOrientation.bottom,
+                      interactive: true,
+                      trackVisibility: true,
+                      thumbVisibility: true,
+                      controller: _scrollController,
+                      radius: Radius.circular(20),
+                      thickness: 8,
+                      child: SingleChildScrollView(
+                        controller: _scrollController,
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            ThemeStylePreviewCard(
+                              isSelected:
+                                  settings.themeStyle == ThemeStyle.florid,
+                              themeData:
+                                  Theme.of(context).brightness ==
+                                      Brightness.light
+                                  ? AppThemes.floridLightTheme(
+                                      colorScheme: useDynamic
+                                          ? lightDynamic
+                                          : null,
+                                    )
+                                  : AppThemes.floridDarkTheme(
+                                      colorScheme: useDynamic
+                                          ? darkDynamic
+                                          : null,
+                                    ),
+                              onTap: () =>
+                                  settings.setThemeStyle(ThemeStyle.florid),
+                              headerBuilder: (previewContext) => Text(
+                                localizations.florid_style,
+                                style: Theme.of(previewContext)
+                                    .textTheme
+                                    .headlineSmall!
+                                    .copyWith(
+                                      fontFamily: 'Google Sans Flex',
+                                      fontVariations: [
+                                        FontVariation('wght', 700),
+                                        FontVariation('ROND', 100),
+                                        FontVariation('wdth', 125),
+                                      ],
+                                    ),
+                                textAlign: TextAlign.center,
                               ),
-                              ThemeStylePreviewCard(
-                                isSelected:
-                                    settings.themeStyle == ThemeStyle.material,
-                                themeData:
-                                    Theme.of(context).brightness ==
-                                        Brightness.light
-                                    ? AppThemes.materialLightTheme(
-                                        colorScheme: useDynamic
-                                            ? lightDynamic
-                                            : null,
-                                      )
-                                    : AppThemes.materialDarkTheme(
-                                        colorScheme: useDynamic
-                                            ? darkDynamic
-                                            : null,
-                                      ),
-                                onTap: () =>
-                                    settings.setThemeStyle(ThemeStyle.material),
-                                headerBuilder: (previewContext) => Text(
-                                  localizations.material_style,
-                                  style: Theme.of(
-                                    previewContext,
-                                  ).textTheme.headlineSmall,
-                                  textAlign: TextAlign.center,
-                                ),
+                            ),
+                            ThemeStylePreviewCard(
+                              isSelected:
+                                  settings.themeStyle == ThemeStyle.material,
+                              themeData:
+                                  Theme.of(context).brightness ==
+                                      Brightness.light
+                                  ? AppThemes.materialLightTheme(
+                                      colorScheme: useDynamic
+                                          ? lightDynamic
+                                          : null,
+                                    )
+                                  : AppThemes.materialDarkTheme(
+                                      colorScheme: useDynamic
+                                          ? darkDynamic
+                                          : null,
+                                    ),
+                              onTap: () =>
+                                  settings.setThemeStyle(ThemeStyle.material),
+                              headerBuilder: (previewContext) => Text(
+                                localizations.material_style,
+                                style: Theme.of(
+                                  previewContext,
+                                ).textTheme.headlineSmall,
+                                textAlign: TextAlign.center,
                               ),
-                              ThemeStylePreviewCard(
-                                isSelected:
-                                    settings.themeStyle ==
-                                    ThemeStyle.darkKnight,
-                                themeData:
-                                    Theme.of(context).brightness ==
-                                        Brightness.light
-                                    ? AppThemes.lightKnightTheme(
-                                        colorScheme: useDynamic
-                                            ? lightDynamic
-                                            : null,
-                                      )
-                                    : AppThemes.lightKnightTheme(
-                                        colorScheme: useDynamic
-                                            ? darkDynamic
-                                            : null,
-                                      ),
-                                onTap: () => settings.setThemeStyle(
-                                  ThemeStyle.darkKnight,
-                                ),
-                                headerBuilder: (previewContext) => Column(
-                                  spacing: 4.0,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      localizations.dark_knight,
-                                      style: Theme.of(
+                            ),
+                            ThemeStylePreviewCard(
+                              isSelected:
+                                  settings.themeStyle == ThemeStyle.darkKnight,
+                              themeData:
+                                  Theme.of(context).brightness ==
+                                      Brightness.light
+                                  ? AppThemes.lightKnightTheme(
+                                      colorScheme: useDynamic
+                                          ? lightDynamic
+                                          : null,
+                                    )
+                                  : AppThemes.lightKnightTheme(
+                                      colorScheme: useDynamic
+                                          ? darkDynamic
+                                          : null,
+                                    ),
+                              onTap: () =>
+                                  settings.setThemeStyle(ThemeStyle.darkKnight),
+                              headerBuilder: (previewContext) => Column(
+                                spacing: 4.0,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    localizations.dark_knight,
+                                    style: Theme.of(
+                                      previewContext,
+                                    ).textTheme.headlineSmall,
+                                  ),
+                                  Container(
+                                    margin: const EdgeInsets.only(right: 8.0),
+                                    child: Material(
+                                      color: Theme.of(
                                         previewContext,
-                                      ).textTheme.headlineSmall,
-                                    ),
-                                    Container(
-                                      margin: const EdgeInsets.only(right: 8.0),
-                                      child: Material(
-                                        color: Theme.of(
-                                          previewContext,
-                                        ).colorScheme.secondary,
-                                        borderRadius: BorderRadius.circular(
-                                          99.0,
+                                      ).colorScheme.secondary,
+                                      borderRadius: BorderRadius.circular(99.0),
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12.0,
+                                          vertical: 2.0,
                                         ),
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 12.0,
-                                            vertical: 2.0,
-                                          ),
-                                          child: Text(
-                                            localizations.beta,
-                                            style: TextStyle(
-                                              color: Theme.of(
-                                                previewContext,
-                                              ).colorScheme.onSecondary,
-                                            ),
+                                        child: Text(
+                                          localizations.beta,
+                                          style: TextStyle(
+                                            color: Theme.of(
+                                              previewContext,
+                                            ).colorScheme.onSecondary,
                                           ),
                                         ),
                                       ),
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
                   ),
                 ],
               ),
+              bottomNavigationBar: dynamicColorSupported
+                  ? Material(
+                      color: Theme.of(context).colorScheme.surfaceContainerLow,
+                      child: SafeArea(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: MListView(
+                            items: [
+                              MListItemData(
+                                leading: Icon(Symbols.palette),
+                                title: localizations.material_you_dynamic,
+                                subtitle: localizations
+                                    .use_system_colors_supported_android,
+                                onTap: () {
+                                  settings.setDynamicColorEnabled(
+                                    !settings.dynamicColorEnabled,
+                                  );
+                                },
+                                suffix: Switch(
+                                  value: settings.dynamicColorEnabled,
+                                  onChanged: (value) {
+                                    settings.setDynamicColorEnabled(value);
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    )
+                  : SizedBox.shrink(),
             );
           },
         );
@@ -416,6 +422,7 @@ class ThemeStylePreviewCard extends StatelessWidget {
                                     icon: Icon(Symbols.share),
                                   ),
                                   FloatingActionButton.small(
+                                    heroTag: null,
                                     onPressed: () {},
                                     child: const Icon(Symbols.add),
                                   ),
