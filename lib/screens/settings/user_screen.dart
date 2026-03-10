@@ -1,17 +1,31 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:florid/l10n/app_localizations.dart';
 import 'package:florid/models/fdroid_app.dart';
 import 'package:florid/providers/app_provider.dart';
-import 'package:florid/providers/download_provider.dart';
+import 'package:florid/providers/app_update_provider.dart';
+import 'package:florid/providers/repositories_provider.dart';
 import 'package:florid/providers/settings_provider.dart';
 import 'package:florid/screens/app_details/app_details_screen.dart';
-import 'package:florid/screens/settings/settings_screen.dart';
-import 'package:florid/utils/menu_actions.dart';
+import 'package:florid/screens/settings/app_management_screen.dart';
+import 'package:florid/screens/settings/app_updater.dart';
+import 'package:florid/screens/settings/appearance_screen.dart';
+import 'package:florid/screens/settings/repositories_screen.dart';
+import 'package:florid/screens/settings/troubleshooting_screen.dart';
+import 'package:florid/services/fdroid_api_service.dart';
 import 'package:florid/widgets/app_list_item.dart';
-import 'package:florid/widgets/f_tabbar.dart';
+import 'package:florid/widgets/m_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class UserScreen extends StatefulWidget {
   const UserScreen({super.key});
@@ -20,354 +34,202 @@ class UserScreen extends StatefulWidget {
   State<UserScreen> createState() => _UserScreenState();
 }
 
-class _UserScreenState extends State<UserScreen>
-    with SingleTickerProviderStateMixin {
-  late final TabController _tabController;
+class _UserScreenState extends State<UserScreen> {
+  bool _isCollapsed = false;
+  late final ScrollController _scrollController;
+  final double expandedBarHeight = 200;
+  final double collapsedBarHeight = kMinInteractiveDimension;
+
+  Future<void> _editUserName(
+    BuildContext context,
+    SettingsProvider settingsProvider,
+  ) async {
+    final controller = TextEditingController(text: settingsProvider.userName);
+
+    final result = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(AppLocalizations.of(context)!.your_name),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          textInputAction: TextInputAction.done,
+          decoration: InputDecoration(
+            hintText: AppLocalizations.of(context)!.enter_your_name,
+          ),
+          onSubmitted: (value) => Navigator.of(dialogContext).pop(value),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: Text(AppLocalizations.of(context)!.close),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(controller.text),
+            child: Text(AppLocalizations.of(context)!.save),
+          ),
+        ],
+      ),
+    );
+
+    if (result == null) return;
+    await settingsProvider.setUserName(result.trim());
+  }
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _scrollController = ScrollController();
   }
 
   @override
   void dispose() {
-    _tabController.dispose();
+    _scrollController.dispose();
     super.dispose();
-  }
-
-  void _loadData() {
-    final appProvider = context.read<AppProvider>();
-    // Load both repository data and installed apps
-    appProvider.fetchRepository();
-    appProvider.fetchInstalledApps();
-  }
-
-  Widget _buildFavoritesTab(
-    BuildContext context,
-    AppProvider appProvider,
-    SettingsProvider settingsProvider,
-    List<FDroidApp> favoriteApps,
-    List<FDroidApp> updatableApps,
-    bool repositoryLoaded,
-    LoadingState repositoryState,
-    String? repositoryError,
-  ) {
-    final localizations = AppLocalizations.of(context)!;
-    if (repositoryState == LoadingState.loading && !repositoryLoaded) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const CircularProgressIndicator(year2023: false),
-            const SizedBox(height: 12),
-            Text(localizations.loading_repository),
-          ],
-        ),
-      );
-    }
-
-    if (!repositoryLoaded && repositoryState == LoadingState.error) {
-      return SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        child: Container(
-          height: MediaQuery.of(context).size.height * 0.7,
-          alignment: Alignment.center,
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            spacing: 16,
-            children: [
-              Icon(
-                Symbols.cloud_off,
-                size: 64,
-                color: Theme.of(context).colorScheme.error,
-              ),
-              Text(
-                localizations.unable_to_load_repository,
-                style: Theme.of(context).textTheme.headlineSmall,
-                textAlign: TextAlign.center,
-              ),
-              if (repositoryError != null)
-                SelectableText(
-                  repositoryError.replaceAll('Exception: ', ''),
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.error,
-                  ),
-                ),
-              Text(
-                localizations.repository_loading_error_descrption,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  FilledButton.icon(
-                    onPressed: _loadData,
-                    icon: const Icon(Symbols.refresh),
-                    label: Text(localizations.retry),
-                  ),
-                  const SizedBox(width: 12),
-                  OutlinedButton.icon(
-                    onPressed: () => MenuActions.showSettings(context),
-                    icon: const Icon(Symbols.settings),
-                    label: Text(localizations.settings),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    if (favoriteApps.isEmpty) {
-      return SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        child: Container(
-          height: MediaQuery.of(context).size.height * 0.7,
-          alignment: Alignment.center,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Symbols.favorite_rounded,
-                size: 64,
-                fill: 1,
-                color: Colors.pink[600],
-              ).animate().scaleXY(
-                delay: Duration(milliseconds: 100),
-                duration: 500.ms,
-                curve: Curves.elasticInOut,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                    localizations.no_favourites_yet,
-                    style: Theme.of(context).textTheme.headlineSmall,
-                  )
-                  .animate()
-                  .scaleXY(delay: Duration(milliseconds: 100), duration: 200.ms)
-                  .fade(delay: Duration(milliseconds: 100), duration: 500.ms),
-              const SizedBox(height: 8),
-              Text(
-                    localizations.tap_star_to_save,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                  )
-                  .animate()
-                  .scaleXY(delay: Duration(milliseconds: 300), duration: 200.ms)
-                  .fade(delay: Duration(milliseconds: 200), duration: 500.ms),
-            ],
-          ),
-        ),
-      );
-    }
-
-    final bottomPadding =
-        settingsProvider.themeStyle == ThemeStyle.florid ||
-            settingsProvider.themeStyle == ThemeStyle.darkKnight
-        ? 96.0
-        : 16.0;
-
-    return ListView.builder(
-      padding: EdgeInsets.fromLTRB(8, 8, 8, bottomPadding),
-      itemCount: favoriteApps.length,
-      itemBuilder: (context, index) {
-        final app = favoriteApps[index];
-        final hasUpdate = updatableApps.any(
-          (updateApp) => updateApp.packageName == app.packageName,
-        );
-        return Card(
-          elevation: 0,
-          key: Key(app.packageName),
-          child: AppListItem(
-            app: app,
-            showInstallStatus: true,
-            showFavorite: true,
-            onUpdate: hasUpdate ? () => _updateApp(context, app) : null,
-            onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => AppDetailsScreen(app: app),
-                ),
-              );
-            },
-          ),
-        ).animate().fadeIn(duration: 300.ms, delay: (100 * index).ms);
-      },
-    );
-  }
-
-  Future<void> _updateApp(BuildContext context, FDroidApp app) async {
-    final downloadProvider = context.read<DownloadProvider>();
-    final localizations = AppLocalizations.of(context)!;
-
-    // Check if already downloading
-    final downloadInfo = downloadProvider.getDownloadInfo(
-      app.packageName,
-      app.latestVersion?.versionName ?? '',
-    );
-    if (downloadInfo?.status == DownloadStatus.downloading) {
-      return; // Already downloading, don't start again
-    }
-
-    try {
-      // Download the app (permission is handled internally by downloadProvider)
-      await downloadProvider.downloadApk(app);
-
-      // The download provider handles installation automatically
-      // Just clean up the APK file after a delay
-      if (context.mounted) {
-        await Future.delayed(const Duration(seconds: 3));
-        final finalDownloadInfo = downloadProvider.getDownloadInfo(
-          app.packageName,
-          app.latestVersion!.versionName,
-        );
-        if (finalDownloadInfo?.filePath != null) {
-          await downloadProvider.deleteDownloadedFile(
-            finalDownloadInfo!.filePath!,
-          );
-        }
-      }
-    } catch (e) {
-      final errorMsg = e.toString();
-      if (!errorMsg.contains('cancelled') && !errorMsg.contains('Cancelled')) {
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(localizations.update_failed_with_error(errorMsg)),
-            ),
-          );
-        }
-      }
-    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final appProvider = context.watch<AppProvider>();
     final settingsProvider = context.watch<SettingsProvider>();
     final localizations = AppLocalizations.of(context)!;
-    final repositoryLoaded = appProvider.repository != null;
-    final isDarkKnight = settingsProvider.themeStyle == ThemeStyle.darkKnight;
 
-    return Scaffold(
-      extendBody: true,
-      body: NestedScrollView(
-        headerSliverBuilder: (context, innerBoxIsScrolled) => [
-          SliverAppBar.medium(
-            backgroundColor: isDarkKnight
-                ? null
-                : Theme.of(context).colorScheme.surfaceContainerLow,
-            surfaceTintColor: isDarkKnight
-                ? null
-                : Theme.of(context).colorScheme.surfaceContainerLow,
-            scrolledUnderElevation: isDarkKnight ? 0 : null,
-            title: Row(
-              children: [
-                CircleAvatar(
-                  backgroundColor: Theme.of(
-                    context,
-                  ).colorScheme.primaryContainer,
-                  foregroundColor: Theme.of(
-                    context,
-                  ).colorScheme.onPrimaryContainer,
-                  child: settingsProvider.userName.isNotEmpty
-                      ? Text(
-                          settingsProvider.userName
-                              .trim()
-                              .substring(0, 1)
-                              .toUpperCase(),
-                        )
-                      : const Icon(Symbols.person),
-                ),
-                const SizedBox(width: 12),
-                Flexible(
-                  child: Text(
-                    settingsProvider.userName.isNotEmpty
-                        ? settingsProvider.userName
-                        : localizations.user,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          SliverPersistentHeader(
-            pinned: true,
-            delegate: _FTabBarHeaderDelegate(
-              height: settingsProvider.themeStyle == ThemeStyle.florid
-                  ? 68
-                  : 56,
-              child: Material(
-                color: isDarkKnight
-                    ? null
-                    : Theme.of(context).colorScheme.surfaceContainerLow,
-
-                surfaceTintColor: isDarkKnight
-                    ? null
-                    : Theme.of(context).colorScheme.surfaceContainerLow,
-                child: Container(
-                  margin: settingsProvider.themeStyle == ThemeStyle.florid
-                      ? const EdgeInsets.only(top: 8)
-                      : null,
-                  child: FTabBar(
-                    controller: _tabController,
-                    onTabChanged: (index) {
-                      _tabController.animateTo(index);
-                    },
-                    items: [
-                      FloridTabBarItem(
-                        icon: Symbols.favorite_rounded,
-                        label: AppLocalizations.of(context)!.favourites,
+    return NotificationListener<ScrollNotification>(
+      onNotification: (notification) {
+        final newCollapsed =
+            notification.metrics.pixels >
+            (expandedBarHeight - collapsedBarHeight);
+        if (newCollapsed != _isCollapsed) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+            setState(() {
+              _isCollapsed = newCollapsed;
+            });
+          });
+        }
+        return false;
+      },
+      child: Scaffold(
+        extendBody: true,
+        body: CustomScrollView(
+          controller: _scrollController,
+          slivers: [
+            SliverAppBar(
+              pinned: true,
+              centerTitle: true,
+              expandedHeight: expandedBarHeight,
+              flexibleSpace: FlexibleSpaceBar(
+                collapseMode: CollapseMode.pin,
+                background: SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16.0),
+                    child: GestureDetector(
+                      onTap: () => _editUserName(context, settingsProvider),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        spacing: 4.0,
+                        children: [
+                          Stack(
+                            children: [
+                              CircleAvatar(
+                                radius: 48,
+                                backgroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.primary,
+                                foregroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.onPrimary,
+                                child: settingsProvider.userName.isNotEmpty
+                                    ? Text(
+                                        settingsProvider.userName
+                                            .trim()
+                                            .substring(0, 1)
+                                            .toUpperCase(),
+                                        style: TextStyle(
+                                          fontSize: 48,
+                                          fontVariations: [
+                                            FontVariation('wght', 700),
+                                            FontVariation('ROND', 100),
+                                            FontVariation('wdth', 100),
+                                          ],
+                                        ),
+                                      )
+                                    : const Icon(Symbols.person, size: 48),
+                              ),
+                              Positioned(
+                                right: 0,
+                                bottom: 0,
+                                child: Material(
+                                  elevation: 2,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.primaryContainer,
+                                  shape: const CircleBorder(),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(4.0),
+                                    child: const Icon(Symbols.edit, size: 16),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Text(
+                            settingsProvider.userName.isNotEmpty
+                                ? settingsProvider.userName
+                                : localizations.user,
+                            style: Theme.of(context).textTheme.headlineMedium!
+                                .copyWith(
+                                  fontVariations: [
+                                    FontVariation('wght', 700),
+                                    FontVariation('ROND', 100),
+                                    FontVariation('wdth', 100),
+                                  ],
+                                ),
+                          ),
+                        ],
                       ),
-                      FloridTabBarItem(
-                        icon: Symbols.settings,
-                        label: AppLocalizations.of(context)!.settings,
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ),
+              title: AnimatedOpacity(
+                duration: const Duration(milliseconds: 200),
+                opacity: _isCollapsed ? 1 : 0,
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                      child: settingsProvider.userName.isNotEmpty
+                          ? Text(
+                              settingsProvider.userName
+                                  .trim()
+                                  .substring(0, 1)
+                                  .toUpperCase(),
+                              style: TextStyle(
+                                fontVariations: [
+                                  FontVariation('wght', 700),
+                                  FontVariation('ROND', 100),
+                                  FontVariation('wdth', 100),
+                                ],
+                              ),
+                            )
+                          : const Icon(Symbols.person),
+                    ),
+                    const SizedBox(width: 12),
+                    Flexible(
+                      child: Text(
+                        settingsProvider.userName.isNotEmpty
+                            ? settingsProvider.userName
+                            : localizations.user,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
-          ),
-        ],
-        body: TabBarView(
-          controller: _tabController,
-          children: [
-            FutureBuilder<List<FDroidApp>>(
-              future: repositoryLoaded
-                  ? appProvider.getUpdatableApps()
-                  : Future.value(<FDroidApp>[]),
-              builder: (context, snapshot) {
-                final updatableApps = snapshot.data ?? <FDroidApp>[];
-                final favoriteApps = repositoryLoaded
-                    ? appProvider.getFavoriteApps()
-                    : <FDroidApp>[];
-                return _buildFavoritesTab(
-                  context,
-                  appProvider,
-                  settingsProvider,
-                  favoriteApps,
-                  updatableApps,
-                  repositoryLoaded,
-                  appProvider.repositoryState,
-                  appProvider.repositoryError,
-                );
-              },
-            ),
-            Padding(
-              padding: EdgeInsets.fromLTRB(0, 16, 0, 0),
-              child: SettingsScreen(),
-            ),
+            const SliverToBoxAdapter(child: _UserSettingsContent()),
           ],
         ),
       ),
@@ -375,29 +237,728 @@ class _UserScreenState extends State<UserScreen>
   }
 }
 
-class _FTabBarHeaderDelegate extends SliverPersistentHeaderDelegate {
-  _FTabBarHeaderDelegate({required this.height, required this.child});
+enum _FavoritesImportAction { merge, replace }
 
-  final double height;
-  final Widget child;
-
-  @override
-  double get minExtent => height;
+class _UserSettingsContent extends StatefulWidget {
+  const _UserSettingsContent();
 
   @override
-  double get maxExtent => height;
+  State<_UserSettingsContent> createState() => _UserSettingsContentState();
+}
+
+class _UserSettingsContentState extends State<_UserSettingsContent> {
+  String _appVersion = '';
 
   @override
-  Widget build(
-    BuildContext context,
-    double shrinkOffset,
-    bool overlapsContent,
-  ) {
-    return SizedBox.expand(child: child);
+  void initState() {
+    super.initState();
+    _loadVersion();
+  }
+
+  Future<void> _loadVersion() async {
+    final info = await PackageInfo.fromPlatform();
+    if (!mounted) return;
+    setState(() {
+      _appVersion = '${info.version}+${info.buildNumber}';
+    });
+  }
+
+  Future<void> _showUpdateDialog(BuildContext context) async {
+    final updateProvider = context.read<AppUpdateProvider>();
+
+    if (!mounted) return;
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: Text(AppLocalizations.of(context)!.checking_for_updates),
+        content: const SizedBox(
+          height: 60,
+          child: Center(child: CircularProgressIndicator()),
+        ),
+      ),
+    );
+
+    await updateProvider.checkForUpdates();
+
+    if (!mounted) return;
+    Navigator.pop(context);
+
+    if (updateProvider.hasUpdate) {
+      if (!mounted) return;
+      await Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (context) => const AppUpdatePage()));
+    } else {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Florid is up to date!'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
+  Widget buildListIcon(IconData? iconData, {bool primary = false}) {
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outlineVariant,
+          width: 0.5,
+        ),
+        gradient: LinearGradient(
+          colors: [
+            if (primary)
+              Theme.of(context).colorScheme.primary.withValues(alpha: 0.12)
+            else
+              Theme.of(context).colorScheme.surfaceContainerHigh,
+            if (primary)
+              Theme.of(context).colorScheme.primary
+            else
+              Theme.of(context).colorScheme.surfaceContainer,
+          ],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
+      ),
+      child: Icon(
+        iconData,
+        fill: 1,
+        weight: 300,
+        color: primary ? Theme.of(context).colorScheme.onPrimary : null,
+      ),
+    );
   }
 
   @override
-  bool shouldRebuild(covariant _FTabBarHeaderDelegate oldDelegate) {
-    return oldDelegate.height != height || oldDelegate.child != child;
+  Widget build(BuildContext context) {
+    return Consumer<SettingsProvider>(
+      builder: (context, settings, _) {
+        return Column(
+          children: <Widget>[
+            const SizedBox(height: 16),
+            Padding(
+                  padding: const EdgeInsets.only(left: 8.0, right: 8),
+                  child: Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        spacing: 12.0,
+                        children: [
+                          Text(
+                            'Keep Android Open',
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(fontWeight: FontWeight.w600),
+                          ),
+                          const Text(
+                            'From 2026/2027 onward, Google will require developer verification for all Android apps on certified devices, including those installed outside of the Play Store.',
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              FilledButton.tonalIcon(
+                                onPressed: () {
+                                  canLaunchUrl(
+                                    Uri.parse('https://keepandroidopen.org/'),
+                                  ).then((canLaunch) {
+                                    if (canLaunch) {
+                                      launchUrl(
+                                        Uri.parse(
+                                          'https://keepandroidopen.org/',
+                                        ),
+                                      );
+                                    }
+                                  });
+                                },
+                                label: Text(
+                                  AppLocalizations.of(context)!.learn_more,
+                                ),
+                                icon: const Icon(Symbols.open_in_new),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                )
+                .animate(delay: const Duration(milliseconds: 100))
+                .fadeIn(duration: 300.ms),
+            const SizedBox(height: 16),
+            Column(
+              spacing: 4,
+              children: [
+                const MListHeader(
+                  title: 'General Settings',
+                  icon: Symbols.mobile,
+                ),
+                MListView(
+                  items: [
+                    MListItemData(
+                      leading: buildListIcon(Symbols.favorite_rounded),
+                      title: 'Favourites',
+                      subtitle: 'View your favourite apps',
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const _FavoriteAppsScreen(),
+                          ),
+                        );
+                      },
+                      suffix: const Icon(Symbols.chevron_right),
+                    ),
+                    MListItemData(
+                      leading: buildListIcon(Symbols.palette),
+                      title: 'Appearance',
+                      subtitle: 'Theme mode and style',
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const AppearanceScreen(),
+                          ),
+                        );
+                      },
+                      suffix: const Icon(Symbols.chevron_right),
+                    ),
+                    MListItemData(
+                      leading: buildListIcon(Symbols.language),
+                      title: 'App content language',
+                      onTap: () => _showLanguageDialog(context, settings),
+                      subtitle: SettingsProvider.getLocaleDisplayName(
+                        settings.locale,
+                      ),
+                      suffix: const Icon(Symbols.chevron_right),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Column(
+              spacing: 4,
+              children: [
+                const MListHeader(
+                  title: 'Repositories & Management',
+                  icon: Symbols.settings,
+                ),
+                MListView(
+                  items: [
+                    MListItemData(
+                      leading: buildListIcon(Symbols.cloud),
+                      title: 'Manage repositories',
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const RepositoriesScreen(),
+                          ),
+                        );
+                      },
+                      subtitle: 'Add or remove F-Droid repositories',
+                      suffix: const Icon(Symbols.chevron_right),
+                    ),
+                    MListItemData(
+                      leading: buildListIcon(Symbols.discover_tune_rounded),
+                      title: 'App Management',
+                      subtitle:
+                          'Manage settings regarding installs and updates',
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const AppManagementScreen(),
+                          ),
+                        );
+                      },
+                      suffix: const Icon(Symbols.chevron_right),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Column(
+              spacing: 4.0,
+              children: [
+                const MListHeader(
+                  title: 'Miscellaneous',
+                  icon: Symbols.more_horiz,
+                ),
+                MListView(
+                  items: [
+                    MListItemData(
+                      leading: buildListIcon(Symbols.build_rounded),
+                      title: 'Troubleshooting',
+                      subtitle: 'Storage, cache, and downloads',
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const TroubleshootingScreen(),
+                          ),
+                        );
+                      },
+                      suffix: const Icon(Symbols.chevron_right),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Column(
+              spacing: 4,
+              children: [
+                const MListHeader(title: 'About', icon: Symbols.android),
+                MListView(
+                  items: [
+                    MListItemData(
+                      leading: buildListIcon(Symbols.info),
+                      title: AppLocalizations.of(context)!.version,
+                      subtitle: _appVersion.isEmpty ? 'Loading…' : _appVersion,
+                      onTap: () {},
+                    ),
+                    MListItemData(
+                      leading: buildListIcon(Symbols.system_update_rounded),
+                      title: 'Check for updates',
+                      subtitle: 'Manually check for new Florid versions',
+                      suffix: const Icon(Symbols.chevron_right),
+                      onTap: () => _showUpdateDialog(context),
+                    ),
+                    MListItemData(
+                      leading: buildListIcon(Symbols.code_rounded),
+                      title: 'Source code',
+                      subtitle: 'View the Florid source code on GitHub',
+                      suffix: const Icon(Symbols.open_in_new),
+                      onTap: () async {
+                        final url = Uri.parse(
+                          'https://github.com/Nandanrmenon/florid',
+                        );
+                        if (await canLaunchUrl(url)) {
+                          await launchUrl(url);
+                        }
+                      },
+                    ),
+                    MListItemData(
+                      leading: buildListIcon(Symbols.bug_report_rounded),
+                      title: 'Report an issue',
+                      subtitle: 'Found a bug? Let us know!',
+                      suffix: const Icon(Symbols.open_in_new),
+                      onTap: () async {
+                        final url = Uri.parse(
+                          'https://github.com/Nandanrmenon/florid/issues/new?template=bug_report.md',
+                        );
+                        if (await canLaunchUrl(url)) {
+                          await launchUrl(url);
+                        }
+                      },
+                    ),
+                    MListItemData(
+                      leading: buildListIcon(Symbols.volunteer_activism),
+                      title: 'Donate',
+                      subtitle: 'Support continued development of Florid',
+                      suffix: const Icon(Symbols.open_in_new),
+                      onTap: () async {
+                        final url = Uri.parse('https://ko-fi.com/nandanrmenon');
+                        if (await canLaunchUrl(url)) {
+                          await launchUrl(url);
+                        }
+                      },
+                    ),
+                    MListItemData(
+                      leading: buildListIcon(Symbols.share),
+                      title: 'Share Florid',
+                      subtitle: 'Let your nerdy friends know about Florid!',
+                      onTap: () {
+                        SharePlus.instance.share(
+                          ShareParams(
+                            title: 'Check out Florid!',
+                            text:
+                                'A modern F-Droid client! https://github.com/Nandanrmenon/florid',
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SafeArea(child: SizedBox(height: 64)),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _showLanguageDialog(
+    BuildContext context,
+    SettingsProvider settings,
+  ) async {
+    final parentContext = context;
+    final navigator = Navigator.of(parentContext, rootNavigator: true);
+    final messenger = ScaffoldMessenger.of(parentContext);
+    final apiService = parentContext.read<FDroidApiService>();
+    final appProvider = parentContext.read<AppProvider>();
+    final repositoriesProvider = parentContext.read<RepositoriesProvider>();
+
+    await showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Select Language'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: SettingsProvider.availableLocales.length,
+            itemBuilder: (_, index) {
+              final locale = SettingsProvider.availableLocales[index];
+              final displayName = SettingsProvider.getLocaleDisplayName(locale);
+
+              return RadioListTile<String>(
+                title: Text(displayName),
+                subtitle: Text(locale),
+                value: locale,
+                groupValue: settings.locale,
+                onChanged: (value) async {
+                  if (value != null) {
+                    await settings.setLocale(value);
+                    if (!mounted) return;
+
+                    apiService.setLocale(settings.effectiveLocale);
+
+                    await appProvider.refreshAll(
+                      repositoriesProvider: repositoriesProvider,
+                      forceRepositoryRefresh: true,
+                    );
+
+                    if (!mounted) return;
+                    if (navigator.canPop()) {
+                      navigator.pop();
+                    }
+
+                    messenger.showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          'Language changed to ${SettingsProvider.getLocaleDisplayName(value)}.',
+                        ),
+                      ),
+                    );
+                  }
+                },
+              );
+            },
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(AppLocalizations.of(context)!.close),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _FavoriteAppsScreen extends StatefulWidget {
+  const _FavoriteAppsScreen();
+
+  @override
+  State<_FavoriteAppsScreen> createState() => _FavoriteAppsScreenState();
+}
+
+class _FavoriteAppsScreenState extends State<_FavoriteAppsScreen> {
+  Future<void> _exportFavorites(BuildContext context) async {
+    final appProvider = context.read<AppProvider>();
+    final favorites = appProvider.favoritePackages.toList()..sort();
+
+    if (favorites.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('No favourites to export')));
+      return;
+    }
+
+    final payload = jsonEncode({'favorites': favorites});
+    final fileName =
+        'florid-favourites-${DateTime.now().millisecondsSinceEpoch}.json';
+
+    Directory? downloadsDir;
+    if (Platform.isAndroid) {
+      downloadsDir = Directory('/storage/emulated/0/Download');
+    } else {
+      downloadsDir = await getDownloadsDirectory();
+    }
+
+    if (downloadsDir == null) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Unable to access Downloads folder')),
+      );
+      return;
+    }
+
+    final exportFile = File(p.join(downloadsDir.path, fileName));
+    await exportFile.writeAsString(payload);
+
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Saved to Downloads: ${downloadsDir.path}/$fileName'),
+      ),
+    );
+  }
+
+  Set<String> _parseFavoritesPayload(String raw) {
+    final trimmed = raw.trim();
+    if (trimmed.isEmpty) return <String>{};
+
+    try {
+      final decoded = jsonDecode(trimmed);
+      if (decoded is List) {
+        return decoded.whereType<String>().toSet();
+      }
+      if (decoded is Map && decoded['favorites'] is List) {
+        final list = decoded['favorites'] as List;
+        return list.whereType<String>().toSet();
+      }
+    } catch (_) {
+      // Fallback to parsing as a comma/whitespace-separated list.
+    }
+
+    return trimmed
+        .split(RegExp(r'[\s,]+'))
+        .where((item) => item.isNotEmpty)
+        .toSet();
+  }
+
+  Future<void> _importFavorites(BuildContext context) async {
+    final appProvider = context.read<AppProvider>();
+    final picked = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['json'],
+      withData: true,
+    );
+    if (picked == null || picked.files.isEmpty) return;
+
+    final file = picked.files.first;
+    final raw = file.bytes != null
+        ? utf8.decode(file.bytes!)
+        : file.path != null
+        ? await File(file.path!).readAsString()
+        : '';
+
+    final parsed = _parseFavoritesPayload(raw);
+    if (parsed.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No favourites found to import')),
+      );
+      return;
+    }
+
+    final result = await showDialog<_FavoritesImportAction>(
+      context: context,
+      builder: (context) => AlertDialog(
+        icon: const Icon(Symbols.star),
+        title: Text(AppLocalizations.of(context)!.import_favourites),
+        content: Text(
+          'Found ${parsed.length} favourite${parsed.length == 1 ? '' : 's'} in ${file.name}.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(AppLocalizations.of(context)!.close),
+          ),
+          TextButton(
+            onPressed: () =>
+                Navigator.of(context).pop(_FavoritesImportAction.merge),
+            child: Text(AppLocalizations.of(context)!.merge),
+          ),
+          FilledButton(
+            onPressed: () =>
+                Navigator.of(context).pop(_FavoritesImportAction.replace),
+            child: Text(AppLocalizations.of(context)!.replace),
+          ),
+        ],
+      ),
+    );
+
+    if (result == null) return;
+
+    await appProvider.setFavorites(
+      parsed,
+      merge: result == _FavoritesImportAction.merge,
+    );
+
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Imported ${parsed.length} favourite${parsed.length == 1 ? '' : 's'}',
+        ),
+      ),
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<AppProvider>().fetchRepository();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
+
+    return Consumer<AppProvider>(
+      builder: (context, appProvider, _) {
+        final repositoryLoaded = appProvider.repository != null;
+        final repositoryState = appProvider.repositoryState;
+        final repositoryError = appProvider.repositoryError;
+        final favoriteApps = repositoryLoaded
+            ? appProvider.getFavoriteApps()
+            : <FDroidApp>[];
+
+        return Scaffold(
+          body: CustomScrollView(
+            slivers: [
+              SliverAppBar.large(
+                pinned: true,
+                title: Text(AppLocalizations.of(context)!.favourites),
+                actions: [
+                  PopupMenuButton(
+                    itemBuilder: (context) {
+                      return [
+                        PopupMenuItem(
+                          value: 'import',
+                          child: Row(
+                            spacing: 8.0,
+                            children: [
+                              const Icon(Symbols.file_upload),
+                              Text(
+                                AppLocalizations.of(context)!.import_favourites,
+                              ),
+                            ],
+                          ),
+                        ),
+                        PopupMenuItem(
+                          value: 'export',
+                          child: Row(
+                            spacing: 8.0,
+                            children: [
+                              const Icon(Symbols.file_download),
+                              const Text('Export favourites'),
+                            ],
+                          ),
+                        ),
+                      ];
+                    },
+                    onSelected: (value) {
+                      if (value == 'import') {
+                        _importFavorites(context);
+                      } else if (value == 'export') {
+                        _exportFavorites(context);
+                      }
+                    },
+                  ),
+                ],
+              ),
+              if (repositoryState == LoadingState.loading && !repositoryLoaded)
+                const SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Center(child: CircularProgressIndicator()),
+                )
+              else if (!repositoryLoaded &&
+                  repositoryState == LoadingState.error)
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        spacing: 12,
+                        children: [
+                          const Icon(Symbols.cloud_off, size: 48),
+                          Text(localizations.unable_to_load_repository),
+                          if (repositoryError != null)
+                            Text(
+                              repositoryError.replaceAll('Exception: ', ''),
+                              textAlign: TextAlign.center,
+                            ),
+                          FilledButton.icon(
+                            onPressed: () => appProvider.fetchRepository(),
+                            icon: const Icon(Symbols.refresh),
+                            label: Text(localizations.retry),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                )
+              else if (favoriteApps.isEmpty)
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Symbols.favorite_rounded,
+                          fill: 1,
+                          size: 128,
+                          color: Colors.redAccent,
+                        ),
+                        Text(
+                          localizations.no_favourites_yet,
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.headlineMedium,
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              else
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(8, 8, 8, 16),
+                  sliver: SliverList.builder(
+                    itemCount: favoriteApps.length,
+                    itemBuilder: (context, index) {
+                      final app = favoriteApps[index];
+                      return Card(
+                        elevation: 0,
+                        child: AppListItem(
+                          app: app,
+                          showInstallStatus: true,
+                          showFavorite: true,
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    AppDetailsScreen(app: app),
+                              ),
+                            );
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }
