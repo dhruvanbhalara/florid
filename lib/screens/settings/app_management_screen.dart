@@ -9,6 +9,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:local_auth/local_auth.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
@@ -26,6 +27,7 @@ class AppManagementScreen extends StatefulWidget {
 
 class _AppManagementScreenState extends State<AppManagementScreen> {
   bool? _isIgnoringBatteryOptimizations;
+  final LocalAuthentication _localAuth = LocalAuthentication();
 
   @override
   void initState() {
@@ -113,6 +115,49 @@ class _AppManagementScreenState extends State<AppManagementScreen> {
     await intent.launch();
     await Future.delayed(const Duration(seconds: 1));
     await _loadBatteryOptimizationStatus();
+  }
+
+  Future<bool> _authenticateForSettingsChange() async {
+    if (!Platform.isAndroid && !Platform.isIOS) {
+      return true;
+    }
+
+    try {
+      final supported = await _localAuth.isDeviceSupported();
+      if (!supported) {
+        return true;
+      }
+
+      return await _localAuth.authenticate(
+        localizedReason: 'Authenticate to change installation settings',
+        options: const AuthenticationOptions(
+          biometricOnly: false,
+          stickyAuth: true,
+        ),
+      );
+    } on PlatformException {
+      return false;
+    }
+  }
+
+  Future<void> _setInstallAuthEnabledWithVerification(
+    SettingsProvider settings,
+    bool value,
+  ) async {
+    if (value == settings.installAuthEnabled) return;
+    final authenticated = await _authenticateForSettingsChange();
+    if (!authenticated || !mounted) return;
+    await settings.setInstallAuthEnabled(value);
+  }
+
+  Future<void> _setInstallAuthPolicyWithVerification(
+    SettingsProvider settings,
+    InstallAuthPolicy value,
+  ) async {
+    if (value == settings.installAuthPolicy) return;
+    final authenticated = await _authenticateForSettingsChange();
+    if (!authenticated || !mounted) return;
+    await settings.setInstallAuthPolicy(value);
   }
 
   String _updateNetworkPolicyLabel(
@@ -309,15 +354,19 @@ class _AppManagementScreenState extends State<AppManagementScreen> {
                                       title: 'Biometric Authentication',
                                       subtitle:
                                           'Require authentication before installation',
-                                      onTap: () {
-                                        settings.setInstallAuthEnabled(
+                                      onTap: () async {
+                                        await _setInstallAuthEnabledWithVerification(
+                                          settings,
                                           !settings.installAuthEnabled,
                                         );
                                       },
                                       suffix: Switch(
                                         value: settings.installAuthEnabled,
-                                        onChanged: (value) {
-                                          settings.setInstallAuthEnabled(value);
+                                        onChanged: (value) async {
+                                          await _setInstallAuthEnabledWithVerification(
+                                            settings,
+                                            value,
+                                          );
                                         },
                                       ),
                                     ),
@@ -366,7 +415,8 @@ class _AppManagementScreenState extends State<AppManagementScreen> {
                                         ],
                                         groupValue: settings.installAuthPolicy,
                                         onChanged: (value) async {
-                                          await settings.setInstallAuthPolicy(
+                                          await _setInstallAuthPolicyWithVerification(
+                                            settings,
                                             value,
                                           );
                                         },

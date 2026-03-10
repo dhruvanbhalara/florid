@@ -198,132 +198,138 @@ class _ThemeStyleScreenState extends State<ThemeStyleScreen> {
                   SliverAppBar.medium(title: Text(localizations.theme_style)),
                   SliverFillRemaining(
                     hasScrollBody: false,
-                    child: Scrollbar(
-                      scrollbarOrientation: ScrollbarOrientation.bottom,
-                      interactive: true,
-                      trackVisibility: true,
-                      thumbVisibility: true,
-                      radius: Radius.circular(20),
-                      thickness: 8,
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: [
-                            ThemeStylePreviewCard(
-                              isSelected:
-                                  settings.themeStyle == ThemeStyle.florid,
-                              themeData:
-                                  Theme.of(context).brightness ==
-                                      Brightness.light
-                                  ? AppThemes.floridLightTheme(
-                                      colorScheme: useDynamic
-                                          ? lightDynamic
-                                          : null,
-                                    )
-                                  : AppThemes.floridDarkTheme(
-                                      colorScheme: useDynamic
-                                          ? darkDynamic
-                                          : null,
-                                    ),
-                              onTap: () =>
-                                  settings.setThemeStyle(ThemeStyle.florid),
-                              headerBuilder: (previewContext) => Text(
-                                localizations.florid_style,
-                                style: Theme.of(previewContext)
-                                    .textTheme
-                                    .headlineSmall!
-                                    .copyWith(
-                                      fontFamily: 'Google Sans Flex',
-                                      fontVariations: [
-                                        FontVariation('wght', 700),
-                                        FontVariation('ROND', 100),
-                                        FontVariation('wdth', 125),
-                                      ],
-                                    ),
-                                textAlign: TextAlign.center,
+                    child: SafeArea(
+                      child: Scrollbar(
+                        scrollbarOrientation: ScrollbarOrientation.bottom,
+                        interactive: true,
+                        trackVisibility: true,
+                        thumbVisibility: true,
+                        radius: Radius.circular(20),
+                        thickness: 8,
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: [
+                              ThemeStylePreviewCard(
+                                isSelected:
+                                    settings.themeStyle == ThemeStyle.florid,
+                                themeData:
+                                    Theme.of(context).brightness ==
+                                        Brightness.light
+                                    ? AppThemes.floridLightTheme(
+                                        colorScheme: useDynamic
+                                            ? lightDynamic
+                                            : null,
+                                      )
+                                    : AppThemes.floridDarkTheme(
+                                        colorScheme: useDynamic
+                                            ? darkDynamic
+                                            : null,
+                                      ),
+                                onTap: () =>
+                                    settings.setThemeStyle(ThemeStyle.florid),
+                                headerBuilder: (previewContext) => Text(
+                                  localizations.florid_style,
+                                  style: Theme.of(previewContext)
+                                      .textTheme
+                                      .headlineSmall!
+                                      .copyWith(
+                                        fontFamily: 'Google Sans Flex',
+                                        fontVariations: [
+                                          FontVariation('wght', 700),
+                                          FontVariation('ROND', 100),
+                                          FontVariation('wdth', 125),
+                                        ],
+                                      ),
+                                  textAlign: TextAlign.center,
+                                ),
                               ),
-                            ),
-                            ThemeStylePreviewCard(
-                              isSelected:
-                                  settings.themeStyle == ThemeStyle.material,
-                              themeData:
-                                  Theme.of(context).brightness ==
-                                      Brightness.light
-                                  ? AppThemes.materialLightTheme(
-                                      colorScheme: useDynamic
-                                          ? lightDynamic
-                                          : null,
-                                    )
-                                  : AppThemes.materialDarkTheme(
-                                      colorScheme: useDynamic
-                                          ? darkDynamic
-                                          : null,
-                                    ),
-                              onTap: () =>
-                                  settings.setThemeStyle(ThemeStyle.material),
-                              headerBuilder: (previewContext) => Text(
-                                localizations.material_style,
-                                style: Theme.of(
-                                  previewContext,
-                                ).textTheme.headlineSmall,
-                                textAlign: TextAlign.center,
+                              ThemeStylePreviewCard(
+                                isSelected:
+                                    settings.themeStyle == ThemeStyle.material,
+                                themeData:
+                                    Theme.of(context).brightness ==
+                                        Brightness.light
+                                    ? AppThemes.materialLightTheme(
+                                        colorScheme: useDynamic
+                                            ? lightDynamic
+                                            : null,
+                                      )
+                                    : AppThemes.materialDarkTheme(
+                                        colorScheme: useDynamic
+                                            ? darkDynamic
+                                            : null,
+                                      ),
+                                onTap: () =>
+                                    settings.setThemeStyle(ThemeStyle.material),
+                                headerBuilder: (previewContext) => Text(
+                                  localizations.material_style,
+                                  style: Theme.of(
+                                    previewContext,
+                                  ).textTheme.headlineSmall,
+                                  textAlign: TextAlign.center,
+                                ),
                               ),
-                            ),
-                            ThemeStylePreviewCard(
-                              isSelected:
-                                  settings.themeStyle == ThemeStyle.darkKnight,
-                              themeData:
-                                  Theme.of(context).brightness ==
-                                      Brightness.light
-                                  ? AppThemes.darkKnightTheme(
-                                      colorScheme: useDynamic
-                                          ? lightDynamic
-                                          : null,
-                                    )
-                                  : AppThemes.darkKnightTheme(
-                                      colorScheme: useDynamic
-                                          ? darkDynamic
-                                          : null,
-                                    ),
-                              onTap: () =>
-                                  settings.setThemeStyle(ThemeStyle.darkKnight),
-                              headerBuilder: (previewContext) => Column(
-                                spacing: 4.0,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    localizations.dark_knight,
-                                    style: Theme.of(
-                                      previewContext,
-                                    ).textTheme.headlineSmall,
-                                  ),
-                                  Container(
-                                    margin: const EdgeInsets.only(right: 8.0),
-                                    child: Material(
-                                      color: Theme.of(
+                              ThemeStylePreviewCard(
+                                isSelected:
+                                    settings.themeStyle ==
+                                    ThemeStyle.darkKnight,
+                                themeData:
+                                    Theme.of(context).brightness ==
+                                        Brightness.light
+                                    ? AppThemes.darkKnightTheme(
+                                        colorScheme: useDynamic
+                                            ? lightDynamic
+                                            : null,
+                                      )
+                                    : AppThemes.darkKnightTheme(
+                                        colorScheme: useDynamic
+                                            ? darkDynamic
+                                            : null,
+                                      ),
+                                onTap: () => settings.setThemeStyle(
+                                  ThemeStyle.darkKnight,
+                                ),
+                                headerBuilder: (previewContext) => Column(
+                                  spacing: 4.0,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      localizations.dark_knight,
+                                      style: Theme.of(
                                         previewContext,
-                                      ).colorScheme.secondary,
-                                      borderRadius: BorderRadius.circular(99.0),
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 12.0,
-                                          vertical: 2.0,
+                                      ).textTheme.headlineSmall,
+                                    ),
+                                    Container(
+                                      margin: const EdgeInsets.only(right: 8.0),
+                                      child: Material(
+                                        color: Theme.of(
+                                          previewContext,
+                                        ).colorScheme.secondary,
+                                        borderRadius: BorderRadius.circular(
+                                          99.0,
                                         ),
-                                        child: Text(
-                                          localizations.beta,
-                                          style: TextStyle(
-                                            color: Theme.of(
-                                              previewContext,
-                                            ).colorScheme.onSecondary,
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 12.0,
+                                            vertical: 2.0,
+                                          ),
+                                          child: Text(
+                                            localizations.beta,
+                                            style: TextStyle(
+                                              color: Theme.of(
+                                                previewContext,
+                                              ).colorScheme.onSecondary,
+                                            ),
                                           ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
