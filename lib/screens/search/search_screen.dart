@@ -23,6 +23,8 @@ class _SearchScreenState extends State<SearchScreen> {
   final FocusNode _searchFocus = FocusNode();
   SearchFilters _filters = const SearchFilters();
 
+  final ScrollController _scrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
@@ -37,6 +39,18 @@ class _SearchScreenState extends State<SearchScreen> {
       _searchFocus.requestFocus();
       SystemChannels.textInput.invokeMethod('TextInput.show');
     });
+    _scrollController.addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 500) {
+      final appProvider = context.read<AppProvider>();
+      if (appProvider.searchQuery.isNotEmpty &&
+          appProvider.searchLoadMoreState != LoadingState.loading) {
+        appProvider.loadMoreSearchResults();
+      }
+    }
   }
 
   @override
@@ -51,6 +65,7 @@ class _SearchScreenState extends State<SearchScreen> {
     _searchController.dispose();
     _searchFocus.dispose();
     super.dispose();
+    _scrollController.dispose();
   }
 
   void _performSearch(String query) {
@@ -139,6 +154,7 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
         ),
         body: CustomScrollView(
+          controller: _scrollController,
           slivers: [
             SliverAppBar(
               floating: true,
@@ -150,7 +166,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   if (query.isNotEmpty && results.isNotEmpty) {
                     return Text(
                       localizations.search_results_for_query(
-                        results.length,
+                        appProvider.totalSearchResults,
                         query,
                       ),
                       style: Theme.of(context).textTheme.titleMedium,
@@ -308,8 +324,26 @@ class _SearchScreenState extends State<SearchScreen> {
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       padding: EdgeInsets.fromLTRB(8, 8, 8, bottomPadding),
-                      itemCount: results.length,
+                      itemCount:
+                          results.length +
+                          (results.length < appProvider.totalSearchResults
+                              ? 1
+                              : 0),
                       itemBuilder: (context, index) {
+                        // Show loading indicator at the bottom
+                        if (index == results.length) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            child: Center(
+                              child:
+                                  appProvider.searchLoadMoreState ==
+                                      LoadingState.loading
+                                  ? const CircularProgressIndicator()
+                                  : const SizedBox.shrink(),
+                            ),
+                          );
+                        }
+
                         final app = results[index];
                         return AppListItem(
                           app: app,

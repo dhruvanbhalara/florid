@@ -75,9 +75,13 @@ class AppProvider extends ChangeNotifier {
 
   // Search state
   List<FDroidApp> _searchResults = [];
+  List<FDroidApp> _allSearchResults = [];
   LoadingState _searchState = LoadingState.idle;
+  LoadingState _searchLoadMoreState = LoadingState.idle;
   String? _searchError;
   String _searchQuery = '';
+  static const int _searchPageSize = 10;
+  int _searchCurrentPage = 0;
 
   // Category apps state
   final Map<String, List<FDroidApp>> _categoryApps = {};
@@ -127,8 +131,10 @@ class AppProvider extends ChangeNotifier {
 
   List<FDroidApp> get searchResults => _searchResults;
   LoadingState get searchState => _searchState;
+  LoadingState get searchLoadMoreState => _searchLoadMoreState;
   String? get searchError => _searchError;
   String get searchQuery => _searchQuery;
+  int get totalSearchResults => _allSearchResults.length;
 
   Map<String, List<FDroidApp>> get categoryApps => _categoryApps;
   LoadingState get categoryAppsState => _categoryAppsState;
@@ -833,7 +839,10 @@ class AppProvider extends ChangeNotifier {
           break;
       }
 
-      _searchResults = filteredResults;
+      _allSearchResults = filteredResults;
+      _searchCurrentPage = 0;
+      _searchLoadMoreState = LoadingState.idle;
+      _loadSearchResultsPage();
       _searchState = LoadingState.success;
     } catch (e) {
       _searchError = e.toString();
@@ -842,12 +851,58 @@ class AppProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Loads the current page of search results
+  void _loadSearchResultsPage() {
+    final startIndex = _searchCurrentPage * _searchPageSize;
+    final endIndex = startIndex + _searchPageSize;
+
+    if (startIndex >= _allSearchResults.length) {
+      return;
+    }
+
+    final pageResults = _allSearchResults.sublist(
+      startIndex,
+      endIndex.clamp(0, _allSearchResults.length),
+    );
+
+    _searchResults.addAll(pageResults);
+  }
+
+  /// Loads more search results when scrolling
+  Future<void> loadMoreSearchResults() async {
+    if (_searchLoadMoreState == LoadingState.loading) {
+      return;
+    }
+
+    final nextStartIndex = (_searchCurrentPage + 1) * _searchPageSize;
+    if (nextStartIndex >= _allSearchResults.length) {
+      return;
+    }
+
+    _searchLoadMoreState = LoadingState.loading;
+    notifyListeners();
+
+    try {
+      await Future.delayed(const Duration(milliseconds: 300));
+
+      _searchCurrentPage++;
+      _loadSearchResultsPage();
+      _searchLoadMoreState = LoadingState.idle;
+    } catch (e) {
+      _searchLoadMoreState = LoadingState.error;
+    }
+    notifyListeners();
+  }
+
   /// Clears search results
   void clearSearch() {
     _searchResults = [];
+    _allSearchResults = [];
     _searchQuery = '';
     _searchState = LoadingState.idle;
+    _searchLoadMoreState = LoadingState.idle;
     _searchError = null;
+    _searchCurrentPage = 0;
     notifyListeners();
   }
 
