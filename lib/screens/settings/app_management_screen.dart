@@ -4,6 +4,7 @@ import 'package:android_intent_plus/android_intent.dart';
 import 'package:florid/l10n/app_localizations.dart';
 import 'package:florid/providers/settings_provider.dart';
 import 'package:florid/services/update_check_service.dart';
+import 'package:florid/widgets/list_icon.dart';
 import 'package:florid/widgets/m_list.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -350,7 +351,9 @@ class _AppManagementScreenState extends State<AppManagementScreen> {
                                 MListView(
                                   items: [
                                     MListItemData(
-                                      leading: Icon(Symbols.fingerprint),
+                                      leading: ListIcon(
+                                        iconData: Symbols.fingerprint,
+                                      ),
                                       title: 'Biometric Authentication',
                                       subtitle:
                                           'Require authentication before installation',
@@ -480,7 +483,9 @@ class _AppManagementScreenState extends State<AppManagementScreen> {
                           MListView(
                             items: [
                               MListItemData(
-                                leading: Icon(Symbols.notifications),
+                                leading: ListIcon(
+                                  iconData: Symbols.notifications,
+                                ),
                                 title:
                                     localizations.check_updates_in_background,
                                 subtitle:
@@ -502,7 +507,9 @@ class _AppManagementScreenState extends State<AppManagementScreen> {
                                 ),
                               ),
                               MListItemData(
-                                leading: Icon(Symbols.network_check),
+                                leading: ListIcon(
+                                  iconData: Symbols.network_check,
+                                ),
                                 title: localizations.update_network,
                                 subtitle: _updateNetworkPolicyLabel(
                                   localizations,
@@ -515,7 +522,7 @@ class _AppManagementScreenState extends State<AppManagementScreen> {
                                 suffix: Icon(Symbols.chevron_right),
                               ),
                               MListItemData(
-                                leading: Icon(Symbols.schedule),
+                                leading: ListIcon(iconData: Symbols.schedule),
                                 title: localizations.update_interval,
                                 subtitle: _updateIntervalLabel(
                                   localizations,

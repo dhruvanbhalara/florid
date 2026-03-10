@@ -2,6 +2,7 @@ import 'package:florid/l10n/app_localizations.dart';
 import 'package:florid/providers/download_provider.dart';
 import 'package:florid/providers/settings_provider.dart';
 import 'package:florid/services/fdroid_api_service.dart';
+import 'package:florid/widgets/list_icon.dart';
 import 'package:florid/widgets/m_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
@@ -170,21 +171,27 @@ class TroubleshootingScreen extends StatelessWidget {
                           MListView(
                             items: [
                               MListItemData(
-                                leading: Icon(Symbols.cleaning_services),
+                                leading: ListIcon(
+                                  iconData: Symbols.cleaning_services,
+                                ),
                                 title: 'Clear repository cache',
                                 onTap: () => _clearRepoCache(context),
                                 subtitle:
                                     'Refresh app list and metadata on next load',
                               ),
                               MListItemData(
-                                leading: Icon(Symbols.delete_sweep),
+                                leading: ListIcon(
+                                  iconData: Symbols.delete_sweep,
+                                ),
                                 title: 'Clear APK downloads',
                                 onTap: () => _clearApkDownloads(context),
                                 subtitle:
                                     'Remove downloaded installer files from storage',
                               ),
                               MListItemData(
-                                leading: Icon(Symbols.image_not_supported),
+                                leading: ListIcon(
+                                  iconData: Symbols.image_not_supported,
+                                ),
                                 title: 'Clear image cache',
                                 onTap: () => _clearImageCache(context),
                                 subtitle: 'Remove cached icons and screenshots',

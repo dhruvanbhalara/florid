@@ -1,6 +1,7 @@
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:florid/l10n/app_localizations.dart';
 import 'package:florid/providers/settings_provider.dart';
+import 'package:florid/widgets/list_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
@@ -67,7 +68,7 @@ class AppearanceScreen extends StatelessWidget {
                           MListView(
                             items: [
                               MListItemData(
-                                leading: Icon(Symbols.style),
+                                leading: ListIcon(iconData: Symbols.style),
                                 title: localizations.theme_style,
                                 subtitle: '',
                                 suffix: Icon(Symbols.chevron_right),
@@ -112,7 +113,9 @@ class AppearanceScreen extends StatelessWidget {
                               MListView(
                                 items: [
                                   MListItemData(
-                                    leading: Icon(Symbols.feedback),
+                                    leading: ListIcon(
+                                      iconData: Symbols.feedback,
+                                    ),
                                     title:
                                         localizations.feedback_on_florid_theme,
                                     subtitle: localizations

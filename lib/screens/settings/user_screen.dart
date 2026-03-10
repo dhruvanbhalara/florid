@@ -16,6 +16,7 @@ import 'package:florid/screens/settings/repositories_screen.dart';
 import 'package:florid/screens/settings/troubleshooting_screen.dart';
 import 'package:florid/services/fdroid_api_service.dart';
 import 'package:florid/widgets/app_list_item.dart';
+import 'package:florid/widgets/list_icon.dart';
 import 'package:florid/widgets/m_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -317,39 +318,6 @@ class _UserSettingsContentState extends State<_UserSettingsContent> {
     }
   }
 
-  Widget buildListIcon(IconData? iconData, {bool primary = false}) {
-    return Container(
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outlineVariant,
-          width: 0.5,
-        ),
-        gradient: LinearGradient(
-          colors: [
-            if (primary)
-              Theme.of(context).colorScheme.primary.withValues(alpha: 0.12)
-            else
-              Theme.of(context).colorScheme.surfaceContainerHigh,
-            if (primary)
-              Theme.of(context).colorScheme.primary
-            else
-              Theme.of(context).colorScheme.surfaceContainer,
-          ],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-      ),
-      child: Icon(
-        iconData,
-        fill: 1,
-        weight: 300,
-        color: primary ? Theme.of(context).colorScheme.onPrimary : null,
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Consumer<SettingsProvider>(
@@ -416,7 +384,7 @@ class _UserSettingsContentState extends State<_UserSettingsContent> {
                 MListView(
                   items: [
                     MListItemData(
-                      leading: buildListIcon(Symbols.favorite_rounded),
+                      leading: ListIcon(iconData: Symbols.favorite_rounded),
                       title: 'Favourites',
                       subtitle: 'View your favourite apps',
                       onTap: () {
@@ -430,7 +398,7 @@ class _UserSettingsContentState extends State<_UserSettingsContent> {
                       suffix: const Icon(Symbols.chevron_right),
                     ),
                     MListItemData(
-                      leading: buildListIcon(Symbols.palette),
+                      leading: ListIcon(iconData: Symbols.palette),
                       title: 'Appearance',
                       subtitle: 'Theme mode and style',
                       onTap: () {
@@ -444,7 +412,7 @@ class _UserSettingsContentState extends State<_UserSettingsContent> {
                       suffix: const Icon(Symbols.chevron_right),
                     ),
                     MListItemData(
-                      leading: buildListIcon(Symbols.language),
+                      leading: ListIcon(iconData: Symbols.language),
                       title: 'App content language',
                       onTap: () => _showLanguageDialog(context, settings),
                       subtitle: SettingsProvider.getLocaleDisplayName(
@@ -467,7 +435,7 @@ class _UserSettingsContentState extends State<_UserSettingsContent> {
                 MListView(
                   items: [
                     MListItemData(
-                      leading: buildListIcon(Symbols.cloud),
+                      leading: ListIcon(iconData: Symbols.cloud),
                       title: 'Manage repositories',
                       onTap: () {
                         Navigator.push(
@@ -481,7 +449,9 @@ class _UserSettingsContentState extends State<_UserSettingsContent> {
                       suffix: const Icon(Symbols.chevron_right),
                     ),
                     MListItemData(
-                      leading: buildListIcon(Symbols.discover_tune_rounded),
+                      leading: ListIcon(
+                        iconData: Symbols.discover_tune_rounded,
+                      ),
                       title: 'App Management',
                       subtitle:
                           'Manage settings regarding installs and updates',
@@ -510,7 +480,7 @@ class _UserSettingsContentState extends State<_UserSettingsContent> {
                 MListView(
                   items: [
                     MListItemData(
-                      leading: buildListIcon(Symbols.build_rounded),
+                      leading: ListIcon(iconData: Symbols.build_rounded),
                       title: 'Troubleshooting',
                       subtitle: 'Storage, cache, and downloads',
                       onTap: () {
@@ -535,20 +505,22 @@ class _UserSettingsContentState extends State<_UserSettingsContent> {
                 MListView(
                   items: [
                     MListItemData(
-                      leading: buildListIcon(Symbols.info),
+                      leading: ListIcon(iconData: Symbols.info),
                       title: AppLocalizations.of(context)!.version,
                       subtitle: _appVersion.isEmpty ? 'Loading…' : _appVersion,
                       onTap: () {},
                     ),
                     MListItemData(
-                      leading: buildListIcon(Symbols.system_update_rounded),
+                      leading: ListIcon(
+                        iconData: Symbols.system_update_rounded,
+                      ),
                       title: 'Check for updates',
                       subtitle: 'Manually check for new Florid versions',
                       suffix: const Icon(Symbols.chevron_right),
                       onTap: () => _showUpdateDialog(context),
                     ),
                     MListItemData(
-                      leading: buildListIcon(Symbols.code_rounded),
+                      leading: ListIcon(iconData: Symbols.code_rounded),
                       title: 'Source code',
                       subtitle: 'View the Florid source code on GitHub',
                       suffix: const Icon(Symbols.open_in_new),
@@ -562,7 +534,7 @@ class _UserSettingsContentState extends State<_UserSettingsContent> {
                       },
                     ),
                     MListItemData(
-                      leading: buildListIcon(Symbols.bug_report_rounded),
+                      leading: ListIcon(iconData: Symbols.bug_report_rounded),
                       title: 'Report an issue',
                       subtitle: 'Found a bug? Let us know!',
                       suffix: const Icon(Symbols.open_in_new),
@@ -576,7 +548,7 @@ class _UserSettingsContentState extends State<_UserSettingsContent> {
                       },
                     ),
                     MListItemData(
-                      leading: buildListIcon(Symbols.volunteer_activism),
+                      leading: ListIcon(iconData: Symbols.volunteer_activism),
                       title: 'Donate',
                       subtitle: 'Support continued development of Florid',
                       suffix: const Icon(Symbols.open_in_new),
@@ -588,7 +560,7 @@ class _UserSettingsContentState extends State<_UserSettingsContent> {
                       },
                     ),
                     MListItemData(
-                      leading: buildListIcon(Symbols.share),
+                      leading: ListIcon(iconData: Symbols.share),
                       title: 'Share Florid',
                       subtitle: 'Let your nerdy friends know about Florid!',
                       onTap: () {
