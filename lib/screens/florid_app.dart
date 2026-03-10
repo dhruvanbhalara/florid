@@ -2,11 +2,11 @@ import 'package:florid/l10n/app_localizations.dart';
 import 'package:florid/models/fdroid_app.dart';
 import 'package:florid/providers/app_update_provider.dart';
 import 'package:florid/screens/home/library_screen.dart';
+import 'package:florid/screens/settings/app_updater.dart';
 import 'package:florid/screens/settings/settings_screen.dart';
 import 'package:florid/screens/settings/user_screen.dart';
 import 'package:florid/utils/responsive.dart';
 import 'package:florid/utils/whats_new.dart';
-import 'package:florid/screens/settings/app_updater.dart';
 import 'package:florid/widgets/f_navbar.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -18,8 +18,8 @@ import '../providers/app_provider.dart';
 import '../providers/repositories_provider.dart';
 import '../providers/settings_provider.dart';
 import '../services/fdroid_api_service.dart';
-import 'search/search_screen.dart';
 import 'device/updates_screen.dart';
+import 'search/search_screen.dart';
 
 class FloridApp extends StatefulWidget {
   const FloridApp({super.key});
@@ -485,7 +485,7 @@ class _FloridAppState extends State<FloridApp> {
                     Positioned(
                       left: 0,
                       right: 0,
-                      bottom: 16,
+                      bottom: MediaQuery.of(context).viewInsets.bottom + 24,
                       child: SafeArea(
                         child: FNavBar(
                           currentIndex: floridNavIndex,
