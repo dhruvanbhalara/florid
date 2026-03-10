@@ -1,0 +1,10 @@
+### New Features
+- You can now see authors of an app on the app detail screen. This will help you know who is behind the app and maybe find more apps from the same author.
+- Games & Top Apps. You can now view games and all time top apps. Top apps feature only works if you have enabled IzzyOnDroid repository. You can find this section on the home screen.
+- You can now set biometric authentication for app installation. This will add an extra layer of security to your app installations and prevent unauthorized installations. You can enable it from the settings screen. 
+
+### Improvements
+- Added support for Chinese(zh) Language
+- Theme impovements and bug fixes.
+- Search performance improvements and bug fixes.
+- Performance improvements and bug fixes.
