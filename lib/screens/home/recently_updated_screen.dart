@@ -150,6 +150,7 @@ class _RecentlyUpdatedScreenState extends State<RecentlyUpdatedScreen>
                 delegate: SliverChildBuilderDelegate((context, index) {
                   final app = apps[index];
                   return AppListItem(
+                    key: ValueKey(app.packageName),
                     app: app,
                     showInstallStatus: false,
                     onTap: () {

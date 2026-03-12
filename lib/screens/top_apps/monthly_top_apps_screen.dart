@@ -183,6 +183,7 @@ class _TopAppsScreenState extends State<TopAppsScreen>
                     Expanded(
                       child:
                           AppListItem(
+                            key: ValueKey(app.packageName),
                             app: app,
                             showInstallStatus: true,
                             onTap: () {

@@ -262,6 +262,7 @@ class _HomeScreenState extends State<HomeScreen>
                             itemBuilder: (context, index) {
                               final app = recentlyUpdatedApps[index];
                               return AppListItem(
+                                key: ValueKey(app.packageName),
                                 app: app,
                                 showInstallStatus: false,
                                 onTap: () {
@@ -330,6 +331,7 @@ class _HomeScreenState extends State<HomeScreen>
                     itemBuilder: (context, index) {
                       final app = latestApps[index];
                       return AppListItem(
+                        key: ValueKey(app.packageName),
                         app: app,
                         showInstallStatus: false,
                         onTap: () {
@@ -684,6 +686,7 @@ class _HomeScreenState extends State<HomeScreen>
                       itemBuilder: (context, index) {
                         final app = listApps[index];
                         return AppListItem(
+                          key: ValueKey(app.packageName),
                           app: app,
                           showInstallStatus: false,
                           onTap: () {

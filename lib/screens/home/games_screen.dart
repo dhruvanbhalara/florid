@@ -125,6 +125,7 @@ class _GamesScreenState extends State<GamesScreen>
                   itemBuilder: (context, index) {
                     final app = apps[index];
                     return AppListItem(
+                      key: ValueKey(app.packageName),
                       app: app,
                       showInstallStatus: true,
                       showCategory: false,

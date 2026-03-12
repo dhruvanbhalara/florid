@@ -158,6 +158,7 @@ class _CategoryAppsScreenState extends State<CategoryAppsScreen> {
                           itemBuilder: (context, index) {
                             final app = apps[index];
                             return AppListItem(
+                              key: ValueKey(app.packageName),
                               app: app,
                               showInstallStatus: true,
                               onUpdate: () => _updateApp(context, app),
@@ -187,6 +188,7 @@ class _CategoryAppsScreenState extends State<CategoryAppsScreen> {
                         itemBuilder: (context, index) {
                           final app = apps[index];
                           return Card(
+                            key: ValueKey(app.packageName),
                             child: AppListItem(
                               app: app,
                               showInstallStatus: false,

@@ -169,6 +169,7 @@ class _TopAppsAllTimeScreenState extends State<TopAppsAllTimeScreen>
                 child: Stack(
                   children: [
                     AppListItem(
+                      key: ValueKey(app.packageName),
                       app: app,
                       showInstallStatus: true,
                       onTap: () {

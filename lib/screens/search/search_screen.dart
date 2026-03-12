@@ -347,6 +347,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
                         final app = results[index];
                         return AppListItem(
+                          key: ValueKey(app.packageName),
                           app: app,
                           showInstallStatus: false,
                           onTap: () {
