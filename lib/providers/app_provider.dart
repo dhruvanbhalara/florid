@@ -334,6 +334,21 @@ class AppProvider extends ChangeNotifier {
     }
 
     try {
+      // Fast path: app already carries multi-repo info.
+      if (app.availableRepositories != null &&
+          app.availableRepositories!.length > 1) {
+        return app;
+      }
+
+      // Fast path: check already merged in-memory repository data.
+      final mergedApp = _repository?.apps[app.packageName];
+      if (mergedApp?.availableRepositories != null &&
+          mergedApp!.availableRepositories!.isNotEmpty) {
+        return app.copyWith(
+          availableRepositories: mergedApp.availableRepositories,
+        );
+      }
+
       // Ensure repositories are loaded
       if (repositoriesProvider.repositories.isEmpty) {
         if (!repositoriesProvider.isLoading) {
@@ -363,7 +378,7 @@ class AppProvider extends ChangeNotifier {
         }
       }
 
-      // Query all repositories in parallel for better performance
+      // Query DB-backed repository membership in parallel (fast path).
       final repoChecks = await Future.wait(
         enabledRepos.map((repo) async {
           try {
@@ -372,15 +387,13 @@ class AppProvider extends ChangeNotifier {
               return null;
             }
 
-            // Try to find the app in this repository via database
-            final results = await _apiService.searchAppsFromRepositoryUrl(
-              app.packageName, // Use exact package name for lookup
+            final exists = await _apiService.repositoryContainsPackage(
+              app.packageName,
               repo.url,
               allowNetworkFallback: false,
             );
 
-            // If found in this repository, return the source
-            if (results.any((a) => a.packageName == app.packageName)) {
+            if (exists) {
               return RepositorySource(name: repo.name, url: repo.url);
             }
           } catch (e) {
@@ -394,6 +407,29 @@ class AppProvider extends ChangeNotifier {
 
       // Filter out nulls and add to available repos
       availableReposList.addAll(repoChecks.whereType<RepositorySource>());
+
+      // If DB misses but multiple repos are enabled, do a limited network fallback
+      // to recover selector visibility for first-time sync.
+      if (availableReposList.length <= 1 && enabledRepos.length > 1) {
+        for (final repo in enabledRepos) {
+          if (repo.url == app.repositoryUrl) continue;
+          if (availableReposList.any((r) => r.url == repo.url)) continue;
+
+          final exists = await _apiService.repositoryContainsPackage(
+            app.packageName,
+            repo.url,
+            allowNetworkFallback: true,
+          );
+
+          if (exists) {
+            availableReposList.add(
+              RepositorySource(name: repo.name, url: repo.url),
+            );
+            // One additional source is enough to enable split-repo actions.
+            break;
+          }
+        }
+      }
 
       // If we found the app in repositories, update it
       if (availableReposList.isNotEmpty) {

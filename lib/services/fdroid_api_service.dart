@@ -12,6 +12,14 @@ import 'package:path_provider/path_provider.dart';
 import '../models/fdroid_app.dart';
 import 'database_service.dart';
 
+Map<String, dynamic> _decodeJsonMapHelper(String body) {
+  final decoded = json.decode(body);
+  if (decoded is Map<String, dynamic>) {
+    return decoded;
+  }
+  throw Exception('Invalid repository index format');
+}
+
 class FDroidApiService {
   String? baseUrl;
   String? apiUrl;
@@ -791,6 +799,34 @@ class FDroidApiService {
     }
   }
 
+  /// Checks whether a package exists in a repository.
+  /// Uses DB first and optionally falls back to network index fetch.
+  Future<bool> repositoryContainsPackage(
+    String packageName,
+    String repositoryUrl, {
+    bool allowNetworkFallback = true,
+  }) async {
+    try {
+      final existsInDb = await _databaseService.repositoryContainsPackage(
+        packageName,
+        repositoryUrl,
+      );
+      if (existsInDb) {
+        return true;
+      }
+
+      if (!allowNetworkFallback) {
+        return false;
+      }
+
+      final repo = await fetchRepositoryFromUrl(repositoryUrl);
+      return repo.apps.containsKey(packageName);
+    } catch (e) {
+      debugPrint('Error checking repository package existence: $e');
+      return false;
+    }
+  }
+
   /// Fetches all available categories
   Future<List<String>> fetchCategories() async {
     try {
@@ -1089,10 +1125,6 @@ class FDroidApiService {
     String packageName, {
     String? repositoryUrl,
   }) async {
-    debugPrint(
-      '=== getScreenshots called for: $packageName from $repositoryUrl ===',
-    );
-
     Map<String, dynamic>? jsonData;
 
     // If a specific repository URL is provided, fetch from it
@@ -1117,44 +1149,36 @@ class FDroidApiService {
 
         // Check if we have this repository cached
         if (_repositoryIndexCache.containsKey(indexUrl)) {
-          debugPrint('Using cached repository index from: $indexUrl');
           jsonData = _repositoryIndexCache[indexUrl];
         } else {
-          debugPrint('Fetching screenshots index from: $indexUrl');
           final response = await _client.get(Uri.parse(indexUrl));
 
           if (response.statusCode == 200) {
-            jsonData = json.decode(response.body) as Map<String, dynamic>;
+            final parsedIndex = await compute(
+              _decodeJsonMapHelper,
+              response.body,
+            );
+            jsonData = parsedIndex;
             // Cache the fetched index for future use
-            _repositoryIndexCache[indexUrl] = jsonData;
-            debugPrint(
-              'Successfully fetched and cached repository index from $repositoryUrl',
-            );
+            _repositoryIndexCache[indexUrl] = parsedIndex;
           } else {
-            debugPrint(
-              'Failed to fetch from $repositoryUrl: ${response.statusCode}',
-            );
             return [];
           }
         }
       } catch (e) {
-        debugPrint('Error fetching repository $repositoryUrl: $e');
         return [];
       }
     } else {
       // Use cached default repository
       if (_cachedRawJson == null) {
-        debugPrint('Cache is empty, fetching default repository first...');
         try {
           await fetchRepository();
         } catch (e) {
-          debugPrint('Error fetching default repository: $e');
           return [];
         }
       }
 
       if (_cachedRawJson == null) {
-        debugPrint('_cachedRawJson is still null after fetch!');
         return [];
       }
 
@@ -1164,17 +1188,13 @@ class FDroidApiService {
     try {
       final packages = (jsonData!['packages'] as Map?)?.cast<String, dynamic>();
       if (packages == null) {
-        debugPrint('packages is null!');
         return [];
       }
 
       final pkgData = packages[packageName] as Map?;
       if (pkgData == null) {
-        debugPrint('pkgData is null for $packageName');
         return [];
       }
-
-      debugPrint('pkgData keys: ${pkgData.keys.toList()}');
 
       // Try multiple locations for screenshots
       List<String>? screenshotsList;
@@ -1182,36 +1202,23 @@ class FDroidApiService {
       // 1. Direct metadata.screenshots
       final metadata = (pkgData['metadata'] as Map?)?.cast<String, dynamic>();
       if (metadata != null) {
-        debugPrint('metadata found! Keys: ${metadata.keys.toList()}');
         screenshotsList = _extractScreenshots(metadata['screenshots']);
         if (screenshotsList.isNotEmpty) {
-          debugPrint(
-            'Found ${screenshotsList.length} screenshots in metadata[screenshots]',
-          );
           return screenshotsList;
         }
 
         // 2. Check if screenshots might be in a localized format
         for (final key in metadata.keys) {
           if (key.toString().contains('screenshot')) {
-            debugPrint('Checking key: $key');
             screenshotsList = _extractScreenshots(metadata[key]);
             if (screenshotsList.isNotEmpty) {
-              debugPrint(
-                'Found ${screenshotsList.length} screenshots under key: $key',
-              );
               return screenshotsList;
             }
           }
         }
-      } else {
-        debugPrint('metadata is null!');
       }
-
-      debugPrint('No screenshots found for $packageName');
       return [];
     } catch (e) {
-      debugPrint('Error extracting screenshots for $packageName: $e');
       return [];
     }
   }

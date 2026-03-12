@@ -101,23 +101,26 @@ class FDroidApp {
     }
 
     if (icon != null && icon!.isNotEmpty) {
-      final iconPath = icon!;
+      final iconPath = icon!.trim();
 
-      // Try the direct path as provided by the index (most likely to succeed)
-      add('$repositoryUrl/$iconPath');
+      if (iconPath.startsWith('http://') || iconPath.startsWith('https://')) {
+        // Absolute URL from repository metadata.
+        add(iconPath);
+      } else {
+        final normalizedPath = iconPath.startsWith('/')
+            ? iconPath.substring(1)
+            : iconPath;
 
-      // Try high-res version with the icon path
-      add('$repositoryUrl/icons-640/$iconPath');
+        // Always try exact repository-relative path first.
+        add('$repositoryUrl/$normalizedPath');
 
-      // Try medium-res as fallback
-      add('$repositoryUrl/icons-320/$iconPath');
-
-      // Extract just the filename if path includes subdirectories
-      final parts = iconPath.split('/');
-      if (parts.length > 1) {
-        final fileName = parts.last;
-        // Try the filename in the package directory
-        add('$repositoryUrl/${parts[0]}/$fileName');
+        // Only try icon size directories when metadata gave a filename.
+        // Paths containing '/' are usually already fully qualified.
+        if (!normalizedPath.contains('/')) {
+          add('$repositoryUrl/icons-640/$normalizedPath');
+          add('$repositoryUrl/icons-320/$normalizedPath');
+          add('$repositoryUrl/icons/$normalizedPath');
+        }
       }
     }
 

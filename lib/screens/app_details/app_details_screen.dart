@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:florid/l10n/app_localizations.dart';
 import 'package:florid/screens/app_details/developer_apps_screen.dart';
 import 'package:florid/screens/app_details/permissions_screen.dart';
@@ -46,19 +47,29 @@ class _AppDetailsScreenState extends State<AppDetailsScreen> {
   void initState() {
     super.initState();
     _scrollController = ScrollController();
-    // Fetch screenshots in the background
-    _screenshotsFuture = context.read<AppProvider>().getScreenshots(
-      widget.app.packageName,
-      repositoryUrl: widget.app.repositoryUrl,
-    );
+    // Start with lightweight futures to keep route transition smooth.
+    _screenshotsFuture = Future.value(const <String>[]);
     _statsFuture = context.read<IzzyStatsService>().fetchStatsForPackage(
       widget.app.packageName,
     );
-    // Enrich app with repository information
-    _enrichedAppFuture = context.read<AppProvider>().enrichAppWithRepositories(
-      widget.app,
-      context.read<RepositoriesProvider>(),
-    );
+    _enrichedAppFuture = Future.value(widget.app);
+
+    // Defer heavier work until first frame is rendered.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      setState(() {
+        _screenshotsFuture = context.read<AppProvider>().getScreenshots(
+          widget.app.packageName,
+          repositoryUrl: widget.app.repositoryUrl,
+        );
+        _enrichedAppFuture = context
+            .read<AppProvider>()
+            .enrichAppWithRepositories(
+              widget.app,
+              context.read<RepositoriesProvider>(),
+            );
+      });
+    });
   }
 
   /// Background cleanup task that waits for installation and auto-deletes APK
@@ -2689,12 +2700,16 @@ class _AppDetailsIconState extends State<AppDetailsIcon> {
     }
 
     final url = _candidates[_index];
-    return Image.network(
-      url,
-      fit: BoxFit.cover,
-      filterQuality: FilterQuality.high,
-      errorBuilder: (context, error, stackTrace) {
-        // Move to next candidate or fallback
+    return CachedNetworkImage(
+      imageUrl: url,
+      cacheKey: '${widget.app.packageName}:$url',
+      imageBuilder: (context, imageProvider) => Image(
+        image: imageProvider,
+        fit: BoxFit.cover,
+        filterQuality: FilterQuality.high,
+      ),
+      errorWidget: (context, _, _) {
+        // Move to next candidate or fallback.
         _next();
         return Container(
           color: Colors.white.withValues(alpha: 0.2),
@@ -2705,21 +2720,20 @@ class _AppDetailsIconState extends State<AppDetailsIcon> {
           ),
         );
       },
-      loadingBuilder: (context, child, loadingProgress) {
-        if (loadingProgress == null) return child;
-        return Container(
-          color: Colors.white.withValues(alpha: 0.2),
-          alignment: Alignment.center,
-          child: const SizedBox(
-            width: 20,
-            height: 20,
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-            ),
+      placeholder: (context, _) => Container(
+        color: Colors.white.withValues(alpha: 0.2),
+        alignment: Alignment.center,
+        child: const SizedBox(
+          width: 20,
+          height: 20,
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
           ),
-        );
-      },
+        ),
+      ),
+      // Suppress per-attempt error spam for fallback candidates.
+      errorListener: (_) {},
     );
   }
 }
@@ -3287,11 +3301,6 @@ class _ScreenshotsSectionState extends State<_ScreenshotsSection> {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('Screenshots Section - Count: ${widget.screenshots.length}');
-    for (var i = 0; i < widget.screenshots.length; i++) {
-      debugPrint('Screenshot $i: ${widget.screenshots[i]}');
-    }
-
     if (widget.screenshots.isEmpty) {
       return const SizedBox.shrink();
     }
@@ -3323,7 +3332,6 @@ class _ScreenshotsSectionState extends State<_ScreenshotsSection> {
             children: widget.screenshots.asMap().entries.map((entry) {
               final screenshot = entry.value;
               final url = _getScreenshotUrl(screenshot);
-              debugPrint('Loading screenshot from URL: $url');
 
               return Builder(
                 builder: (context) {
@@ -3333,8 +3341,6 @@ class _ScreenshotsSectionState extends State<_ScreenshotsSection> {
                       url,
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) {
-                        debugPrint('Screenshot error: $error');
-                        debugPrint('StackTrace: $stackTrace');
                         return Container(
                           color: Theme.of(context).colorScheme.surfaceContainer,
                           child: Column(

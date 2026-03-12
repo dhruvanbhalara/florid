@@ -733,6 +733,37 @@ class DatabaseService {
     return apps;
   }
 
+  /// Returns true if a package exists in a specific repository.
+  Future<bool> repositoryContainsPackage(
+    String packageName,
+    String repositoryUrl,
+  ) async {
+    final db = await database;
+
+    final repoResults = await db.query(
+      _repositoriesTable,
+      columns: ['id'],
+      where: 'url = ?',
+      whereArgs: [repositoryUrl],
+      limit: 1,
+    );
+
+    if (repoResults.isEmpty) {
+      return false;
+    }
+
+    final repositoryId = repoResults.first['id'] as int;
+    final appResults = await db.query(
+      _appsTable,
+      columns: ['package_name'],
+      where: 'repository_id = ? AND package_name = ?',
+      whereArgs: [repositoryId, packageName],
+      limit: 1,
+    );
+
+    return appResults.isNotEmpty;
+  }
+
   /// Searches apps by name, summary, description, or package name
   Future<List<FDroidApp>> searchApps(String query) async {
     final db = await database;
