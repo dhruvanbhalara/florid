@@ -336,6 +336,32 @@ class FDroidCategory {
   Map<String, dynamic> toJson() => _$FDroidCategoryToJson(this);
 }
 
+/// Extracts a plain localized string from a F-Droid index-v2 field that may be
+/// either a plain String or a locale-keyed Map (e.g. {"en-US": "F-Droid"}).
+String? _extractLocalizedString(dynamic raw, String? locale) {
+  if (raw == null) return null;
+  if (raw is String) return raw.isEmpty ? null : raw;
+  if (raw is Map) {
+    final prefs = <String>[];
+    if (locale != null && locale.isNotEmpty) {
+      final normalized = locale.replaceAll('_', '-');
+      prefs.add(normalized);
+      prefs.add(normalized.replaceAll('-', '_'));
+      final lang = normalized.split('-').first;
+      if (lang.isNotEmpty) prefs.add(lang);
+    }
+    const englishPrefs = ['en-US', 'en', 'en_GB'];
+    prefs.addAll(englishPrefs);
+    for (final key in prefs) {
+      if (raw[key] is String) return raw[key] as String;
+    }
+    for (final v in raw.values) {
+      if (v is String && v.isNotEmpty) return v;
+    }
+  }
+  return null;
+}
+
 /// Extracts a graphic URL (featureGraphic, promoGraphic, etc.) from the
 /// F-Droid index-v2 structure where the value looks like:
 /// { "en-US": { "name": "/pkg/en-US/featureGraphic_hash.jpg", "sha256": "...", "size": 123 } }
@@ -820,8 +846,9 @@ class FDroidRepository {
     });
 
     return FDroidRepository(
-      name: (repoMeta['name'] ?? 'F-Droid').toString(),
-      description: (repoMeta['description'] ?? '').toString(),
+      name: _extractLocalizedString(repoMeta['name'], locale) ?? 'F-Droid',
+      description:
+          _extractLocalizedString(repoMeta['description'], locale) ?? '',
       icon: (repoMeta['icon'] ?? '').toString(),
       timestamp: (repoMeta['timestamp'] ?? repoMeta['lastUpdated'] ?? '')
           .toString(),

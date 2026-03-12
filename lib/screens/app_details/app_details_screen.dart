@@ -797,18 +797,6 @@ class _AppDetailsScreenState extends State<AppDetailsScreen> {
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
-                              // isDarkKnight
-                              //     ? Theme.of(context)
-                              //           .colorScheme
-                              //           .surfaceContainerLow
-                              //           .withAlpha((0.85 * 255).toInt())
-                              //     : Theme.of(context)
-                              //           .colorScheme
-                              //           .primaryContainer
-                              //           .withAlpha((0.85 * 255).toInt()),
-                              // Theme.of(context).colorScheme.surface.withAlpha(
-                              //   (0.9 * 255).toInt(),
-                              // ),
                               Colors.transparent,
                               Theme.of(context).colorScheme.surface,
                             ],
