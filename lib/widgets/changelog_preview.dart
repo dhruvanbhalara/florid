@@ -86,14 +86,9 @@ class _ChangelogPreviewState extends State<ChangelogPreview> {
         textPainter.layout(maxWidth: MediaQuery.of(context).size.width - 32);
         final isOverflowing = textPainter.didExceedMaxLines;
 
-        return Card.outlined(
+        return Card(
           clipBehavior: Clip.antiAlias,
           margin: EdgeInsets.zero,
-          // padding: const EdgeInsets.all(24),
-          // decoration: BoxDecoration(
-          //   color: Theme.of(context).colorScheme.surfaceContainerHighest,
-          //   borderRadius: BorderRadius.circular(8),
-          // ),
           child: InkWell(
             onTap: isOverflowing
                 ? () {
