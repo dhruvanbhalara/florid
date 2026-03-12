@@ -734,6 +734,16 @@ class _AppDetailsScreenState extends State<AppDetailsScreen> {
     super.dispose();
   }
 
+  Future<void> _shareApp() async {
+    await SharePlus.instance.share(
+      ShareParams(
+        text: AppLocalizations.of(
+          context,
+        )!.check_out_on_fdroid(widget.app.name, widget.app.packageName),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDarkKnight =
@@ -761,7 +771,6 @@ class _AppDetailsScreenState extends State<AppDetailsScreen> {
           slivers: [
             SliverAppBar(
               pinned: true,
-              centerTitle: false,
               expandedHeight: expandedBarHeight,
               backgroundColor: _isCollapsed
                   ? Theme.of(context).colorScheme.surface
@@ -988,24 +997,6 @@ class _AppDetailsScreenState extends State<AppDetailsScreen> {
                     );
                   },
                 ),
-                IconButton(
-                  icon: const Icon(Symbols.share),
-                  style: ButtonStyle(
-                    backgroundColor: WidgetStateProperty.all(
-                      Theme.of(context).colorScheme.surface,
-                    ),
-                  ),
-                  onPressed: () {
-                    SharePlus.instance.share(
-                      ShareParams(
-                        text: AppLocalizations.of(context)!.check_out_on_fdroid(
-                          widget.app.name,
-                          widget.app.packageName,
-                        ),
-                      ),
-                    );
-                  },
-                ),
                 PopupMenuButton<String>(
                   style: ButtonStyle(
                     backgroundColor: WidgetStateProperty.all(
@@ -1015,6 +1006,9 @@ class _AppDetailsScreenState extends State<AppDetailsScreen> {
                   icon: const Icon(Symbols.more_vert),
                   onSelected: (value) async {
                     switch (value) {
+                      case 'share':
+                        await _shareApp();
+                        break;
                       case 'website':
                         if (widget.app.webSite != null) {
                           await launchUrl(Uri.parse(widget.app.webSite!));
@@ -1033,6 +1027,14 @@ class _AppDetailsScreenState extends State<AppDetailsScreen> {
                     }
                   },
                   itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: 'share',
+                      child: ListTile(
+                        leading: Icon(Symbols.share),
+                        title: Text(AppLocalizations.of(context)!.share),
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ),
                     if (widget.app.webSite != null)
                       PopupMenuItem(
                         value: 'website',
