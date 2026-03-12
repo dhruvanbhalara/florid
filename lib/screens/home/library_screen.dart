@@ -177,78 +177,10 @@ class _LibraryScreenState extends State<LibraryScreen>
                 ),
               ),
             ),
-            // SliverPersistentHeader(
-            //   delegate: _FTabBarHeaderDelegate(
-            //     height: settingsProvider.themeStyle == ThemeStyle.florid
-            //         ? 64
-            //         : 56,
-            //     child: Material(
-            //       color: isDarkKnight
-            //           ? null
-            //           : Theme.of(context).colorScheme.surfaceContainerLow,
-            //       surfaceTintColor: isDarkKnight
-            //           ? null
-            //           : Theme.of(context).colorScheme.surfaceContainerLow,
-            //       child: FTabBar(
-            //         controller: _tabController,
-            //         onTabChanged: (index) {
-            //           _tabController.animateTo(index);
-            //         },
-            //         isScrollable: true,
-            //         items: [
-            //           FloridTabBarItem(
-            //             icon: Symbols.home,
-            //             label: AppLocalizations.of(context)!.home,
-            //           ),
-            //           if (_showTopAppsTab)
-            //             FloridTabBarItem(
-            //               icon: Symbols.emoji_events,
-            //               label: AppLocalizations.of(context)!.top_apps,
-            //             ),
-            //           FloridTabBarItem(
-            //             icon: Symbols.category,
-            //             label: AppLocalizations.of(context)!.categories,
-            //           ),
-            //           FloridTabBarItem(
-            //             icon: Symbols.sports_esports,
-            //             label: AppLocalizations.of(context)!.games,
-            //           ),
-            //         ],
-            //       ),
-            //     ),
-            //   ),
-            // ),
           ];
         },
         body: TabBarView(controller: _tabController, children: tabs),
       ),
     );
-  }
-}
-
-class _FTabBarHeaderDelegate extends SliverPersistentHeaderDelegate {
-  _FTabBarHeaderDelegate({required this.height, required this.child});
-
-  final double height;
-  final Widget child;
-
-  @override
-  double get minExtent => height;
-
-  @override
-  double get maxExtent => height;
-
-  @override
-  Widget build(
-    BuildContext context,
-    double shrinkOffset,
-    bool overlapsContent,
-  ) {
-    return SizedBox.expand(child: child);
-  }
-
-  @override
-  bool shouldRebuild(covariant _FTabBarHeaderDelegate oldDelegate) {
-    return oldDelegate.height != height || oldDelegate.child != child;
   }
 }

@@ -452,45 +452,76 @@ class _HomeScreenState extends State<HomeScreen>
                       },
                       children: carouselApps.asMap().entries.map((entry) {
                         final app = entry.value;
+                        final hasFeatureGraphic =
+                            app.featureGraphic != null &&
+                            app.featureGraphic!.isNotEmpty;
                         return Material(
                           child: Container(
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  isDarkKnight
-                                      ? Theme.of(
-                                          context,
-                                        ).colorScheme.surfaceContainerLow
-                                      : Theme.of(context).colorScheme.tertiary
-                                            .withValues(alpha: 0.5),
-                                  // Theme.of(context).colorScheme.tertiary,
-                                  isDarkKnight
-                                      ? Theme.of(
-                                          context,
-                                        ).colorScheme.surfaceContainerLowest
-                                      : Theme.of(context).colorScheme.tertiary,
-                                ],
-                                begin: Alignment.topRight,
-                                end: Alignment.bottomLeft,
-                              ),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8.0,
-                                vertical: 24,
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  Consumer2<AppProvider, DownloadProvider>(
-                                    builder:
-                                        (
-                                          context,
-                                          appProvider,
-                                          downloadProvider,
-                                          _,
-                                        ) {
+                            child: Stack(
+                              fit: StackFit.expand,
+                              children: [
+                                Container(
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        isDarkKnight
+                                            ? Theme.of(
+                                                context,
+                                              ).colorScheme.surfaceContainerLow
+                                            : Theme.of(context)
+                                                  .colorScheme
+                                                  .surfaceContainer
+                                                  .withValues(alpha: 0.5),
+                                        isDarkKnight
+                                            ? Theme.of(context)
+                                                  .colorScheme
+                                                  .surfaceContainerLowest
+                                            : Theme.of(
+                                                context,
+                                              ).colorScheme.surfaceContainer,
+                                      ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ),
+                                  ),
+                                ),
+                                if (hasFeatureGraphic)
+                                  Positioned(
+                                    child: ShaderMask(
+                                      shaderCallback: (bounds) {
+                                        return LinearGradient(
+                                          colors: [
+                                            Colors.black26,
+                                            Colors.black45,
+                                            Colors.black87,
+                                          ],
+                                          stops: const [0.5, 0.8, 1.0],
+                                          begin: Alignment(-1, 0),
+                                          end: Alignment(1, -1),
+                                        ).createShader(bounds);
+                                      },
+                                      blendMode: BlendMode.dstIn,
+                                      child: Image.network(
+                                        app.featureGraphic!,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (_, _, _) {
+                                          return const SizedBox.shrink();
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8.0,
+                                    vertical: 24,
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      Consumer2<AppProvider, DownloadProvider>(
+                                        builder: (context, appProvider, downloadProvider, _) {
                                           final version = app.latestVersion;
                                           final isDownloading = version != null
                                               ? downloadProvider.isDownloading(
@@ -561,61 +592,54 @@ class _HomeScreenState extends State<HomeScreen>
                                             ),
                                           );
                                         },
-                                  ),
-
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 16.0,
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          app.name,
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: TextStyle(
-                                            fontVariations: [
-                                              FontVariation('wght', 700),
-                                              FontVariation('ROND', 100),
-                                            ],
-                                            fontSize: 18,
-                                            color: isDarkKnight
-                                                ? Theme.of(
-                                                    context,
-                                                  ).colorScheme.onSurface
-                                                : Theme.of(
-                                                    context,
-                                                  ).colorScheme.onPrimary,
-                                          ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 16.0,
                                         ),
-                                        if (appProvider.topAppsDownloads
-                                            .containsKey(app.packageName))
-                                          Text(
-                                            '${_formatDownloads(appProvider.topAppsDownloads[app.packageName]!)} downloads',
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              fontVariations: [
-                                                FontVariation('wght', 400),
-                                                FontVariation('ROND', 0),
-                                              ],
-                                              color: isDarkKnight
-                                                  ? Theme.of(
-                                                      context,
-                                                    ).colorScheme.onSurface
-                                                  : Theme.of(
-                                                      context,
-                                                    ).colorScheme.onPrimary,
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              app.name,
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: TextStyle(
+                                                fontVariations: [
+                                                  FontVariation('wght', 700),
+                                                  FontVariation('ROND', 100),
+                                                ],
+                                                fontSize: 18,
+                                                color: Theme.of(
+                                                  context,
+                                                ).colorScheme.onSurface,
+                                              ),
                                             ),
-                                          ),
-                                      ],
-                                    ),
+                                            if (appProvider.topAppsDownloads
+                                                .containsKey(app.packageName))
+                                              Text(
+                                                '${_formatDownloads(appProvider.topAppsDownloads[app.packageName]!)} downloads',
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  fontVariations: [
+                                                    FontVariation('wght', 400),
+                                                    FontVariation('ROND', 0),
+                                                  ],
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurfaceVariant,
+                                                ),
+                                              ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           ),
                         );
