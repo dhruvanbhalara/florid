@@ -135,13 +135,12 @@ class _LibraryScreenState extends State<LibraryScreen>
               surfaceTintColor: isDarkKnight
                   ? null
                   : Theme.of(context).colorScheme.surfaceContainerLow,
-              pinned: false,
-            ),
-            SliverPersistentHeader(
-              delegate: _FTabBarHeaderDelegate(
-                height: settingsProvider.themeStyle == ThemeStyle.florid
-                    ? 64
-                    : 56,
+              snap: true,
+              floating: true,
+              bottom: PreferredSize(
+                preferredSize: Size.fromHeight(
+                  settingsProvider.themeStyle == ThemeStyle.florid ? 64 : 56,
+                ),
                 child: Material(
                   color: isDarkKnight
                       ? null
@@ -178,6 +177,47 @@ class _LibraryScreenState extends State<LibraryScreen>
                 ),
               ),
             ),
+            // SliverPersistentHeader(
+            //   delegate: _FTabBarHeaderDelegate(
+            //     height: settingsProvider.themeStyle == ThemeStyle.florid
+            //         ? 64
+            //         : 56,
+            //     child: Material(
+            //       color: isDarkKnight
+            //           ? null
+            //           : Theme.of(context).colorScheme.surfaceContainerLow,
+            //       surfaceTintColor: isDarkKnight
+            //           ? null
+            //           : Theme.of(context).colorScheme.surfaceContainerLow,
+            //       child: FTabBar(
+            //         controller: _tabController,
+            //         onTabChanged: (index) {
+            //           _tabController.animateTo(index);
+            //         },
+            //         isScrollable: true,
+            //         items: [
+            //           FloridTabBarItem(
+            //             icon: Symbols.home,
+            //             label: AppLocalizations.of(context)!.home,
+            //           ),
+            //           if (_showTopAppsTab)
+            //             FloridTabBarItem(
+            //               icon: Symbols.emoji_events,
+            //               label: AppLocalizations.of(context)!.top_apps,
+            //             ),
+            //           FloridTabBarItem(
+            //             icon: Symbols.category,
+            //             label: AppLocalizations.of(context)!.categories,
+            //           ),
+            //           FloridTabBarItem(
+            //             icon: Symbols.sports_esports,
+            //             label: AppLocalizations.of(context)!.games,
+            //           ),
+            //         ],
+            //       ),
+            //     ),
+            //   ),
+            // ),
           ];
         },
         body: TabBarView(controller: _tabController, children: tabs),
