@@ -833,8 +833,10 @@ class _AppDetailsScreenState extends State<AppDetailsScreen> {
                                     : null,
                                 borderRadius: BorderRadius.circular(12),
                                 child: Text(
-                                  widget.app.authorName ??
-                                      AppLocalizations.of(context)!.unknown,
+                                  AppLocalizations.of(context)!.by_author(
+                                    widget.app.authorName ??
+                                        AppLocalizations.of(context)!.unknown,
+                                  ),
                                   maxLines: 2,
                                   textAlign: TextAlign.center,
                                   overflow: TextOverflow.ellipsis,
