@@ -59,70 +59,40 @@ class _RepositoryQRScannerState extends State<RepositoryQRScanner> {
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: Text(localizations.scan)),
+      appBar: AppBar(
+        title: Text(localizations.scan),
+        backgroundColor: Colors.black45,
+      ),
+      extendBodyBehindAppBar: true,
       body: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Expanded(
             child: Stack(
+              alignment: Alignment.center,
               children: [
                 QRView(
                   key: _qrKey,
                   onQRViewCreated: _onQRViewCreated,
+                  overlay: QrScannerOverlayShape(
+                    borderColor: Theme.of(context).colorScheme.primary,
+                    borderRadius: 12,
+                    borderLength: 30,
+                    borderWidth: 5,
+                    cutOutSize: 250,
+                  ),
                   formatsAllowed: const [BarcodeFormat.qrcode],
                 ),
-                // Overlay with scanning frame and instructions
-                Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                Positioned(
+                  bottom: MediaQuery.of(context).padding.bottom + 24,
+                  left: 0,
+                  right: 0,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.only(top: 16.0),
-                        child: Text(
-                          localizations.point_camera_qr,
-                          style: Theme.of(context).textTheme.titleMedium
-                              ?.copyWith(
-                                color: Colors.white,
-                                shadows: [
-                                  BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.5),
-                                    blurRadius: 8,
-                                  ),
-                                ],
-                              ),
-                        ),
-                      ),
-                      Container(
-                        width: 250,
-                        height: 250,
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: Theme.of(context).colorScheme.primary,
-                            width: 3,
-                          ),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      SafeArea(
-                        child: Padding(
-                          padding: const EdgeInsets.only(bottom: 16.0),
-                          child: Text(
-                            localizations.tap_keyboard_enter_url,
-                            style: Theme.of(context).textTheme.labelSmall
-                                ?.copyWith(
-                                  color: Colors.white,
-                                  shadows: [
-                                    BoxShadow(
-                                      color: Colors.black.withValues(
-                                        alpha: 0.5,
-                                      ),
-                                      blurRadius: 8,
-                                    ),
-                                  ],
-                                ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
+                      Text(
+                        localizations.point_camera_qr,
+                        style: Theme.of(context).textTheme.labelMedium,
                       ),
                     ],
                   ),
