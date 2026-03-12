@@ -3277,21 +3277,14 @@ class _ScreenshotsSectionState extends State<_ScreenshotsSection> {
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: 8.0,
       children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Text(
-            'Screenshots',
-            style: Theme.of(
-              context,
-            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-          ),
-        ),
         SizedBox(
-          height: 500,
-          child: CarouselView(
-            // flexWeights: const [2, 1],
-            itemExtent: 250,
+          height: 400,
+          child: CarouselView.weighted(
+            flexWeights: const [2, 2],
             shrinkExtent: 250,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
             onTap: (index) {
               Navigator.push(
                 context,
@@ -3315,7 +3308,7 @@ class _ScreenshotsSectionState extends State<_ScreenshotsSection> {
                     color: Theme.of(context).colorScheme.surfaceContainer,
                     child: Image.network(
                       url,
-                      fit: BoxFit.fitWidth,
+                      fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) {
                         debugPrint('Screenshot error: $error');
                         debugPrint('StackTrace: $stackTrace');
@@ -3421,8 +3414,10 @@ class _FullScreenScreenshotsState extends State<_FullScreenScreenshots> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
+      extendBodyBehindAppBar: true,
+      extendBody: true,
       appBar: AppBar(
-        backgroundColor: Colors.black87,
+        backgroundColor: Colors.black38,
         elevation: 0,
         title: Text(
           '${_currentIndex + 1} / ${widget.screenshots.length}',
@@ -3444,44 +3439,40 @@ class _FullScreenScreenshotsState extends State<_FullScreenScreenshots> {
         itemCount: widget.screenshots.length,
         itemBuilder: (context, index) {
           final screenshot = widget.screenshots[index];
-          return SafeArea(
-            child: Container(
-              color: Colors.black,
-              padding: const EdgeInsets.all(16),
-              child: Center(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(16),
-                  child: Image.network(
-                    _getScreenshotUrl(screenshot),
-                    fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        color: Colors.grey[900],
-                        child: const Center(
-                          child: Icon(
-                            Symbols.broken_image,
-                            color: Colors.white,
-                            size: 48,
-                          ),
-                        ),
-                      );
-                    },
-                    loadingBuilder: (context, child, loadingProgress) {
-                      if (loadingProgress == null) return child;
-                      return Center(
-                        child: CircularProgressIndicator(
-                          value: loadingProgress.expectedTotalBytes != null
-                              ? loadingProgress.cumulativeBytesLoaded /
-                                    loadingProgress.expectedTotalBytes!
-                              : null,
-                          valueColor: const AlwaysStoppedAnimation<Color>(
-                            Colors.white,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
+          return Padding(
+            padding: const EdgeInsets.all(16),
+            child: Center(
+              child: Image.network(
+                _getScreenshotUrl(screenshot),
+                filterQuality: FilterQuality.high,
+                fit: BoxFit.contain,
+                height: double.infinity,
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    color: Colors.grey[900],
+                    child: const Center(
+                      child: Icon(
+                        Symbols.broken_image,
+                        color: Colors.white,
+                        size: 48,
+                      ),
+                    ),
+                  );
+                },
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return Center(
+                    child: CircularProgressIndicator(
+                      value: loadingProgress.expectedTotalBytes != null
+                          ? loadingProgress.cumulativeBytesLoaded /
+                                loadingProgress.expectedTotalBytes!
+                          : null,
+                      valueColor: const AlwaysStoppedAnimation<Color>(
+                        Colors.white,
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
           );
