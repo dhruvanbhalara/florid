@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:florid/l10n/app_localizations.dart';
 import 'package:florid/providers/download_provider.dart';
 import 'package:florid/providers/settings_provider.dart';
@@ -32,8 +34,11 @@ class _HomeScreenState extends State<HomeScreen>
 
   static const int _previewLimit = 6;
   static const double _topAppsCarouselItemExtent = 350;
+  static const Duration _topAppsAutoScrollInterval = Duration(seconds: 8);
 
   int _topAppsCarouselIndex = 0;
+  int _topAppsCarouselItemCount = 0;
+  Timer? _topAppsAutoScrollTimer;
   final CarouselController _topAppsCarouselController = CarouselController(
     initialItem: 0,
   );
@@ -137,8 +142,42 @@ class _HomeScreenState extends State<HomeScreen>
     return false;
   }
 
+  void _syncTopAppsAutoScroll(int itemCount) {
+    _topAppsCarouselItemCount = itemCount;
+
+    if (itemCount <= 1) {
+      _stopTopAppsAutoScroll();
+      return;
+    }
+
+    if (_topAppsAutoScrollTimer != null) {
+      return;
+    }
+
+    _topAppsAutoScrollTimer = Timer.periodic(_topAppsAutoScrollInterval, (_) {
+      if (!mounted || _topAppsCarouselItemCount <= 1) {
+        return;
+      }
+
+      final nextIndex = (_topAppsCarouselIndex + 1) % _topAppsCarouselItemCount;
+      _setTopAppsCarouselIndex(nextIndex, _topAppsCarouselItemCount);
+      _topAppsCarouselController.animateToItem(
+        nextIndex,
+        duration: const Duration(milliseconds: 450),
+        curve: Curves.decelerate,
+      );
+    });
+  }
+
+  void _stopTopAppsAutoScroll() {
+    _topAppsAutoScrollTimer?.cancel();
+    _topAppsAutoScrollTimer = null;
+    _topAppsCarouselItemCount = 0;
+  }
+
   @override
   void dispose() {
+    _stopTopAppsAutoScroll();
     _topAppsCarouselController.dispose();
     super.dispose();
   }
@@ -318,6 +357,7 @@ class _HomeScreenState extends State<HomeScreen>
               .skip(_previewLimit)
               .take(_previewLimit)
               .toList();
+          _syncTopAppsAutoScroll(carouselApps.length);
           final isTopAppsLoading =
               appProvider.topAppsState == LoadingState.loading;
           final activeTopAppIndex = carouselApps.isEmpty
@@ -401,7 +441,6 @@ class _HomeScreenState extends State<HomeScreen>
                       controller: _topAppsCarouselController,
                       itemSnapping: true,
                       flexWeights: [1],
-
                       onTap: (index) {
                         _setTopAppsCarouselIndex(index, carouselApps.length);
                         Navigator.of(context).push(
@@ -649,6 +688,7 @@ class _HomeScreenState extends State<HomeScreen>
             child: LayoutBuilder(
               builder: (context, constraints) {
                 if (Responsive.isLargeWidth(constraints.maxWidth)) {
+                  _stopTopAppsAutoScroll();
                   return Row(
                     children: [
                       Expanded(child: buildRecentSection()),
@@ -656,6 +696,10 @@ class _HomeScreenState extends State<HomeScreen>
                     ],
                   ); // Tablet or large screen layout
                 } else {
+                  if (!_isIzzyOnDroidEnabled(repositoriesProvider) ||
+                      !settingsProvider.showMonthlyTopApps) {
+                    _stopTopAppsAutoScroll();
+                  }
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     spacing: 16,
