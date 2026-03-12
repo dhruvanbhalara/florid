@@ -1,5 +1,20 @@
 # Changelogs
 
+## v1.2.0+14
+
+This update might not seem big but it has a lot of under the hood improvements and optimizations. Also happy that we have crossed 📈 11k+ downloads on IzzyOnDroid! I don't even know how many users have downloaded from Github! Thank you everyone for the support and love ❤️.
+
+### New Features
+
+- Apps now show their featured banner image on the app detail screen.
+- Added an option to hide monthly top apps carousel from the home screen. You can find this option in the appearance settings.
+
+### Improvements
+
+- Improved user experience based on feedback and bug reports.
+- Cleaner App detail screen with better organization of information.
+- Some serious performance improvements and bug fixes.
+
 ## v1.1.3+13
 
 ### New Features
