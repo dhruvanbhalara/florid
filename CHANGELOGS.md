@@ -1,5 +1,12 @@
 # Changelogs
 
+## v1.2.1+15
+
+### Improvements
+
+- Fixed installation status not updating for all users. This was caused by a bug in the installation status tracking logic. I have fixed it and now the installation status should update correctly for all users.
+- Fixed some UI bugs.
+
 ## v1.2.0+14
 
 This update might not seem big but it has a lot of under the hood improvements and optimizations. Also happy that we have crossed 📈 11k+ downloads on IzzyOnDroid! I don't even know how many users have downloaded from Github! Thank you everyone for the support and love ❤️.

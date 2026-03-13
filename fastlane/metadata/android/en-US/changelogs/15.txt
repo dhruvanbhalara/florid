@@ -1,0 +1,4 @@
+### Improvements
+
+- Fixed installation status not updating for all users. This was caused by a bug in the installation status tracking logic. I have fixed it and now the installation status should update correctly for all users.
+- Fixed some UI bugs.
