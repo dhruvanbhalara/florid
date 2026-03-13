@@ -145,68 +145,72 @@ class _TopAppsAllTimeScreenState extends State<TopAppsAllTimeScreen>
       );
     }
 
-    return RefreshIndicator(
-      onRefresh: _onRefresh,
-      child: ListView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-        itemCount: apps.length,
-        itemBuilder: (context, index) {
-          final app = apps[index];
-          final downloads =
-              appProvider.topAppsAllTimeDownloads[app.packageName] ?? 0;
+    return Scaffold(
+      body: RefreshIndicator(
+        onRefresh: _onRefresh,
+        child: ListView.builder(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+          itemCount: apps.length,
+          itemBuilder: (context, index) {
+            final app = apps[index];
+            final downloads =
+                appProvider.topAppsAllTimeDownloads[app.packageName] ?? 0;
 
-          return Row(
-            children: [
-              SizedBox(
-                width: 36,
-                child: Text(
-                  '${index + 1}',
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodyMedium,
+            return Row(
+              children: [
+                SizedBox(
+                  width: 36,
+                  child: Text(
+                    '${index + 1}',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
                 ),
-              ),
-              Expanded(
-                child: Stack(
-                  children: [
-                    AppListItem(
-                      key: ValueKey(app.packageName),
-                      app: app,
-                      showInstallStatus: true,
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => AppDetailsScreen(app: app),
+                Expanded(
+                  child: Stack(
+                    children: [
+                      AppListItem(
+                        key: ValueKey(app.packageName),
+                        app: app,
+                        showInstallStatus: true,
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => AppDetailsScreen(app: app),
+                            ),
+                          );
+                        },
+                      ).animate().fadeIn(
+                        duration: 300.ms,
+                        delay: (20 * index).ms,
+                      ),
+                      Positioned(
+                        right: 12,
+                        top: 8,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
                           ),
-                        );
-                      },
-                    ).animate().fadeIn(
-                      duration: 300.ms,
-                      delay: (20 * index).ms,
-                    ),
-                    Positioned(
-                      right: 12,
-                      top: 8,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(999),
-                          color: Theme.of(context).colorScheme.surfaceContainer,
-                        ),
-                        child: Text(
-                          _formatDownloads(downloads),
-                          style: Theme.of(context).textTheme.labelSmall,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(999),
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.surfaceContainer,
+                          ),
+                          child: Text(
+                            _formatDownloads(downloads),
+                            style: Theme.of(context).textTheme.labelSmall,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        ),
       ),
     );
   }

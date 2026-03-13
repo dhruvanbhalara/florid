@@ -60,61 +60,67 @@ class _LatestScreenState extends State<LatestScreen>
 
   Widget _buildBody(LoadingState state, List<FDroidApp> apps, String? error) {
     if (state == LoadingState.loading && apps.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircularProgressIndicator(year2023: false),
-            SizedBox(height: 16),
-            Text(AppLocalizations.of(context)!.loading_latest_apps),
-          ],
+      return Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(year2023: false),
+              SizedBox(height: 16),
+              Text(AppLocalizations.of(context)!.loading_latest_apps),
+            ],
+          ),
         ),
       );
     }
 
     if (state == LoadingState.error && apps.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Symbols.error,
-              size: 64,
-              color: Theme.of(context).colorScheme.error,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Failed to load apps',
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            const SizedBox(height: 8),
-            SelectableText(
-              error ?? 'Unknown error occurred',
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
+      return Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Symbols.error,
+                size: 64,
+                color: Theme.of(context).colorScheme.error,
               ),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton.icon(
-              onPressed: _loadData,
-              icon: const Icon(Symbols.refresh),
-              label: Text(AppLocalizations.of(context)!.retry),
-            ),
-          ],
+              const SizedBox(height: 16),
+              Text(
+                'Failed to load apps',
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
+              const SizedBox(height: 8),
+              SelectableText(
+                error ?? 'Unknown error occurred',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton.icon(
+                onPressed: _loadData,
+                icon: const Icon(Symbols.refresh),
+                label: Text(AppLocalizations.of(context)!.retry),
+              ),
+            ],
+          ),
         ),
       );
     }
 
     if (apps.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Symbols.apps, size: 64, color: Colors.grey),
-            const SizedBox(height: 16),
-            Text(AppLocalizations.of(context)!.no_apps_found),
-          ],
+      return Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Symbols.apps, size: 64, color: Colors.grey),
+              const SizedBox(height: 16),
+              Text(AppLocalizations.of(context)!.no_apps_found),
+            ],
+          ),
         ),
       );
     }
@@ -133,6 +139,7 @@ class _LatestScreenState extends State<LatestScreen>
                   FontVariation('wght', 700),
                   FontVariation('ROND', 100),
                 ],
+                color: Theme.of(context).colorScheme.onSurface,
               ),
               floating: true,
             ),
