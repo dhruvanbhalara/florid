@@ -191,7 +191,7 @@ class _DeveloperAppsScreenState extends State<DeveloperAppsScreen> {
                           color: Colors.transparent,
                           borderRadius: BorderRadius.circular(16),
                           elevation: 0.3,
-                          child: AppDetailsIcon(app: _developerApps[index]),
+                          child: Hero(tag: _developerApps[index].packageName, child: AppDetailsIcon(app: _developerApps[index])),
                         ),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8.0),

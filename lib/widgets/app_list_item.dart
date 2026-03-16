@@ -10,6 +10,7 @@ import 'app_details_icon.dart';
 
 class AppListItem extends StatelessWidget {
   final FDroidApp app;
+  final String? heroTag;
   final VoidCallback? onTap;
   final VoidCallback? onUpdate;
   final bool showCategory;
@@ -20,6 +21,7 @@ class AppListItem extends StatelessWidget {
   const AppListItem({
     super.key,
     required this.app,
+    this.heroTag,
     this.onTap,
     this.onUpdate,
     this.showCategory = true,
@@ -80,7 +82,10 @@ class AppListItem extends StatelessWidget {
                   height: isDownloading ? 24 : 48,
                   clipBehavior: Clip.antiAlias,
                   decoration: BoxDecoration(),
-                  child: AppDetailsIcon(app: app),
+                  child: Hero(
+                    tag: heroTag ?? app.packageName,
+                    child: AppDetailsIcon(app: app),
+                  ),
                 ),
               ],
             ),

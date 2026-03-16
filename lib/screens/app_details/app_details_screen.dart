@@ -29,8 +29,9 @@ import '../../services/izzy_stats_service.dart';
 
 class AppDetailsScreen extends StatefulWidget {
   final FDroidApp app;
+  final String? heroTag;
 
-  const AppDetailsScreen({super.key, required this.app});
+  const AppDetailsScreen({super.key, required this.app, this.heroTag});
 
   @override
   State<AppDetailsScreen> createState() => _AppDetailsScreenState();
@@ -728,7 +729,10 @@ class _AppDetailsScreenState extends State<AppDetailsScreen>
                           SizedBox(
                             height: 84,
                             width: 84,
-                            child: AppDetailsIcon(app: widget.app),
+                            child: Hero(
+                              tag: widget.heroTag ?? widget.app.packageName,
+                              child: AppDetailsIcon(app: widget.app),
+                            ),
                           ),
                           Column(
                             children: [
@@ -736,17 +740,20 @@ class _AppDetailsScreenState extends State<AppDetailsScreen>
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 32.0,
                                 ),
-                                child: Text(
-                                  widget.app.name,
-                                  maxLines: 2,
-                                  textAlign: TextAlign.center,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontSize: 24,
-                                    fontVariations: [
-                                      FontVariation('wght', 700),
-                                      FontVariation('ROND', 100),
-                                    ],
+                                child: Hero(
+                                  tag: '${widget.app.name}_title',
+                                  child: Text(
+                                    widget.app.name,
+                                    maxLines: 2,
+                                    textAlign: TextAlign.center,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontSize: 24,
+                                      fontVariations: [
+                                        FontVariation('wght', 700),
+                                        FontVariation('ROND', 100),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),

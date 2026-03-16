@@ -262,15 +262,20 @@ class _HomeScreenState extends State<HomeScreen>
                             itemCount: recentlyUpdatedApps.length,
                             itemBuilder: (context, index) {
                               final app = recentlyUpdatedApps[index];
+                              final heroTag =
+                                  'home_recent_${app.packageName}_$index';
                               return AppListItem(
                                 key: ValueKey(app.packageName),
                                 app: app,
+                                heroTag: heroTag,
                                 showInstallStatus: false,
                                 onTap: () {
                                   Navigator.of(context).push(
                                     MaterialPageRoute(
-                                      builder: (context) =>
-                                          AppDetailsScreen(app: app),
+                                      builder: (context) => AppDetailsScreen(
+                                        app: app,
+                                        heroTag: heroTag,
+                                      ),
                                     ),
                                   );
                                 },
@@ -331,14 +336,17 @@ class _HomeScreenState extends State<HomeScreen>
                     itemCount: latestApps.length,
                     itemBuilder: (context, index) {
                       final app = latestApps[index];
+                      final heroTag = 'home_latest_${app.packageName}_$index';
                       return AppListItem(
                         key: ValueKey(app.packageName),
                         app: app,
+                        heroTag: heroTag,
                         showInstallStatus: false,
                         onTap: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (context) => AppDetailsScreen(app: app),
+                              builder: (context) =>
+                                  AppDetailsScreen(app: app, heroTag: heroTag),
                             ),
                           );
                         },
@@ -446,15 +454,21 @@ class _HomeScreenState extends State<HomeScreen>
                       flexWeights: [1],
                       onTap: (index) {
                         _setTopAppsCarouselIndex(index, carouselApps.length);
+                        final app = carouselApps[index];
+                        final heroTag =
+                            'home_top_carousel_${app.packageName}_$index';
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (context) =>
-                                AppDetailsScreen(app: carouselApps[index]),
+                                AppDetailsScreen(app: app, heroTag: heroTag),
                           ),
                         );
                       },
                       children: carouselApps.asMap().entries.map((entry) {
+                        final index = entry.key;
                         final app = entry.value;
+                        final heroTag =
+                            'home_top_carousel_${app.packageName}_$index';
                         final hasFeatureGraphic =
                             app.featureGraphic != null &&
                             app.featureGraphic!.isNotEmpty;
@@ -594,8 +608,11 @@ class _HomeScreenState extends State<HomeScreen>
                                                           Clip.antiAlias,
                                                       decoration:
                                                           BoxDecoration(),
-                                                      child: AppDetailsIcon(
-                                                        app: app,
+                                                      child: Hero(
+                                                        tag: heroTag,
+                                                        child: AppDetailsIcon(
+                                                          app: app,
+                                                        ),
                                                       ),
                                                     ),
                                                   ],
@@ -693,15 +710,20 @@ class _HomeScreenState extends State<HomeScreen>
                       itemCount: listApps.length,
                       itemBuilder: (context, index) {
                         final app = listApps[index];
+                        final heroTag =
+                            'home_top_list_${app.packageName}_$index';
                         return AppListItem(
                           key: ValueKey(app.packageName),
                           app: app,
+                          heroTag: heroTag,
                           showInstallStatus: false,
                           onTap: () {
                             Navigator.of(context).push(
                               MaterialPageRoute(
-                                builder: (context) =>
-                                    AppDetailsScreen(app: app),
+                                builder: (context) => AppDetailsScreen(
+                                  app: app,
+                                  heroTag: heroTag,
+                                ),
                               ),
                             );
                           },
