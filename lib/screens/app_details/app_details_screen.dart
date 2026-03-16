@@ -2574,6 +2574,31 @@ class AppExtraInfoSection extends StatefulWidget {
 }
 
 class _AppExtraInfoSectionState extends State<AppExtraInfoSection> {
+  String _normalizeRepoUrl(String url) {
+    var normalized = url.trim();
+    if (normalized.endsWith('/index-v2.json')) {
+      normalized = normalized.substring(
+        0,
+        normalized.length - '/index-v2.json'.length,
+      );
+    }
+    if (normalized.endsWith('/')) {
+      normalized = normalized.substring(0, normalized.length - 1);
+    }
+    return normalized;
+  }
+
+  String _normalizeRepoPath(String url) {
+    final normalized = _normalizeRepoUrl(url);
+    final uri = Uri.tryParse(normalized);
+    if (uri == null) return normalized;
+    var path = uri.path;
+    if (path.endsWith('/')) {
+      path = path.substring(0, path.length - 1);
+    }
+    return '${uri.host}$path';
+  }
+
   List<MapEntry<String, String>> _buildDonationItems() {
     final entries = <MapEntry<String, String>>[];
     final seen = <String>{};
@@ -2763,8 +2788,64 @@ class _AppExtraInfoSectionState extends State<AppExtraInfoSection> {
   @override
   Widget build(BuildContext context) {
     final donationItems = _buildDonationItems();
-    if (donationItems.isEmpty) {
-      return const SizedBox.shrink();
+    final repositoriesProvider = context.watch<RepositoriesProvider>();
+    if (repositoriesProvider.repositories.isEmpty &&
+        !repositoriesProvider.isLoading) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        context.read<RepositoriesProvider>().loadRepositories();
+      });
+    }
+    final configuredRepos = repositoriesProvider.repositories;
+    final availableRepos =
+        widget.app.availableRepositories ?? const <RepositorySource>[];
+
+    final currentRepoUrl = _normalizeRepoUrl(widget.app.repositoryUrl);
+    final currentRepoPath = _normalizeRepoPath(widget.app.repositoryUrl);
+    final currentRepoHost = Uri.tryParse(currentRepoUrl)?.host ?? '';
+    final currentConfiguredName = configuredRepos
+        .where(
+          (repo) =>
+              _normalizeRepoUrl(repo.url) == currentRepoUrl ||
+              _normalizeRepoPath(repo.url) == currentRepoPath ||
+              (currentRepoHost.isNotEmpty &&
+                  (Uri.tryParse(_normalizeRepoUrl(repo.url))?.host ?? '') ==
+                      currentRepoHost),
+        )
+        .map((repo) => repo.name)
+        .firstWhere((name) => name.isNotEmpty, orElse: () => '');
+
+    final currentAvailableRepo = availableRepos.firstWhere(
+      (repo) => _normalizeRepoUrl(repo.url) == currentRepoUrl,
+      orElse: () => RepositorySource(name: '', url: ''),
+    );
+
+    final currentRepositoryName = currentConfiguredName.isNotEmpty
+        ? currentConfiguredName
+        : (currentAvailableRepo.name.isNotEmpty
+              ? currentAvailableRepo.name
+              : AppLocalizations.of(context)!.unknown);
+
+    final otherRepositoryNames = <String>{};
+    for (final repo in availableRepos) {
+      final repoUrl = _normalizeRepoUrl(repo.url);
+      if (repoUrl == currentRepoUrl) continue;
+
+      final configuredName = configuredRepos
+          .where(
+            (r) =>
+                _normalizeRepoUrl(r.url) == repoUrl ||
+                _normalizeRepoPath(r.url) == _normalizeRepoPath(repo.url),
+          )
+          .map((r) => r.name)
+          .firstWhere((name) => name.isNotEmpty, orElse: () => '');
+
+      final resolvedName = configuredName.isNotEmpty
+          ? configuredName
+          : repo.name;
+      if (resolvedName.isNotEmpty) {
+        otherRepositoryNames.add(resolvedName);
+      }
     }
 
     return Column(
@@ -2807,21 +2888,36 @@ class _AppExtraInfoSectionState extends State<AppExtraInfoSection> {
           ],
         ),
         SizedBox(height: 16),
-        MListHeader(
-          icon: Symbols.volunteer_activism_rounded,
-          title: AppLocalizations.of(context)!.support_the_developer,
+        if (donationItems.isNotEmpty) ...[
+          MListHeader(
+            icon: Symbols.volunteer_activism_rounded,
+            title: AppLocalizations.of(context)!.support_the_developer,
+          ),
+          MListView(
+            items: [
+              for (final item in donationItems)
+                MListItemData(
+                  title: item.key,
+                  subtitle: item.value,
+                  suffix: const Icon(Symbols.open_in_new_rounded),
+                  onTap: () => _openDonateLink(context, item.key, item.value),
+                ),
+            ],
+          ),
+        ],
+        SizedBox(height: 16),
+        Text(
+          AppLocalizations.of(
+            context,
+          )!.available_on_repository(currentRepositoryName),
+          style: Theme.of(context).textTheme.labelMedium,
         ),
-        MListView(
-          items: [
-            for (final item in donationItems)
-              MListItemData(
-                title: item.key,
-                subtitle: item.value,
-                suffix: const Icon(Symbols.open_in_new_rounded),
-                onTap: () => _openDonateLink(context, item.key, item.value),
-              ),
-          ],
-        ),
+        if (otherRepositoryNames.isNotEmpty)
+          Text(
+            AppLocalizations.of(context)!.also_available_from_repositories(
+              otherRepositoryNames.join(', '),
+            ),
+          ),
       ],
     );
   }
@@ -2887,6 +2983,7 @@ class _AllVersionsSectionState extends State<_AllVersionsSection> {
     final enrichedApp = await appProvider.enrichAppWithRepositories(
       widget.app,
       context.read<RepositoriesProvider>(),
+      allowNetworkFallback: false,
     );
 
     void addFallbackCurrentRepo() {

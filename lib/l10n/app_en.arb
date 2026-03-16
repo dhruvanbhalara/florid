@@ -354,5 +354,19 @@
   "auth_all_apps_desc": "Require authentication for all installations",
   "auth_all_apps_w_anti_feat": "Apps with Anti-Features",
   "auth_all_apps_w_anti_feat_desc": "Require authentication only for apps that have anti-features.",
-  "support_the_developer":"Support the Developer"
+  "support_the_developer":"Support the Developer",
+  "available_on_repository": "Available on: {repositoryName}",
+  "@available_on_repository": {
+    "description": "Label showing the primary repository name for an app.",
+    "placeholders": {
+      "repositoryName": {}
+    }
+  },
+  "also_available_from_repositories": "Also available from: {repositoryNames}",
+  "@also_available_from_repositories": {
+    "description": "Label listing additional repository names where the app is available.",
+    "placeholders": {
+      "repositoryNames": {}
+    }
+  }
 }

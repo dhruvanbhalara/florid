@@ -857,4 +857,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get support_the_developer => 'Support the Developer';
+
+  @override
+  String available_on_repository(Object repositoryName) {
+    return 'Available on: $repositoryName';
+  }
+
+  @override
+  String also_available_from_repositories(Object repositoryNames) {
+    return 'Also available from: $repositoryNames';
+  }
 }

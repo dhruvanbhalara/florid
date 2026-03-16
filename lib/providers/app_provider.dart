@@ -327,12 +327,9 @@ class AppProvider extends ChangeNotifier {
   /// This is useful when displaying app details to show which repositories host the app
   Future<FDroidApp> enrichAppWithRepositories(
     FDroidApp app,
-    RepositoriesProvider? repositoriesProvider,
-  ) async {
-    if (repositoriesProvider == null) {
-      return app;
-    }
-
+    RepositoriesProvider repositoriesProvider, {
+    bool allowNetworkFallback = true,
+  }) async {
     try {
       // Fast path: app already carries multi-repo info.
       if (app.availableRepositories != null &&
@@ -410,8 +407,9 @@ class AppProvider extends ChangeNotifier {
 
       // If DB misses but multiple repos are enabled, do a limited network fallback
       // to recover selector visibility for first-time sync.
-      // Note: disable network fallback for lazy-loaded contexts like All Versions sheet
-      if (availableReposList.length <= 1 && enabledRepos.length > 1) {
+      if (allowNetworkFallback &&
+          availableReposList.length <= 1 &&
+          enabledRepos.length > 1) {
         for (final repo in enabledRepos) {
           if (repo.url == app.repositoryUrl) continue;
           if (availableReposList.any((r) => r.url == repo.url)) continue;
@@ -419,8 +417,7 @@ class AppProvider extends ChangeNotifier {
           final exists = await _apiService.repositoryContainsPackage(
             app.packageName,
             repo.url,
-            allowNetworkFallback:
-                false, // Use only database, no network fallback
+            allowNetworkFallback: true,
           );
 
           if (exists) {

@@ -1686,6 +1686,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Support the Developer'**
   String get support_the_developer;
+
+  /// Label showing the primary repository name for an app.
+  ///
+  /// In en, this message translates to:
+  /// **'Available on: {repositoryName}'**
+  String available_on_repository(Object repositoryName);
+
+  /// Label listing additional repository names where the app is available.
+  ///
+  /// In en, this message translates to:
+  /// **'Also available from: {repositoryNames}'**
+  String also_available_from_repositories(Object repositoryNames);
 }
 
 class _AppLocalizationsDelegate
