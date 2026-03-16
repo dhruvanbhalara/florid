@@ -1786,6 +1786,8 @@ class _InstallActionsSection extends StatelessWidget {
 
               if (hasUpdate) {
                 // Show Update button
+                // Hide uninstall/open buttons for Florid itself
+                final isFloridApp = app.packageName == 'com.nahnah.florid';
                 return Column(
                   spacing: 8,
                   children: [
@@ -1867,73 +1869,78 @@ class _InstallActionsSection extends StatelessWidget {
                             ),
                           ),
                         ),
-                        SizedBox(
-                          height: 48,
-                          child: FilledButton.tonalIcon(
-                            onPressed: () async {
-                              try {
-                                final opened = await appProvider
-                                    .openInstalledApp(app.packageName);
-                                if (!opened && context.mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        'Unable to open ${app.name}.',
+                        if (!isFloridApp)
+                          SizedBox(
+                            height: 48,
+                            child: FilledButton.tonalIcon(
+                              onPressed: () async {
+                                try {
+                                  final opened = await appProvider
+                                      .openInstalledApp(app.packageName);
+                                  if (!opened && context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'Unable to open ${app.name}.',
+                                        ),
                                       ),
-                                    ),
-                                  );
-                                }
-                              } catch (e) {
-                                if (context.mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        'Open failed: ${e.toString()}',
+                                    );
+                                  }
+                                } catch (e) {
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'Open failed: ${e.toString()}',
+                                        ),
                                       ),
-                                    ),
-                                  );
+                                    );
+                                  }
                                 }
-                              }
-                            },
-                            icon: const Icon(Symbols.open_in_new_rounded),
-                            label: Text(AppLocalizations.of(context)!.open),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 48,
-                          child: FilledButton.tonal(
-                            onPressed: () async {
-                              try {
-                                await downloadProvider.uninstallApp(
-                                  app.packageName,
-                                );
-                                await Future.delayed(
-                                  const Duration(seconds: 1),
-                                );
-                                await appProvider.fetchInstalledApps();
-                              } catch (e) {
-                                if (context.mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        'Uninstall failed: ${e.toString()}',
-                                      ),
-                                    ),
-                                  );
-                                }
-                              }
-                            },
-                            style: FilledButton.styleFrom(
-                              foregroundColor: Theme.of(
-                                context,
-                              ).colorScheme.onErrorContainer,
-                              backgroundColor: Theme.of(
-                                context,
-                              ).colorScheme.errorContainer,
+                              },
+                              icon: const Icon(Symbols.open_in_new_rounded),
+                              label: Text(AppLocalizations.of(context)!.open),
                             ),
-                            child: const Icon(Symbols.delete_rounded, fill: 1),
                           ),
-                        ),
+                        if (!isFloridApp)
+                          SizedBox(
+                            height: 48,
+                            child: FilledButton.tonal(
+                              onPressed: () async {
+                                try {
+                                  await downloadProvider.uninstallApp(
+                                    app.packageName,
+                                  );
+                                  await Future.delayed(
+                                    const Duration(seconds: 1),
+                                  );
+                                  await appProvider.fetchInstalledApps();
+                                } catch (e) {
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'Uninstall failed: ${e.toString()}',
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                }
+                              },
+                              style: FilledButton.styleFrom(
+                                foregroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.onErrorContainer,
+                                backgroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.errorContainer,
+                              ),
+                              child: const Icon(
+                                Symbols.delete_rounded,
+                                fill: 1,
+                              ),
+                            ),
+                          ),
                       ],
                     ),
                   ],
@@ -1941,6 +1948,11 @@ class _InstallActionsSection extends StatelessWidget {
               }
 
               // No update available, show normal buttons
+              // Hide buttons for Florid itself
+              final isFloridApp = app.packageName == 'com.nahnah.florid';
+              if (isFloridApp) {
+                return const SizedBox.shrink();
+              }
               return Row(
                 spacing: 8,
                 children: [
