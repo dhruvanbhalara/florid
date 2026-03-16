@@ -806,6 +806,12 @@ class FDroidApiService {
         'Repository $repositoryUrl not in database, fetching from network...',
       );
       final repo = await fetchRepositoryFromUrl(repositoryUrl);
+
+      final repositoryId = await getRepositoryIdByUrl(repositoryUrl);
+      if (repositoryId != null) {
+        await importRepositoryToDatabase(repo, repositoryId: repositoryId);
+      }
+
       return repo.searchApps(query);
     } catch (e) {
       throw Exception('Error searching apps from repository: $e');
@@ -833,6 +839,12 @@ class FDroidApiService {
       }
 
       final repo = await fetchRepositoryFromUrl(repositoryUrl);
+
+      final repositoryId = await getRepositoryIdByUrl(repositoryUrl);
+      if (repositoryId != null) {
+        await importRepositoryToDatabase(repo, repositoryId: repositoryId);
+      }
+
       return repo.apps.containsKey(packageName);
     } catch (e) {
       debugPrint('Error checking repository package existence: $e');

@@ -443,6 +443,32 @@ class AppProvider extends ChangeNotifier {
     }
   }
 
+  /// Fetches a specific app from a specific repository URL.
+  /// Returns null if the app is not found in that repository.
+  Future<FDroidApp?> fetchAppFromRepository(
+    String packageName,
+    String repositoryUrl,
+  ) async {
+    try {
+      final results = await _apiService.searchAppsFromRepositoryUrl(
+        packageName,
+        repositoryUrl,
+      );
+
+      for (final app in results) {
+        if (app.packageName == packageName) {
+          return app.copyWith(repositoryUrl: repositoryUrl);
+        }
+      }
+      return null;
+    } catch (e) {
+      debugPrint(
+        'Error fetching app $packageName from repository $repositoryUrl: $e',
+      );
+      return null;
+    }
+  }
+
   /// Fetches latest apps from F-Droid and custom repositories
   Future<void> fetchLatestApps({
     RepositoriesProvider? repositoriesProvider,

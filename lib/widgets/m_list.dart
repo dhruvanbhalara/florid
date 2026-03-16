@@ -209,19 +209,23 @@ class MListViewBuilder extends StatelessWidget {
 
         return ClipRRect(
           borderRadius: BorderRadius.only(
-            topLeft: index == 0 ? Radius.circular(16.0) : Radius.circular(4.0),
-            topRight: index == 0 ? Radius.circular(16.0) : Radius.circular(4.0),
+            topLeft: index == 0
+                ? Radius.circular(isFlorid ? 16.0 : 0)
+                : Radius.circular(isFlorid ? 4.0 : 0),
+            topRight: index == 0
+                ? Radius.circular(isFlorid ? 16.0 : 0)
+                : Radius.circular(isFlorid ? 4.0 : 0),
             bottomLeft: isLastItem
-                ? const Radius.circular(16.0)
-                : const Radius.circular(4.0),
+                ? Radius.circular(isFlorid ? 16.0 : 0)
+                : Radius.circular(isFlorid ? 4.0 : 0),
             bottomRight: isLastItem
-                ? const Radius.circular(16.0)
-                : const Radius.circular(4.0),
+                ? Radius.circular(isFlorid ? 16.0 : 0)
+                : Radius.circular(isFlorid ? 4.0 : 0),
           ),
           child: Material(
             color: isFlorid
                 ? Theme.of(context).colorScheme.surfaceContainer
-                : Theme.of(context).colorScheme.surface,
+                : Colors.transparent,
             clipBehavior: Clip.antiAlias,
             child: ListTile(
               contentPadding: EdgeInsets.only(left: 16.0, right: 16.0),

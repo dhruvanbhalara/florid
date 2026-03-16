@@ -6,10 +6,12 @@ import 'package:florid/screens/app_details/developer_apps_screen.dart';
 import 'package:florid/screens/app_details/permissions_screen.dart';
 import 'package:florid/screens/home/category_apps_screen.dart';
 import 'package:florid/widgets/changelog_preview.dart';
+import 'package:florid/widgets/f_tabbar.dart';
 import 'package:florid/widgets/list_icon.dart';
 import 'package:florid/widgets/m_list.dart';
 import 'package:florid/widgets/markup_content.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -18,7 +20,6 @@ import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../constants.dart';
 import '../../models/fdroid_app.dart';
 import '../../providers/app_provider.dart';
 import '../../providers/download_provider.dart';
@@ -1197,6 +1198,10 @@ class _DetailsSheetsSection extends StatelessWidget {
                   children: [
                     MListHeader(
                       title: AppLocalizations.of(context)!.version_information,
+                      trailing: IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: Icon(Symbols.keyboard_arrow_down),
+                      ),
                     ),
                     MListView(
                       items: [
@@ -2191,50 +2196,15 @@ class _AppInfoSection extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               spacing: 16,
               children: [
-                if (app.antiFeatures != null)
-                  Column(
-                    spacing: 4,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      MListHeader(title: 'Anti-features'),
-                      Card(
-                        margin: const EdgeInsets.symmetric(horizontal: 16.0),
-                        child: Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: app.antiFeatures?.isNotEmpty == true
-                              ? Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  spacing: 16,
-                                  children: app.antiFeatures!
-                                      .map(
-                                        (antiFeature) => Text(
-                                          '- $antiFeature',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodyMedium
-                                              ?.copyWith(
-                                                color: Theme.of(
-                                                  context,
-                                                ).colorScheme.error,
-                                              ),
-                                        ),
-                                      )
-                                      .toList(),
-                                )
-                              : Text(
-                                  AppLocalizations.of(
-                                    context,
-                                  )!.no_antifeature_listed,
-                                ),
-                        ),
-                      ),
-                    ],
-                  ),
                 Column(
                   spacing: 4,
                   children: [
                     MListHeader(
                       title: AppLocalizations.of(context)!.app_information,
+                      trailing: IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: Icon(Symbols.keyboard_arrow_down),
+                      ),
                     ),
                     MListView(
                       items: [
@@ -2286,6 +2256,45 @@ class _AppInfoSection extends StatelessWidget {
                     ),
                   ],
                 ),
+                if (app.antiFeatures != null)
+                  Column(
+                    spacing: 4,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      MListHeader(title: 'Anti-features'),
+                      Card(
+                        margin: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: app.antiFeatures?.isNotEmpty == true
+                              ? Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  spacing: 16,
+                                  children: app.antiFeatures!
+                                      .map(
+                                        (antiFeature) => Text(
+                                          '- $antiFeature',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium
+                                              ?.copyWith(
+                                                color: Theme.of(
+                                                  context,
+                                                ).colorScheme.error,
+                                              ),
+                                        ),
+                                      )
+                                      .toList(),
+                                )
+                              : Text(
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.no_antifeature_listed,
+                                ),
+                        ),
+                      ),
+                    ],
+                  ),
               ],
             );
           },
@@ -2498,122 +2507,6 @@ class _IncludeUnstableSectionState extends State<IncludeUnstableSection> {
       );
     }
     return const SizedBox.shrink();
-  }
-}
-
-class _VersionInfoSection extends StatefulWidget {
-  final FDroidVersion version;
-
-  const _VersionInfoSection({required this.version});
-
-  @override
-  State<_VersionInfoSection> createState() => _VersionInfoSectionState();
-}
-
-class _VersionInfoSectionState extends State<_VersionInfoSection> {
-  bool _showMinAndroid = true;
-  bool _showTargetAndroid = true;
-
-  String _androidVersionName(int sdk) {
-    return kAndroidSdkVersions[sdk] ?? 'Android (SDK $sdk)';
-  }
-
-  String _androidVersionLabel(String sdkValue) {
-    final sdk = int.tryParse(sdkValue);
-    if (sdk == null) {
-      return 'Android (SDK $sdkValue)';
-    }
-    return _androidVersionName(sdk);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final version = widget.version;
-
-    buildVersionInfoModel() {
-      showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        builder: (context) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                MListHeader(title: 'Version Information'),
-                MListView(
-                  items: [
-                    MListItemData(
-                      title: 'Version Name',
-                      subtitle: version.versionName,
-                      onTap: () {},
-                    ),
-                    MListItemData(
-                      title: 'Version Code',
-                      subtitle: version.versionCode.toString(),
-                      onTap: () {},
-                    ),
-                    MListItemData(
-                      title: 'Size',
-                      subtitle: version.sizeString,
-                      onTap: () {},
-                    ),
-                    if (version.minSdkVersion != null)
-                      MListItemData(
-                        title: _showMinAndroid
-                            ? 'Minimum Android Version'
-                            : 'Min SDK',
-                        subtitle: _showMinAndroid
-                            ? _androidVersionLabel(version.minSdkVersion!)
-                            : version.minSdkVersion!,
-                        onTap: () {
-                          setState(() {
-                            _showMinAndroid = !_showMinAndroid;
-                          });
-                        },
-                      ),
-                    if (version.targetSdkVersion != null)
-                      MListItemData(
-                        title: _showTargetAndroid
-                            ? 'Target Android Version'
-                            : 'Target SDK',
-                        subtitle: _showTargetAndroid
-                            ? _androidVersionLabel(version.targetSdkVersion!)
-                            : version.targetSdkVersion!,
-                        onTap: () {
-                          setState(() {
-                            _showTargetAndroid = !_showTargetAndroid;
-                          });
-                        },
-                      ),
-                  ],
-                ),
-              ],
-            ),
-          );
-        },
-      );
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        MListView(
-          items: [
-            MListItemData(
-              title: AppLocalizations.of(context)!.version_information,
-              subtitle: '',
-              leading: Icon(Symbols.info),
-              onTap: () {
-                buildVersionInfoModel();
-              },
-              suffix: Icon(Symbols.arrow_forward),
-            ),
-          ],
-        ),
-      ],
-    );
   }
 }
 
@@ -2842,11 +2735,25 @@ class _AppExtraInfoSectionState extends State<AppExtraInfoSection> {
       return;
     }
 
-    final opened = await launchUrl(
-      launchUri,
-      mode: LaunchMode.externalApplication,
-    );
-    if (!opened && context.mounted) {
+    try {
+      final opened = await launchUrl(
+        launchUri,
+        mode: LaunchMode.externalApplication,
+      );
+      if (!opened && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Unable to open donation link: $link')),
+        );
+      }
+    } on PlatformException {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No app is available to handle this donation link.'),
+        ),
+      );
+    } catch (_) {
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Unable to open donation link: $link')),
       );
@@ -3014,175 +2921,414 @@ class _AppDetailsIconState extends State<AppDetailsIcon> {
   }
 }
 
-class _AllVersionsSection extends StatelessWidget {
+class _AllVersionsSection extends StatefulWidget {
   final FDroidApp app;
 
   const _AllVersionsSection({required this.app});
 
   @override
+  State<_AllVersionsSection> createState() => _AllVersionsSectionState();
+}
+
+class _AllVersionsSectionState extends State<_AllVersionsSection> {
+  late Future<List<_RepoVersionsTabData>> _repoTabsFuture;
+  late Future<_AllVersionsInitData> _initialDataFuture;
+  int _selectedRepoIndex = 0;
+  bool _userSelectedRepo = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _repoTabsFuture = _loadRepoTabs();
+    _initialDataFuture = _loadInitialData();
+  }
+
+  @override
+  void didUpdateWidget(covariant _AllVersionsSection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.app.packageName != widget.app.packageName) {
+      _userSelectedRepo = false;
+      _selectedRepoIndex = 0;
+      _repoTabsFuture = _loadRepoTabs();
+      _initialDataFuture = _loadInitialData();
+    }
+  }
+
+  Future<_AllVersionsInitData> _loadInitialData() async {
+    final appProvider = context.read<AppProvider>();
+    final includeUnstable = await appProvider.getIncludeUnstable(
+      widget.app.packageName,
+    );
+    final supportedAbis = await appProvider.getSupportedAbis();
+    final trackedRepoUrl = await context.read<DownloadProvider>().getAppSource(
+      widget.app.packageName,
+    );
+    final tabs = await _repoTabsFuture;
+
+    return _AllVersionsInitData(
+      includeUnstable: includeUnstable,
+      supportedAbis: supportedAbis,
+      trackedRepoUrl: trackedRepoUrl,
+      tabs: tabs,
+    );
+  }
+
+  Future<List<_RepoVersionsTabData>> _loadRepoTabs() async {
+    final appProvider = context.read<AppProvider>();
+    final tabs = <_RepoVersionsTabData>[];
+    final seenUrls = <String>{};
+
+    final enrichedApp = await appProvider.enrichAppWithRepositories(
+      widget.app,
+      context.read<RepositoriesProvider>(),
+    );
+
+    void addFallbackCurrentRepo() {
+      if (seenUrls.add(widget.app.repositoryUrl)) {
+        tabs.add(
+          _RepoVersionsTabData(
+            repo: RepositorySource(
+              name: 'Current',
+              url: widget.app.repositoryUrl,
+            ),
+            app: widget.app.copyWith(repositoryUrl: widget.app.repositoryUrl),
+          ),
+        );
+      }
+    }
+
+    final repos =
+        enrichedApp.availableRepositories ?? const <RepositorySource>[];
+    if (repos.isEmpty) {
+      addFallbackCurrentRepo();
+      return tabs;
+    }
+
+    for (final repo in repos) {
+      if (!seenUrls.add(repo.url)) continue;
+
+      if (repo.url == widget.app.repositoryUrl) {
+        tabs.add(
+          _RepoVersionsTabData(
+            repo: repo,
+            app: widget.app.copyWith(repositoryUrl: repo.url),
+          ),
+        );
+        continue;
+      }
+
+      final repoApp = await appProvider.fetchAppFromRepository(
+        widget.app.packageName,
+        repo.url,
+      );
+      tabs.add(
+        _RepoVersionsTabData(
+          repo: repo,
+          app: repoApp?.copyWith(
+            repositoryUrl: repo.url,
+            availableRepositories: widget.app.availableRepositories,
+          ),
+        ),
+      );
+    }
+
+    addFallbackCurrentRepo();
+    return tabs;
+  }
+
+  List<FDroidVersion> _versionsForRepo(
+    FDroidApp repoApp,
+    bool includeUnstable,
+    List<String> supportedAbis,
+  ) {
+    var versions = repoApp.packages?.values.toList() ?? [];
+    if (versions.isEmpty) return const <FDroidVersion>[];
+
+    if (!includeUnstable) {
+      versions = versions.where((v) => !v.isUnstable).toList();
+      if (versions.isEmpty) return const <FDroidVersion>[];
+    }
+
+    bool isUniversal(FDroidVersion v) =>
+        v.nativecode == null || v.nativecode!.isEmpty;
+
+    bool supportsDevice(FDroidVersion v) {
+      if (isUniversal(v)) return true;
+      if (supportedAbis.isEmpty) return true;
+      return v.nativecode!.any((abi) => supportedAbis.contains(abi));
+    }
+
+    final compatible = versions.where(supportsDevice).toList();
+    if (compatible.isNotEmpty) {
+      versions = compatible;
+    }
+
+    versions.sort((a, b) => b.versionCode.compareTo(a.versionCode));
+    return versions;
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Consumer<AppProvider>(
-      builder: (context, appProvider, _) {
-        return FutureBuilder<List<Object?>>(
-          future: Future.wait([
-            appProvider.getIncludeUnstable(app.packageName),
-            appProvider.getSupportedAbis(),
-          ]),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const SizedBox.shrink();
-            }
+    final appProvider = context.watch<AppProvider>();
+    return FutureBuilder<_AllVersionsInitData>(
+      future: _initialDataFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 8.0,
+            children: [
+              MListHeader(
+                title: 'All Versions',
+                trailing: IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: Icon(Symbols.keyboard_arrow_down),
+                ),
+              ),
+              SizedBox(
+                height: 260,
+                child: Center(child: CircularProgressIndicator()),
+              ),
+            ],
+          );
+        }
 
-            final includeUnstable = (snapshot.data?[0] as bool?) ?? false;
-            final supportedAbis =
-                (snapshot.data?[1] as List<String>?) ?? const <String>[];
+        final initialData = snapshot.data;
+        if (initialData == null) {
+          return const SizedBox.shrink();
+        }
 
-            var versions = app.packages?.values.toList() ?? [];
-            if (versions.isEmpty) return const SizedBox.shrink();
+        final includeUnstable = initialData.includeUnstable;
+        final supportedAbis = initialData.supportedAbis;
+        final trackedRepoUrl = initialData.trackedRepoUrl;
+        final tabs = initialData.tabs;
 
-            if (!includeUnstable) {
-              versions = versions.where((v) => !v.isUnstable).toList();
-              if (versions.isEmpty) return const SizedBox.shrink();
-            }
+        if (tabs.isEmpty) return const SizedBox.shrink();
 
-            bool isUniversal(FDroidVersion v) =>
-                v.nativecode == null || v.nativecode!.isEmpty;
+        final trackedIndex = trackedRepoUrl == null
+            ? -1
+            : tabs.indexWhere((t) => t.repo.url == trackedRepoUrl);
+        final defaultIndex = tabs.indexWhere(
+          (t) => t.repo.url == widget.app.repositoryUrl,
+        );
 
-            bool supportsDevice(FDroidVersion v) {
-              if (isUniversal(v)) return true;
-              if (supportedAbis.isEmpty) return true;
-              return v.nativecode!.any((abi) => supportedAbis.contains(abi));
-            }
+        final preferredIndex = trackedIndex >= 0
+            ? trackedIndex
+            : (defaultIndex >= 0 ? defaultIndex : 0);
 
-            // Filter out incompatible ABIs; if none remain, fall back to show all
-            final compatible = versions.where(supportsDevice).toList();
-            if (compatible.isNotEmpty) {
-              versions = compatible;
-            }
+        final selectedIndex = _userSelectedRepo
+            ? _selectedRepoIndex.clamp(0, tabs.length - 1)
+            : preferredIndex;
 
-            versions.sort((a, b) => b.versionCode.compareTo(a.versionCode));
+        final selectedTab = tabs[selectedIndex];
+        final selectedRepoApp = selectedTab.app;
+        final versions = selectedRepoApp == null
+            ? const <FDroidVersion>[]
+            : _versionsForRepo(selectedRepoApp, includeUnstable, supportedAbis);
 
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 8.0,
-              children: [
-                MListHeader(title: 'All Versions'),
-                MListViewBuilder(
-                  itemCount: versions.length,
-                  itemBuilder: (index) {
-                    final version = versions[index];
-                    final isLatest = version == versions.first;
-                    final compatibleAbi = supportsDevice(version);
-                    final installedApp = appProvider.getInstalledApp(
-                      app.packageName,
-                    );
-                    final isInstalledVersion =
-                        appProvider.isAppInstalled(app.packageName) &&
-                        installedApp != null &&
-                        (installedApp.versionCode != null
-                            ? installedApp.versionCode == version.versionCode
-                            : installedApp.versionName == version.versionName);
-                    return MListItemData(
-                      title: version.versionName,
-                      subtitle: version.sizeString,
-                      suffix: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (isInstalledVersion)
-                            IconButton.filledTonal(
-                              style: FilledButton.styleFrom(
-                                foregroundColor: Theme.of(
-                                  context,
-                                ).colorScheme.onErrorContainer,
-                                backgroundColor: Theme.of(
-                                  context,
-                                ).colorScheme.errorContainer,
-                              ),
-                              onPressed: () async {
-                                try {
-                                  await context
-                                      .read<DownloadProvider>()
-                                      .uninstallApp(app.packageName);
-                                  await Future.delayed(
-                                    const Duration(milliseconds: 100),
-                                  );
-                                  await appProvider.fetchInstalledApps();
-                                } catch (e) {
-                                  if (context.mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text('Uninstall failed: $e'),
-                                      ),
-                                    );
-                                  }
-                                }
-                              },
-                              icon: const Icon(Symbols.delete_rounded, fill: 1),
-                            )
-                          else ...[
-                            IconButton(
-                              onPressed: compatibleAbi
-                                  ? () async {
-                                      final url = version.downloadUrl(
-                                        app.repositoryUrl,
-                                      );
-                                      await launchUrl(Uri.parse(url));
-                                    }
-                                  : null,
-                              icon: const Icon(Symbols.open_in_new_rounded),
+        bool isUniversal(FDroidVersion v) =>
+            v.nativecode == null || v.nativecode!.isEmpty;
+
+        bool supportsDevice(FDroidVersion v) {
+          if (isUniversal(v)) return true;
+          if (supportedAbis.isEmpty) return true;
+          return v.nativecode!.any((abi) => supportedAbis.contains(abi));
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 8.0,
+          children: [
+            MListHeader(
+              title: 'All Versions',
+              trailing: IconButton(
+                onPressed: () => Navigator.pop(context),
+                icon: Icon(Symbols.keyboard_arrow_down),
+              ),
+            ),
+            DefaultTabController(
+              key: ValueKey('repo-tabs-${tabs.length}-$selectedIndex'),
+              length: tabs.length,
+              initialIndex: selectedIndex,
+              child: Builder(
+                builder: (context) {
+                  return FTabBar(
+                    controller: DefaultTabController.of(context),
+                    isScrollable: true,
+                    onTabChanged: (index) {
+                      setState(() {
+                        _selectedRepoIndex = index;
+                        _userSelectedRepo = true;
+                      });
+                    },
+                    items: [
+                      for (final tab in tabs)
+                        FloridTabBarItem(
+                          icon: Symbols.storage_rounded,
+                          label: trackedRepoUrl == tab.repo.url
+                              ? '${tab.repo.name} (Installed)'
+                              : tab.repo.name,
+                        ),
+                    ],
+                  );
+                },
+              ),
+            ),
+            if (selectedRepoApp == null)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Card.outlined(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Text(
+                      'No version metadata available from ${selectedTab.repo.name}.',
+                    ),
+                  ),
+                ),
+              )
+            else if (versions.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Card.outlined(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Text(
+                      'No compatible versions available in ${selectedTab.repo.name}.',
+                    ),
+                  ),
+                ),
+              )
+            else
+              MListViewBuilder(
+                itemCount: versions.length,
+                itemBuilder: (index) {
+                  final version = versions[index];
+                  final isLatest = version == versions.first;
+                  final compatibleAbi = supportsDevice(version);
+                  final installedApp = appProvider.getInstalledApp(
+                    widget.app.packageName,
+                  );
+                  final isInstalledVersion =
+                      appProvider.isAppInstalled(widget.app.packageName) &&
+                      installedApp != null &&
+                      (installedApp.versionCode != null
+                          ? installedApp.versionCode == version.versionCode
+                          : installedApp.versionName == version.versionName);
+                  return MListItemData(
+                    title: version.versionName,
+                    subtitle: version.sizeString,
+                    suffix: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (isInstalledVersion)
+                          IconButton.filledTonal(
+                            style: FilledButton.styleFrom(
+                              foregroundColor: Theme.of(
+                                context,
+                              ).colorScheme.onErrorContainer,
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.errorContainer,
                             ),
-                            IconButton.filledTonal(
-                              onPressed: compatibleAbi
-                                  ? () async {
-                                      try {
-                                        final appWithVersion = app
-                                            .copyWithVersion(version);
-                                        await context
-                                            .read<DownloadProvider>()
-                                            .downloadApk(appWithVersion);
-                                      } catch (e) {
-                                        if (context.mounted) {
-                                          ScaffoldMessenger.of(
-                                            context,
-                                          ).showSnackBar(
-                                            SnackBar(
-                                              content: Text(
-                                                'Download failed: $e',
-                                              ),
-                                            ),
+                            onPressed: () async {
+                              try {
+                                await context
+                                    .read<DownloadProvider>()
+                                    .uninstallApp(widget.app.packageName);
+                                await Future.delayed(
+                                  const Duration(milliseconds: 100),
+                                );
+                                await appProvider.fetchInstalledApps();
+                              } catch (e) {
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('Uninstall failed: $e'),
+                                    ),
+                                  );
+                                }
+                              }
+                            },
+                            icon: const Icon(Symbols.delete_rounded, fill: 1),
+                          )
+                        else ...[
+                          IconButton(
+                            onPressed: compatibleAbi
+                                ? () async {
+                                    final url = version.downloadUrl(
+                                      selectedTab.repo.url,
+                                    );
+                                    await launchUrl(Uri.parse(url));
+                                  }
+                                : null,
+                            icon: const Icon(Symbols.open_in_new_rounded),
+                          ),
+                          IconButton.filledTonal(
+                            onPressed: compatibleAbi
+                                ? () async {
+                                    try {
+                                      final appWithVersion = selectedRepoApp
+                                          .copyWithVersion(version)
+                                          .copyWith(
+                                            repositoryUrl: selectedTab.repo.url,
                                           );
-                                        }
+                                      await context
+                                          .read<DownloadProvider>()
+                                          .downloadApk(appWithVersion);
+                                    } catch (e) {
+                                      if (context.mounted) {
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              'Download failed: $e',
+                                            ),
+                                          ),
+                                        );
                                       }
                                     }
-                                  : null,
-                              icon: const Icon(Symbols.download),
-                            ),
-                          ],
-                        ],
-                      ),
-                      selected: isLatest,
-                      onTap: () {
-                        // Scroll to the tapped version's section
-                        // This requires a more complex setup with GlobalKeys or a scroll controller
-                        // For simplicity, we'll just show a snackbar here
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              'Tapped on version ${version.versionName}',
-                            ),
+                                  }
+                                : null,
+                            icon: const Icon(Symbols.download),
                           ),
-                        );
-                      },
-                    );
-                  },
-                ),
-              ],
-            );
-          },
+                        ],
+                      ],
+                    ),
+                    selected: isLatest,
+                    onTap: () {},
+                  );
+                },
+              ).animate().fadeIn(
+                delay: Duration(milliseconds: 300),
+                duration: Duration(milliseconds: 300),
+              ),
+          ],
         );
       },
     );
   }
+}
+
+class _RepoVersionsTabData {
+  final RepositorySource repo;
+  final FDroidApp? app;
+
+  const _RepoVersionsTabData({required this.repo, required this.app});
+}
+
+class _AllVersionsInitData {
+  final bool includeUnstable;
+  final List<String> supportedAbis;
+  final String? trackedRepoUrl;
+  final List<_RepoVersionsTabData> tabs;
+
+  const _AllVersionsInitData({
+    required this.includeUnstable,
+    required this.supportedAbis,
+    required this.trackedRepoUrl,
+    required this.tabs,
+  });
 }
 
 enum _ShizukuAction { switchToSystem, cancel }
