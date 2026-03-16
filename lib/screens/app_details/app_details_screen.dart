@@ -2341,83 +2341,86 @@ class _DescriptionSectionState extends State<_DescriptionSection>
   Widget build(BuildContext context) {
     final description = widget.app.description;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      spacing: 4.0,
-      children: [
-        MListHeader(
-          title: 'Description',
-          onTap: () {
-            setState(() {
-              _isExpanded = !_isExpanded;
-              if (_isExpanded) {
-                _animationController.forward();
-              } else {
-                _animationController.reverse();
-              }
-            });
-          },
-          trailing: Icon(
-            _isExpanded ? Symbols.expand_less : Symbols.expand_more,
-            color: Theme.of(context).colorScheme.primary,
+    return InkWell(
+      onTap: () {
+        setState(() {
+          _isExpanded = !_isExpanded;
+          if (_isExpanded) {
+            _animationController.forward();
+          } else {
+            _animationController.reverse();
+          }
+        });
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: 4.0,
+        children: [
+          MListHeader(
+            title: 'Description',
+
+            trailing: Icon(
+              _isExpanded ? Symbols.expand_less : Symbols.expand_more,
+              color: Theme.of(context).colorScheme.primary,
+            ),
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: AnimatedSize(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-            child: ShaderMask(
-              shaderCallback: (bounds) {
-                return LinearGradient(
-                  colors: [Colors.black, Colors.transparent],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                ).createShader(bounds);
-              },
-              blendMode: _isExpanded ? BlendMode.dst : BlendMode.dstIn,
-              child: MarkupContent(
-                data: description,
-                shrinkWrap: true,
-                style: {
-                  "body": Style(
-                    margin: Margins.zero,
-                    padding: HtmlPaddings.zero,
-                    fontSize: FontSize(
-                      Theme.of(context).textTheme.bodyMedium?.fontSize ?? 14,
-                    ),
-                    color: Theme.of(context).textTheme.bodyMedium?.color,
-                    maxLines: _isExpanded ? null : 3,
-                    textOverflow: _isExpanded ? null : TextOverflow.ellipsis,
-                  ),
-                  "p": Style(
-                    margin: Margins.only(bottom: 8),
-                    color: Theme.of(context).textTheme.bodyMedium?.color,
-                  ),
-                  "ul": Style(
-                    margin: Margins.only(bottom: 8),
-                    padding: HtmlPaddings.only(left: 20),
-                    color: Theme.of(context).textTheme.bodyMedium?.color,
-                  ),
-                  "ol": Style(
-                    margin: Margins.only(bottom: 8),
-                    padding: HtmlPaddings.only(left: 20),
-                    color: Theme.of(context).textTheme.bodyMedium?.color,
-                  ),
-                  "li": Style(
-                    margin: Margins.only(bottom: 4),
-                    color: Theme.of(context).textTheme.bodyMedium?.color,
-                  ),
-                  "a": Style(
-                    color: Theme.of(context).colorScheme.primary,
-                    textDecoration: TextDecoration.underline,
-                  ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            child: AnimatedSize(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              child: ShaderMask(
+                shaderCallback: (bounds) {
+                  return LinearGradient(
+                    colors: [Colors.black, Colors.transparent],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ).createShader(bounds);
                 },
+                blendMode: _isExpanded ? BlendMode.dst : BlendMode.dstIn,
+                child: MarkupContent(
+                  data: description,
+                  shrinkWrap: true,
+                  style: {
+                    "body": Style(
+                      margin: Margins.zero,
+                      padding: HtmlPaddings.zero,
+                      fontSize: FontSize(
+                        Theme.of(context).textTheme.bodyMedium?.fontSize ?? 14,
+                      ),
+                      color: Theme.of(context).textTheme.bodyMedium?.color,
+                      maxLines: _isExpanded ? null : 3,
+                      textOverflow: _isExpanded ? null : TextOverflow.ellipsis,
+                    ),
+                    "p": Style(
+                      margin: Margins.only(bottom: 8),
+                      color: Theme.of(context).textTheme.bodyMedium?.color,
+                    ),
+                    "ul": Style(
+                      margin: Margins.only(bottom: 8),
+                      padding: HtmlPaddings.only(left: 20),
+                      color: Theme.of(context).textTheme.bodyMedium?.color,
+                    ),
+                    "ol": Style(
+                      margin: Margins.only(bottom: 8),
+                      padding: HtmlPaddings.only(left: 20),
+                      color: Theme.of(context).textTheme.bodyMedium?.color,
+                    ),
+                    "li": Style(
+                      margin: Margins.only(bottom: 4),
+                      color: Theme.of(context).textTheme.bodyMedium?.color,
+                    ),
+                    "a": Style(
+                      color: Theme.of(context).colorScheme.primary,
+                      textDecoration: TextDecoration.underline,
+                    ),
+                  },
+                ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
