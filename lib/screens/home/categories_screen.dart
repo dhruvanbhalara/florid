@@ -268,6 +268,58 @@ class _CategoryCard extends StatelessWidget {
         return Symbols.palette;
       case 'connectivity':
         return Symbols.wifi;
+      case 'battery':
+        return Symbols.battery_4_bar_rounded;
+      case 'clock':
+        return Symbols.watch_later;
+      case 'contact':
+        return Symbols.person_rounded;
+      case 'firewall':
+        return Symbols.shield;
+      case 'flashlight':
+        return Symbols.flashlight_on_rounded;
+      case 'food':
+        return Symbols.food_bank_rounded;
+      case 'inventory':
+        return Symbols.inventory_2_rounded;
+      case 'network analyzer':
+        return Symbols.analytics_rounded;
+      case 'podcast':
+        return Symbols.podcasts_rounded;
+      case 'public transport':
+        return Symbols.bus_railway_rounded;
+      case 'radio':
+        return Symbols.radio_rounded;
+      case 'recipe manager':
+        return Symbols.chef_hat_rounded;
+      case 'religion':
+        return Symbols.folded_hands_rounded;
+      case 'remote controller':
+        return Symbols.remote_gen_rounded;
+      case 'shopping list':
+        return Symbols.shopping_basket_rounded;
+      case 'social network':
+        return Symbols.share_rounded;
+      case 'task':
+        return Symbols.check_circle_rounded;
+      case 'text editor':
+        return Symbols.edit_rounded;
+      case 'translation & dictionary':
+        return Symbols.translate_rounded;
+      case 'unit convertor':
+        return Symbols.currency_exchange;
+      case 'vpn & proxy':
+        return Symbols.vpn_key_rounded;
+      case 'voice & video chat':
+        return Symbols.videocam_rounded;
+      case 'wallet':
+        return Symbols.account_balance_wallet_rounded;
+      case 'wallpaper':
+        return Symbols.wallpaper_rounded;
+      case 'weather':
+        return Symbols.wb_sunny_rounded;
+      case 'workout':
+        return Symbols.fitness_center_rounded;
       default:
         return Symbols.category;
     }
