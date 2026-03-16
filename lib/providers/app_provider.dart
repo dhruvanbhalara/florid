@@ -410,6 +410,7 @@ class AppProvider extends ChangeNotifier {
 
       // If DB misses but multiple repos are enabled, do a limited network fallback
       // to recover selector visibility for first-time sync.
+      // Note: disable network fallback for lazy-loaded contexts like All Versions sheet
       if (availableReposList.length <= 1 && enabledRepos.length > 1) {
         for (final repo in enabledRepos) {
           if (repo.url == app.repositoryUrl) continue;
@@ -418,7 +419,8 @@ class AppProvider extends ChangeNotifier {
           final exists = await _apiService.repositoryContainsPackage(
             app.packageName,
             repo.url,
-            allowNetworkFallback: true,
+            allowNetworkFallback:
+                false, // Use only database, no network fallback
           );
 
           if (exists) {
@@ -466,6 +468,23 @@ class AppProvider extends ChangeNotifier {
         'Error fetching app $packageName from repository $repositoryUrl: $e',
       );
       return null;
+    }
+  }
+
+  /// Fetch apps by package name from a specific repository using local database.
+  /// Avoids network calls by querying cached repository data.
+  Future<List<FDroidApp>> getAppsByPackageNamesFromRepository(
+    List<String> packageNames,
+    String repositoryUrl,
+  ) async {
+    try {
+      return await _apiService.getAppsByPackageNamesFromRepository(
+        packageNames,
+        repositoryUrl,
+      );
+    } catch (e) {
+      debugPrint('Error fetching apps from repository $repositoryUrl: $e');
+      return [];
     }
   }
 
@@ -619,43 +638,65 @@ class AppProvider extends ChangeNotifier {
         return;
       }
 
-      final izzyApps = await _getIzzyAppsDbFirst(izzyRepo);
+      final monthlyStats = await _izzyStatsService.fetchMonthlyStats();
 
-      debugPrint(
-        '🔍 Got ${izzyApps.length} IzzyOnDroid apps for monthly ranking',
-      );
-
-      if (izzyApps.isEmpty) {
-        debugPrint('⚠️ No apps found from IzzyOnDroid, returning empty list');
+      if (monthlyStats.isEmpty) {
         _topApps = [];
+        _topAppsDownloads = {};
         _topAppsState = LoadingState.success;
         notifyListeners();
         return;
       }
 
-      // Create a map to store download counts with apps
-      final appStats = <FDroidApp, int>{};
-      final monthlyStats = await _izzyStatsService.fetchMonthlyStats();
+      final sortedStats =
+          monthlyStats.entries.where((entry) => entry.value > 0).toList()
+            ..sort((a, b) => b.value.compareTo(a.value));
 
-      // Resolve stats from an in-memory map to avoid repeated lookups.
-      for (final app in izzyApps) {
-        final downloads = monthlyStats[app.packageName] ?? 0;
-        if (downloads > 0) {
-          appStats[app] = downloads;
+      if (sortedStats.isEmpty) {
+        _topApps = [];
+        _topAppsDownloads = {};
+        _topAppsState = LoadingState.success;
+        notifyListeners();
+        return;
+      }
+
+      // Read only a bounded number of ranked packages from DB to avoid
+      // loading the whole repository and exhausting memory on low-RAM devices.
+      final candidateCount = sortedStats.length < limit * 10
+          ? sortedStats.length
+          : limit * 10;
+      final candidatePackageNames = sortedStats
+          .take(candidateCount)
+          .map((entry) => entry.key)
+          .toList();
+
+      final candidateApps = await _apiService
+          .getAppsByPackageNamesFromRepository(
+            candidatePackageNames,
+            izzyRepo.url,
+          );
+
+      final appByPackage = <String, FDroidApp>{
+        for (final app in candidateApps) app.packageName: app,
+      };
+
+      final topApps = <FDroidApp>[];
+      final topDownloads = <String, int>{};
+
+      for (final entry in sortedStats) {
+        final app = appByPackage[entry.key];
+        if (app == null) {
+          continue;
+        }
+        topApps.add(app);
+        topDownloads[app.packageName] = entry.value;
+        if (topApps.length >= limit) {
+          break;
         }
       }
 
-      // Sort apps by download count (highest first)
-      final sortedApps = appStats.entries.toList();
-      sortedApps.sort((a, b) => b.value.compareTo(a.value));
-
-      _topApps = sortedApps.take(limit).map((e) => e.key).toList();
-
-      // Store download counts for UI display
-      _topAppsDownloads = {};
-      for (final entry in sortedApps.take(limit)) {
-        _topAppsDownloads[entry.key.packageName] = entry.value;
-      }
+      _topApps = topApps;
+      _topAppsDownloads = topDownloads;
 
       _topAppsState = LoadingState.success;
     } catch (e) {
@@ -706,33 +747,63 @@ class AppProvider extends ChangeNotifier {
         return;
       }
 
-      final izzyApps = await _getIzzyAppsDbFirst(izzyRepo);
+      final yearlyStats = await _izzyStatsService.fetchYearlyStats();
 
-      if (izzyApps.isEmpty) {
+      if (yearlyStats.isEmpty) {
         _topAppsAllTime = [];
+        _topAppsAllTimeDownloads = {};
         _topAppsAllTimeState = LoadingState.success;
         notifyListeners();
         return;
       }
 
-      final appStats = <FDroidApp, int>{};
-      final yearlyStats = await _izzyStatsService.fetchYearlyStats();
+      final sortedStats =
+          yearlyStats.entries.where((entry) => entry.value > 0).toList()
+            ..sort((a, b) => b.value.compareTo(a.value));
 
-      for (final app in izzyApps) {
-        final downloads = yearlyStats[app.packageName] ?? 0;
-        if (downloads > 0) {
-          appStats[app] = downloads;
+      if (sortedStats.isEmpty) {
+        _topAppsAllTime = [];
+        _topAppsAllTimeDownloads = {};
+        _topAppsAllTimeState = LoadingState.success;
+        notifyListeners();
+        return;
+      }
+
+      final candidateCount = sortedStats.length < limit * 10
+          ? sortedStats.length
+          : limit * 10;
+      final candidatePackageNames = sortedStats
+          .take(candidateCount)
+          .map((entry) => entry.key)
+          .toList();
+
+      final candidateApps = await _apiService
+          .getAppsByPackageNamesFromRepository(
+            candidatePackageNames,
+            izzyRepo.url,
+          );
+
+      final appByPackage = <String, FDroidApp>{
+        for (final app in candidateApps) app.packageName: app,
+      };
+
+      final topApps = <FDroidApp>[];
+      final topDownloads = <String, int>{};
+
+      for (final entry in sortedStats) {
+        final app = appByPackage[entry.key];
+        if (app == null) {
+          continue;
+        }
+        topApps.add(app);
+        topDownloads[app.packageName] = entry.value;
+        if (topApps.length >= limit) {
+          break;
         }
       }
 
-      final sortedApps = appStats.entries.toList();
-      sortedApps.sort((a, b) => b.value.compareTo(a.value));
-
-      _topAppsAllTime = sortedApps.take(limit).map((e) => e.key).toList();
-      _topAppsAllTimeDownloads = {};
-      for (final entry in sortedApps.take(limit)) {
-        _topAppsAllTimeDownloads[entry.key.packageName] = entry.value;
-      }
+      _topAppsAllTime = topApps;
+      _topAppsAllTimeDownloads = topDownloads;
 
       _topAppsAllTimeState = LoadingState.success;
     } catch (e) {
@@ -740,37 +811,6 @@ class AppProvider extends ChangeNotifier {
       _topAppsAllTimeState = LoadingState.error;
     }
     notifyListeners();
-  }
-
-  Future<List<FDroidApp>> _getIzzyAppsDbFirst(Repository izzyRepo) async {
-    // Fast path: use locally cached DB rows for this repository.
-    final cachedApps = await _apiService.searchAppsFromRepositoryUrl(
-      '',
-      izzyRepo.url,
-      allowNetworkFallback: false,
-    );
-    if (cachedApps.isNotEmpty) {
-      debugPrint('📦 Using ${cachedApps.length} cached IzzyOnDroid apps');
-      return cachedApps;
-    }
-
-    // Fallback path: fetch index once from network, then persist for next runs.
-    debugPrint(
-      '🔗 IzzyOnDroid cache miss, fetching from network: ${izzyRepo.url}',
-    );
-    final izzyRepository = await _apiService.fetchRepositoryFromUrl(
-      izzyRepo.url,
-    );
-
-    final izzyRepoId = await _apiService.getRepositoryIdByUrl(izzyRepo.url);
-    if (izzyRepoId != null) {
-      await _apiService.importRepositoryToDatabase(
-        izzyRepository,
-        repositoryId: izzyRepoId,
-      );
-    }
-
-    return izzyRepository.apps.values.toList();
   }
 
   /// Fetches categories from F-Droid

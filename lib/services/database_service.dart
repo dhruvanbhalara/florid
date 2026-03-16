@@ -874,6 +874,85 @@ class DatabaseService {
     return apps;
   }
 
+  /// Gets apps from a specific repository URL by package names.
+  ///
+  /// This is optimized for ranking screens where we only need a small subset
+  /// of repository apps instead of materializing the whole repository payload.
+  Future<List<FDroidApp>> getAppsByPackageNamesFromRepository(
+    List<String> packageNames,
+    String repositoryUrl,
+  ) async {
+    if (packageNames.isEmpty) {
+      return [];
+    }
+
+    final db = await database;
+
+    // Get repository ID by URL
+    final repoResults = await db.query(
+      _repositoriesTable,
+      where: 'url = ?',
+      whereArgs: [repositoryUrl],
+    );
+
+    if (repoResults.isEmpty) {
+      return [];
+    }
+
+    final repositoryId = repoResults.first['id'] as int;
+
+    // SQLite variable limit is ~999, so split package filters in batches.
+    const batchSize = 500;
+    final appMaps = <Map<String, Object?>>[];
+
+    for (var i = 0; i < packageNames.length; i += batchSize) {
+      final batch = packageNames.sublist(
+        i,
+        i + batchSize > packageNames.length
+            ? packageNames.length
+            : i + batchSize,
+      );
+
+      final rows = await db.rawQuery(
+        '''
+        SELECT a.*, r.url as repository_url FROM $_appsTable a
+        LEFT JOIN $_repositoriesTable r ON a.repository_id = r.id
+        WHERE a.repository_id = ?
+          AND a.package_name IN (${List.filled(batch.length, '?').join(',')})
+      ''',
+        [repositoryId, ...batch],
+      );
+
+      appMaps.addAll(rows);
+    }
+
+    if (appMaps.isEmpty) {
+      return [];
+    }
+
+    final packageNamesFound = appMaps
+        .map((m) => m['package_name'] as String)
+        .toList();
+
+    final data = await _batchLoadCategoriesAndVersions(packageNamesFound);
+    final categoriesByPackage = data.categoriesByPackage;
+    final versionsByPackage = data.versionsByPackage;
+
+    final apps = <FDroidApp>[];
+    for (final appMap in appMaps) {
+      final packageName = appMap['package_name'] as String;
+      final app = _mapToAppWithData(
+        appMap,
+        categoriesByPackage[packageName] ?? [],
+        versionsByPackage[packageName] ?? [],
+        repositoryUrl: appMap['repository_url'] as String?,
+      );
+      apps.add(app);
+    }
+
+    return apps;
+  }
+
   /// Gets a specific app by package name
   Future<FDroidApp?> getApp(String packageName) async {
     final db = await database;

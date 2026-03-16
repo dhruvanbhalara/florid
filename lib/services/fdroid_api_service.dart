@@ -818,6 +818,29 @@ class FDroidApiService {
     }
   }
 
+  /// Gets specific apps from a repository URL by package names.
+  ///
+  /// Uses database cache only and does not perform network fallback.
+  Future<List<FDroidApp>> getAppsByPackageNamesFromRepository(
+    List<String> packageNames,
+    String repositoryUrl,
+  ) async {
+    if (packageNames.isEmpty) {
+      return [];
+    }
+
+    try {
+      return await _databaseService.getAppsByPackageNamesFromRepository(
+        packageNames,
+        repositoryUrl,
+      );
+    } catch (e) {
+      throw Exception(
+        'Error fetching apps by package names from repository: $e',
+      );
+    }
+  }
+
   /// Checks whether a package exists in a repository.
   /// Uses DB first and optionally falls back to network index fetch.
   Future<bool> repositoryContainsPackage(

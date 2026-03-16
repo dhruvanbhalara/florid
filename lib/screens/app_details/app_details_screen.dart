@@ -2923,23 +2923,37 @@ class _AllVersionsSectionState extends State<_AllVersionsSection> {
         continue;
       }
 
-      final repoApp = await appProvider.fetchAppFromRepository(
-        widget.app.packageName,
-        repo.url,
-      );
+      // Lazy-load app from other repos to avoid OOM on tab init.
+      // Only fetch when user selects the tab.
       tabs.add(
         _RepoVersionsTabData(
           repo: repo,
-          app: repoApp?.copyWith(
-            repositoryUrl: repo.url,
-            availableRepositories: widget.app.availableRepositories,
-          ),
+          app: null, // Will be loaded on-demand
         ),
       );
     }
 
     addFallbackCurrentRepo();
     return tabs;
+  }
+
+  /// Fetch app data for a repo tab on-demand from local database (no network fetch).
+  Future<FDroidApp?> _loadAppForRepoTab(_RepoVersionsTabData tab) async {
+    if (tab.app != null) return tab.app;
+
+    final appProvider = context.read<AppProvider>();
+    // Fetch from database to avoid redundant network calls
+    final repoApps = await appProvider
+        .getAppsByPackageNamesFromRepository([
+          widget.app.packageName,
+        ], tab.repo.url)
+        .then((apps) => apps.isNotEmpty ? apps : null);
+    if (repoApps == null) return null;
+
+    return repoApps.first.copyWith(
+      repositoryUrl: tab.repo.url,
+      availableRepositories: widget.app.availableRepositories,
+    );
   }
 
   List<FDroidVersion> _versionsForRepo(
@@ -3027,10 +3041,6 @@ class _AllVersionsSectionState extends State<_AllVersionsSection> {
             : preferredIndex;
 
         final selectedTab = tabs[selectedIndex];
-        final selectedRepoApp = selectedTab.app;
-        final versions = selectedRepoApp == null
-            ? const <FDroidVersion>[]
-            : _versionsForRepo(selectedRepoApp, includeUnstable, supportedAbis);
 
         bool isUniversal(FDroidVersion v) =>
             v.nativecode == null || v.nativecode!.isEmpty;
@@ -3079,135 +3089,195 @@ class _AllVersionsSectionState extends State<_AllVersionsSection> {
                 },
               ),
             ),
-            if (selectedRepoApp == null)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Card.outlined(
-                  child: Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Text(
-                      'No version metadata available from ${selectedTab.repo.name}.',
-                    ),
-                  ),
-                ),
-              )
-            else if (versions.isEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Card.outlined(
-                  child: Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Text(
-                      'No compatible versions available in ${selectedTab.repo.name}.',
-                    ),
-                  ),
-                ),
-              )
-            else
-              MListViewBuilder(
-                itemCount: versions.length,
-                itemBuilder: (index) {
-                  final version = versions[index];
-                  final isLatest = version == versions.first;
-                  final compatibleAbi = supportsDevice(version);
-                  final installedApp = appProvider.getInstalledApp(
-                    widget.app.packageName,
-                  );
-                  final isInstalledVersion =
-                      appProvider.isAppInstalled(widget.app.packageName) &&
-                      installedApp != null &&
-                      (installedApp.versionCode != null
-                          ? installedApp.versionCode == version.versionCode
-                          : installedApp.versionName == version.versionName);
-                  return MListItemData(
-                    title: version.versionName,
-                    subtitle: version.sizeString,
-                    suffix: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (isInstalledVersion)
-                          IconButton.filledTonal(
-                            style: FilledButton.styleFrom(
-                              foregroundColor: Theme.of(
-                                context,
-                              ).colorScheme.onErrorContainer,
-                              backgroundColor: Theme.of(
-                                context,
-                              ).colorScheme.errorContainer,
+            // Lazy-load app data for selected repo on-demand
+            FutureBuilder<FDroidApp?>(
+              future: _loadAppForRepoTab(selectedTab),
+              builder: (context, appSnapshot) {
+                final selectedRepoApp = appSnapshot.data;
+
+                if (appSnapshot.connectionState == ConnectionState.waiting) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Card.outlined(
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Row(
+                          spacing: 12,
+                          children: [
+                            SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
                             ),
-                            onPressed: () async {
-                              try {
-                                await context
-                                    .read<DownloadProvider>()
-                                    .uninstallApp(widget.app.packageName);
-                                await Future.delayed(
-                                  const Duration(milliseconds: 100),
-                                );
-                                await appProvider.fetchInstalledApps();
-                              } catch (e) {
-                                if (context.mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text('Uninstall failed: $e'),
-                                    ),
+                            Expanded(
+                              child: Text(
+                                'Loading ${selectedTab.repo.name}...',
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                }
+
+                if (appSnapshot.hasError) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Card.outlined(
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Text(
+                          'Failed to load from ${selectedTab.repo.name}.',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ),
+                    ),
+                  );
+                }
+
+                if (selectedRepoApp == null) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Card.outlined(
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Text(
+                          'No version metadata available from ${selectedTab.repo.name}.',
+                        ),
+                      ),
+                    ),
+                  );
+                }
+
+                final versions = _versionsForRepo(
+                  selectedRepoApp,
+                  includeUnstable,
+                  supportedAbis,
+                );
+
+                if (versions.isEmpty) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Card.outlined(
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Text(
+                          'No compatible versions available in ${selectedTab.repo.name}.',
+                        ),
+                      ),
+                    ),
+                  );
+                }
+
+                return MListViewBuilder(
+                  itemCount: versions.length,
+                  itemBuilder: (index) {
+                    final version = versions[index];
+                    final isLatest = version == versions.first;
+                    final compatibleAbi = supportsDevice(version);
+                    final installedApp = appProvider.getInstalledApp(
+                      widget.app.packageName,
+                    );
+                    final isInstalledVersion =
+                        appProvider.isAppInstalled(widget.app.packageName) &&
+                        installedApp != null &&
+                        (installedApp.versionCode != null
+                            ? installedApp.versionCode == version.versionCode
+                            : installedApp.versionName == version.versionName);
+                    return MListItemData(
+                      title: version.versionName,
+                      subtitle: version.sizeString,
+                      suffix: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (isInstalledVersion)
+                            IconButton.filledTonal(
+                              style: FilledButton.styleFrom(
+                                foregroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.onErrorContainer,
+                                backgroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.errorContainer,
+                              ),
+                              onPressed: () async {
+                                try {
+                                  await context
+                                      .read<DownloadProvider>()
+                                      .uninstallApp(widget.app.packageName);
+                                  await Future.delayed(
+                                    const Duration(milliseconds: 100),
                                   );
-                                }
-                              }
-                            },
-                            icon: const Icon(Symbols.delete_rounded, fill: 1),
-                          )
-                        else ...[
-                          IconButton(
-                            onPressed: compatibleAbi
-                                ? () async {
-                                    final url = version.downloadUrl(
-                                      selectedTab.repo.url,
+                                  await appProvider.fetchInstalledApps();
+                                } catch (e) {
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('Uninstall failed: $e'),
+                                      ),
                                     );
-                                    await launchUrl(Uri.parse(url));
                                   }
-                                : null,
-                            icon: const Icon(Symbols.open_in_new_rounded),
-                          ),
-                          IconButton.filledTonal(
-                            onPressed: compatibleAbi
-                                ? () async {
-                                    try {
-                                      final appWithVersion = selectedRepoApp
-                                          .copyWithVersion(version)
-                                          .copyWith(
-                                            repositoryUrl: selectedTab.repo.url,
-                                          );
-                                      await context
-                                          .read<DownloadProvider>()
-                                          .downloadApk(appWithVersion);
-                                    } catch (e) {
-                                      if (context.mounted) {
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          SnackBar(
-                                            content: Text(
-                                              'Download failed: $e',
+                                }
+                              },
+                              icon: const Icon(Symbols.delete_rounded, fill: 1),
+                            )
+                          else ...[
+                            IconButton(
+                              onPressed: compatibleAbi
+                                  ? () async {
+                                      final url = version.downloadUrl(
+                                        selectedTab.repo.url,
+                                      );
+                                      await launchUrl(Uri.parse(url));
+                                    }
+                                  : null,
+                              icon: const Icon(Symbols.open_in_new_rounded),
+                            ),
+                            IconButton.filledTonal(
+                              onPressed: compatibleAbi
+                                  ? () async {
+                                      try {
+                                        final appWithVersion = selectedRepoApp
+                                            .copyWithVersion(version)
+                                            .copyWith(
+                                              repositoryUrl:
+                                                  selectedTab.repo.url,
+                                            );
+                                        await context
+                                            .read<DownloadProvider>()
+                                            .downloadApk(appWithVersion);
+                                      } catch (e) {
+                                        if (context.mounted) {
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                'Download failed: $e',
+                                              ),
                                             ),
-                                          ),
-                                        );
+                                          );
+                                        }
                                       }
                                     }
-                                  }
-                                : null,
-                            icon: const Icon(Symbols.download),
-                          ),
+                                  : null,
+                              icon: const Icon(Symbols.download),
+                            ),
+                          ],
                         ],
-                      ],
-                    ),
-                    selected: isLatest,
-                    onTap: () {},
-                  );
-                },
-              ).animate().fadeIn(
-                delay: Duration(milliseconds: 300),
-                duration: Duration(milliseconds: 300),
-              ),
+                      ),
+                      selected: isLatest,
+                      onTap: () {},
+                    );
+                  },
+                ).animate().fadeIn(
+                  delay: Duration(milliseconds: 300),
+                  duration: Duration(milliseconds: 300),
+                );
+              },
+            ),
           ],
         );
       },
