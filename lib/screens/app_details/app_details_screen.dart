@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:florid/l10n/app_localizations.dart';
 import 'package:florid/screens/app_details/developer_apps_screen.dart';
 import 'package:florid/screens/app_details/permissions_screen.dart';
+import 'package:florid/screens/home/category_apps_screen.dart';
 import 'package:florid/widgets/changelog_preview.dart';
 import 'package:florid/widgets/list_icon.dart';
 import 'package:florid/widgets/m_list.dart';
@@ -1049,9 +1050,24 @@ class _AppDetailsScreenState extends State<AppDetailsScreen>
                   if (widget.app.categories?.isNotEmpty == true) ...[
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: Chip(
-                        visualDensity: VisualDensity.compact,
-                        label: Text(widget.app.categories!.first),
+                      child: Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          for (final category in widget.app.categories!)
+                            ActionChip(
+                              onPressed: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        CategoryAppsScreen(category: category),
+                                  ),
+                                );
+                              },
+                              visualDensity: VisualDensity.compact,
+                              label: Text(category),
+                            ),
+                        ],
                       ),
                     ).animate().fadeIn(
                       delay: Duration(milliseconds: 300),
