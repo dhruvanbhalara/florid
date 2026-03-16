@@ -350,12 +350,22 @@ class _SearchScreenState extends State<SearchScreen> {
                           key: ValueKey(app.packageName),
                           app: app,
                           showInstallStatus: false,
-                          onTap: () {
-                            Navigator.of(context).push(
+                          onTap: () async {
+                            _searchFocus.unfocus(
+                              disposition: UnfocusDisposition.scope,
+                            );
+                            await Navigator.of(context).push(
                               MaterialPageRoute(
                                 builder: (context) =>
                                     AppDetailsScreen(app: app),
                               ),
+                            );
+                            if (!mounted) return;
+                            _searchFocus.unfocus(
+                              disposition: UnfocusDisposition.scope,
+                            );
+                            SystemChannels.textInput.invokeMethod(
+                              'TextInput.hide',
                             );
                           },
                         );
