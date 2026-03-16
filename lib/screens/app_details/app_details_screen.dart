@@ -3063,7 +3063,6 @@ class _AllVersionsSectionState extends State<_AllVersionsSection> {
                     items: [
                       for (final tab in tabs)
                         FloridTabBarItem(
-                          icon: Symbols.storage_rounded,
                           label: trackedRepoUrl == tab.repo.url
                               ? '${tab.repo.name} (Installed)'
                               : tab.repo.name,

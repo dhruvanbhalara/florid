@@ -98,8 +98,8 @@ class FTabBar extends StatelessWidget implements PreferredSizeWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(item.icon, fill: 1, size: 18),
-                  const SizedBox(width: 8),
+                  if (item.icon != null) Icon(item.icon, fill: 1, size: 18),
+                  if (item.icon != null) SizedBox(width: 8),
                   Text(
                     item.label,
                     maxLines: 1,
@@ -130,13 +130,9 @@ class FTabBar extends StatelessWidget implements PreferredSizeWidget {
 }
 
 class FloridTabBarItem {
-  const FloridTabBarItem({
-    required this.icon,
-    required this.label,
-    this.badgeCount = 0,
-  });
+  const FloridTabBarItem({this.icon, required this.label, this.badgeCount = 0});
 
-  final IconData icon;
+  final IconData? icon;
   final String label;
   final int badgeCount;
 }

@@ -130,7 +130,11 @@ class AppListItem extends StatelessWidget {
                                     child: Text(localizations.update),
                                   )
                                 : isInstalled
-                                ? Icon(Symbols.check_circle, weight: 400)
+                                ? Icon(
+                                    Symbols.check_circle,
+                                    fill: 1,
+                                    color: Colors.green,
+                                  )
                                 : const SizedBox.shrink()
                           : const SizedBox.shrink();
 
