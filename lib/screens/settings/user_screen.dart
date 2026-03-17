@@ -869,41 +869,44 @@ class _FavoriteAppsScreenState extends State<_FavoriteAppsScreen> {
                 pinned: true,
                 title: Text(AppLocalizations.of(context)!.favourites),
                 actions: [
-                  PopupMenuButton(
-                    itemBuilder: (context) {
-                      return [
-                        PopupMenuItem(
-                          value: 'import',
-                          child: Row(
-                            spacing: 8.0,
-                            children: [
-                              const Icon(Symbols.file_upload),
-                              Text(
-                                AppLocalizations.of(context)!.import_favourites,
-                              ),
-                            ],
+                  if (favoriteApps.isNotEmpty)
+                    PopupMenuButton(
+                      itemBuilder: (context) {
+                        return [
+                          PopupMenuItem(
+                            value: 'import',
+                            child: Row(
+                              spacing: 8.0,
+                              children: [
+                                const Icon(Symbols.file_upload),
+                                Text(
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.import_favourites,
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                        PopupMenuItem(
-                          value: 'export',
-                          child: Row(
-                            spacing: 8.0,
-                            children: [
-                              const Icon(Symbols.file_download),
-                              const Text('Export favourites'),
-                            ],
+                          PopupMenuItem(
+                            value: 'export',
+                            child: Row(
+                              spacing: 8.0,
+                              children: [
+                                const Icon(Symbols.file_download),
+                                const Text('Export favourites'),
+                              ],
+                            ),
                           ),
-                        ),
-                      ];
-                    },
-                    onSelected: (value) {
-                      if (value == 'import') {
-                        _importFavorites(context);
-                      } else if (value == 'export') {
-                        _exportFavorites(context);
-                      }
-                    },
-                  ),
+                        ];
+                      },
+                      onSelected: (value) {
+                        if (value == 'import') {
+                          _importFavorites(context);
+                        } else if (value == 'export') {
+                          _exportFavorites(context);
+                        }
+                      },
+                    ),
                 ],
               ),
               if (repositoryState == LoadingState.loading && !repositoryLoaded)
@@ -957,6 +960,14 @@ class _FavoriteAppsScreenState extends State<_FavoriteAppsScreen> {
                           localizations.no_favourites_yet,
                           textAlign: TextAlign.center,
                           style: Theme.of(context).textTheme.headlineMedium,
+                        ),
+                        const SizedBox(height: 16),
+                        FilledButton.icon(
+                          onPressed: () {
+                            _importFavorites(context);
+                          },
+                          icon: const Icon(Symbols.file_upload),
+                          label: Text(localizations.import_favourites),
                         ),
                       ],
                     ),
