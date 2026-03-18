@@ -121,12 +121,23 @@ class AppListItem extends StatelessWidget {
                         app.packageName,
                       );
 
+                      // Check for real updates: not just rebuilds with same versionName or SHA256
                       final hasUpdate =
                           isInstalled &&
                           installedApp != null &&
                           installedApp.versionCode != null &&
                           latestVersion != null &&
-                          installedApp.versionCode! < latestVersion.versionCode;
+                          installedApp.versionCode! <
+                              latestVersion.versionCode &&
+                          // If SHA256 matches, it's the same build - no update needed
+                          !(installedApp.sha256 != null &&
+                              installedApp.sha256!.isNotEmpty &&
+                              installedApp.sha256 == latestVersion.hash) &&
+                          // If versionName is available and matches, it's a rebuild - no update
+                          // If versionName is null on installed app, we can't compare so allow update
+                          !(installedApp.versionName != null &&
+                              installedApp.versionName ==
+                                  latestVersion.versionName);
 
                       final statusWidget = showInstallStatus
                           ? hasUpdate

@@ -22,12 +22,14 @@ class AppInfo {
   final String? versionName;
   final int? versionCode;
   final String appName;
+  final String? sha256; // SHA256 hash of the installed APK for comparison
 
   const AppInfo({
     required this.packageName,
     this.versionName,
     this.versionCode,
     required this.appName,
+    this.sha256,
   });
 }
 
@@ -1087,8 +1089,19 @@ class AppProvider extends ChangeNotifier {
       // Check if installed app has version info
       if (installedApp.versionCode == null) continue;
 
-      // Compare version codes - if F-Droid has a newer version, it's updatable
-      if (latestVersion.versionCode > installedApp.versionCode!) {
+      // Compare versions - exclude rebuilds with same versionName or SHA256
+      final isRealUpdate =
+          latestVersion.versionCode > installedApp.versionCode! &&
+          // If SHA256 matches, it's the same build - no update needed
+          !(installedApp.sha256 != null &&
+              installedApp.sha256!.isNotEmpty &&
+              installedApp.sha256 == latestVersion.hash) &&
+          // If versionName is available and matches, it's a rebuild - no update
+          // If versionName is null on installed app, we can't compare so allow update
+          !(installedApp.versionName != null &&
+              installedApp.versionName == latestVersion.versionName);
+
+      if (isRealUpdate) {
         updatableApps.add(fdroidApp);
       }
     }

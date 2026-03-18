@@ -1755,9 +1755,17 @@ class _InstallActionsSection extends StatelessWidget {
 
             if (isInstalled && installedApp != null) {
               // Check if update is available
+              // Exclude rebuilds: if SHA256 or versionName is the same, it's not a real update
               final hasUpdate =
                   installedApp.versionCode != null &&
-                  version.versionCode > installedApp.versionCode!;
+                  version.versionCode > installedApp.versionCode! &&
+                  // If SHA256 matches, it's the same build - no update needed
+                  !(installedApp.sha256 != null &&
+                      installedApp.sha256!.isNotEmpty &&
+                      installedApp.sha256 == version.hash) &&
+                  // If versionName is available and matches, it's a rebuild - no update
+                  !(installedApp.versionName != null &&
+                      installedApp.versionName == version.versionName);
 
               if (hasUpdate) {
                 // Show Update button

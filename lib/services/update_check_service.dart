@@ -194,10 +194,30 @@ Future<void> _runUpdateCheck({bool debug = false}) async {
     if (latest == null) continue;
 
     final installedVersionCode = installed.versionCode;
+    final installedVersionName = installed.versionName;
+    final installedSha256 =
+        null; // Note: Will be populated if available from database
 
-    if (latest.versionCode > installedVersionCode) {
+    // Use helper to determine if this is a real update or just a rebuild
+    final isRealUpdate = _isRealVersionUpdate(
+      installedVersionCode: installedVersionCode,
+      installedVersionName: installedVersionName,
+      installedSha256: installedSha256,
+      latestVersionCode: latest.versionCode,
+      latestVersionName: latest.versionName,
+      latestSha256: latest.hash,
+    );
+
+    if (isRealUpdate) {
       updates.add(fdroidApp);
       updateVersions[fdroidApp.packageName] = latest.versionCode;
+    } else if (debug &&
+        installedVersionName == latest.versionName &&
+        installedVersionCode != latest.versionCode) {
+      debugPrint(
+        'Skipped rebuild notification: ${installed.packageName} '
+        '$installedVersionName (code: $installedVersionCode -> ${latest.versionCode})',
+      );
     }
   }
 
@@ -251,6 +271,46 @@ Future<bool> _shouldNotifyUpdates(
   }
 
   return !tooSoon;
+}
+
+/// Checks if an update is a real version change or just a rebuild
+/// Returns false if:
+/// - SHA256 hash matches (same exact build)
+/// - versionName is identical (indicates rebuild, not update)
+/// - versionCode matches (already installed)
+bool _isRealVersionUpdate({
+  required int? installedVersionCode,
+  required String? installedVersionName,
+  required String? installedSha256,
+  required int latestVersionCode,
+  required String latestVersionName,
+  required String latestSha256,
+}) {
+  // No version info available, assume it's an update
+  if (installedVersionCode == null || installedVersionName == null) {
+    return true;
+  }
+
+  // If SHA256 hashes match, it's the exact same build - no update needed
+  if (installedSha256 != null &&
+      installedSha256.isNotEmpty &&
+      installedSha256 == latestSha256) {
+    return false;
+  }
+
+  // Same version code = exact same build, no update
+  if (installedVersionCode == latestVersionCode) {
+    return false;
+  }
+
+  // Same version name but different code = rebuild of same version
+  // This is not a real update (fixes the false positive issue)
+  if (installedVersionName == latestVersionName) {
+    return false;
+  }
+
+  // Different version name or code = real update
+  return latestVersionCode > installedVersionCode;
 }
 
 Future<void> _recordUpdateNotification(String signature) async {
