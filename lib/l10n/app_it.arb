@@ -1,0 +1,381 @@
+{
+  "@@locale": "it",
+  "app_name": "Florid",
+  "welcome": "Benvenuto su Florid",
+  "search": "Cerca",
+  "settings": "Impostazioni",
+  "home": "Home",
+  "categories": "Categorie",
+  "updates": "Aggiornamenti",
+  "installed": "Installato",
+  "download": "Scarica",
+  "install": "Installa",
+  "uninstall": "Disinstalla",
+  "open": "Apri",
+  "cancel": "Cancella",
+  "update_available": "Aggiornamento disponibile",
+  "downloading": "Scaricamento...",
+  "install_permission_required": "È necessaria l'autorizzazione all'installazione",
+  "storage_permission_required": "Permesso di archiviazione richiesto",
+  "cancel_download": "Annulla scaricamento",
+  "version": "Versione",
+  "size": "Dimensione",
+  "description": "Descrizione",
+  "permissions": "Permessi",
+  "screenshots": "Schermate",
+  "no_version_available": "Nessuna versione disponibile",
+  "app_information": "Informazioni dell'app",
+  "package_name": "Nome del pacchetto",
+  "license": "Licenza",
+  "added": "Aggiunto",
+  "last_updated": "Ultimo aggiornamento",
+  "version_information": "Informazioni versione",
+  "version_name": "Nome della versione",
+  "version_code": "Codice della versione",
+  "min_sdk": "SDK minimo",
+  "target_sdk": "SDK target",
+  "all_versions": "Tutte le versioni",
+  "latest": "Ultima",
+  "released": "Pubblicato",
+  "loading": "Caricamento...",
+  "error": "Errore",
+  "retry": "Riprova",
+  "share": "Condividi",
+  "website": "Sito web",
+  "source_code": "Codice sorgente",
+  "issue_tracker": "Segnalazione di errori",
+  "whats_new": "Novità",
+  "show_more": "Mostra di più",
+  "show_less": "Mostra di meno",
+  "downloads_stats": "Statistiche di scaricamento",
+  "last_day": "Ultimo giorno",
+  "last_30_days": "Ultimi 30 giorni",
+  "last_365_days": "Ultimi 365 giorni",
+  "not_available": "Non disponibile",
+  "download_failed": "Scaricamento fallito",
+  "installation_failed": "Installazione fallita",
+  "uninstall_failed": "Disinstallazione fallita",
+  "open_failed": "Impossibile aprire",
+  "device": "Dispositivo",
+  "recently_updated": "Aggiornati di recente",
+  "refresh": "Aggiorna",
+  "about": "Informazioni",
+  "refreshing_data": "Caricamento dati...",
+  "data_refreshed": "Dati aggiornati",
+  "refresh_failed": "Aggiornamento fallito",
+  "loading_latest_apps": "Caricamento delle ultime app...",
+  "latest_apps": "Ultime app",
+  "no_apps_found": "Nessuna app trovata",
+  "searching": "Ricerca...",
+  "setup_failed": "Installazione fallita",
+  "back": "Indietro",
+  "allow": "Permetti",
+  "manage_repositories": "Gestione Repositories",
+  "enable_disable": "Abilita/Disabilita",
+  "edit": "Modifica",
+  "delete": "Elimina",
+  "delete_repository": "Elimina Repository",
+  "delete_repository_confirm": "Sei sicuro di voler rimuovere \"{name}\"?",
+  "@delete_repository_confirm": {
+    "description": "Confirmation message for deleting a repository. {name} is the repository name.",
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "updating_repository": "Aggiornamento Repository",
+  "touch_grass_message": "È il momento perfetto per toccare l'erba!",
+  "add_repository": "Aggiungi Repository",
+  "add": "Aggiungi",
+  "save": "Salva",
+  "enter_repository_name": "Inserisci il nome di un repository",
+  "enter_repository_url": "Inserisci l'URL di un repository",
+  "edit_repository": "Modifica Repository",
+  "loading_apps": "Caricamento delle app...",
+  "no_apps_in_category": "Nessuna app trovata in {category}",
+  "@no_apps_in_category": {
+    "description": "Message shown when no apps are found in a category. {category} is the category name.",
+    "placeholders": {
+      "category": {}
+    }
+  },
+  "loading_categories": "Caricamento delle categorie...",
+  "no_categories_found": "Nessuna categoria trovata",
+  "on_device": "Sul dispositivo",
+  "favourites": "Preferiti",
+  "loading_repository": "Caricamento repository…",
+  "unable_to_load_repository": "Impossibile caricare il repository",
+  "repository_loading_error_descrption": "Controlla la connessione o le impostazioni del repository, poi riprova.",
+  "appUpdateAvailable": "Aggiornamento disponibile",
+  "releaseNotes": "Note di rilascio",
+  "dismiss": "Ignora",
+  "viewOnGithub": "Visualizza su GitHub",
+  "update": "Aggiorna",
+  "installing": "Installazione...",
+  "downloadFailed": "Impossibile scaricare APK",
+  "remove_from_favourites": "Rimuovi dai preferiti",
+  "add_to_favourites": "Aggiungi ai Preferiti",
+  "view_details": "Visualizza dettagli",
+  "installation_started": "{appName} Inizio dell'installazione!",
+  "@installation_started": {
+    "placeholders": {
+      "appName": {}
+    }
+  },
+  "installation_failed_with_error": "Installazione non riuscita: {error}",
+  "@installation_failed_with_error": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "download_started": "{appName} scaricamento iniziato!",
+  "@download_started": {
+    "placeholders": {
+      "appName": {}
+    }
+  },
+  "download_failed_with_error": "Scaricamento fallito: {error}",
+  "@download_failed_with_error": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "start_setup": "Avvia configurazione",
+  "continue_text": "Continua",
+  "loading_changelog": "Caricamento del registro delle modifiche...",
+  "appearance": "Aspetto",
+  "theme_mode": "Modalità tema",
+  "follow_system_theme": "Segui il tema di sistema",
+  "light_theme": "Tema chiaro",
+  "dark_theme": "Tema scuro",
+  "dynamic_color": "Colore dinamico",
+  "material_you_dynamic": "Material You Dinamico",
+  "use_system_colors_supported_android": "Utilizza i colori di sistema sui dispositivi Android supportati",
+  "theme_style": "Stile del tema",
+  "material_style": "Stile materiale",
+  "dark_knight": "Notte fonda",
+  "dark_knight_subtitle": "Tema scuro ad alto contrasto ispirato a Florid",
+  "florid_style": "Stile Florid",
+  "beta": "Beta",
+  "other": "Altro",
+  "show_whats_new": "Mostra cosa c'è di nuovo",
+  "show_monthly_top_apps": "Show Monthly Top Apps",
+  "feedback_on_florid_theme": "Feedback sul tema Florid",
+  "help_improve_florid_theme_feedback": "Aiutaci a migliorare il tema Florid inviando un feedback",
+  "system_installer": "Programma di installazione di sistema",
+  "shizuku": "Shizuku",
+  "installation_method": "Metodo di installazione",
+  "requires_shizuku_running": "Richiede che Shizuku sia in esecuzione",
+  "uses_standard_system_installer": "Utilizza il programma di installazione di sistema predefinito",
+  "open_shizuku": "Apri Shizuku",
+  "use_system_installer": "Utilizza l'installazione di sistema",
+  "close": "Chiudi",
+  "wifi_only": "Solo Wi-Fi",
+  "wifi_and_charging": "Wi-Fi + ricarica",
+  "mobile_data_or_wifi": "Dati mobili o Wi-Fi",
+  "every_1_hour": "Ogni ora",
+  "every_2_hours": "Ogni 2 ore",
+  "every_3_hours": "Ogni 3 ore",
+  "every_6_hours": "Ogni 6 ore",
+  "every_12_hours": "Ogni 12 ore",
+  "daily": "Ogni giorno",
+  "every_hours": "Ogni {hours} ore",
+  "@every_hours": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "update_network": "Aggiorna rete",
+  "update_interval": "Intervallo di aggiornamento",
+  "app_management": "Gestione applicazioni",
+  "alpha": "Alpha",
+  "privacy": "Privacy",
+  "opt_out_of_telemetry": "Opt out of telemetry",
+  "opt_out_of_telemetry_subtitle": "Helps us know how many users (annoymous) are active",
+  "downloads_and_storage": "Downloads e archiviazione",
+  "auto_install_after_download": "Installazione automatica dopo lo scaricamento",
+  "auto_install_after_download_subtitle": "Installare gli APK automaticamente una volta terminato lo scaricamento",
+  "delete_apk_after_install": "Eliminare il file APK dopo l'installazione",
+  "delete_apk_after_install_subtitle": "Elimina i file dopo l'installazione avvenuta con successo",
+  "background_updates": "Aggiornamenti in background",
+  "check_updates_in_background": "Verifica gli aggiornamenti in background",
+  "notify_when_updates_available": "Avvisami quando gli aggiornamenti sono disponibili",
+  "reliability": "Affidabilità",
+  "disable_battery_optimization": "Disabilita l'ottimizzazione della batteria",
+  "allow_background_checks_reliably": "Consenti i controlli in background in modo affidabile",
+  "run_debug_check_10s": "Esegui controllo debug tra 10s",
+  "run_debug_check_10s_subtitle": "Mostra una notifica di prova ed esegue il test dopo 10s",
+  "debug_check_scheduled": "Controllo debug pianificato",
+  "debug_update_check_runs_10s": "Il controllo aggiornamenti debug verrà eseguito tra 10 secondi",
+  "no_recently_updated_apps": "Nessuna app aggiornata di recente",
+  "no_new_apps": "Nessuna nuova app",
+  "monthly_top_apps": "Top Apps del Mese",
+  "from_izzyondroid": "da IzzyOnDroid",
+  "sync_required": "Sincronizzazione richiesta",
+  "izzyondroid_sync_required_message": "Il repository di IzzyOnDroid deve essere sincronizzato per mostrare le migliori app.",
+  "go_to_settings": "Vai alle Impostazioni",
+  "keep_android_open": "Mantieni Android aperto",
+  "keep_android_open_message": "Dal 2026/2027 in poi, Google richiederà la verifica da parte degli sviluppatori di tutte le applicazioni Android sui dispositivi certificati, comprese quelle installate al di fuori del Google Play Store.",
+  "ignore": "Ignora",
+  "learn_more": "Scopri di più",
+  "search_fdroid_apps": "Cerca app F-Droid...",
+  "filters": "Filtri",
+  "search_apps": "Cerca app",
+  "search_failed": "Ricerca fallita",
+  "unknown_error_occurred": "Errore sconosciuto",
+  "try_different_keywords": "Prova con parole chiave diverse o controlla l'ortografia",
+  "popular_searches": "Ricerche popolari:",
+  "clear_all": "Pulisci tutto",
+  "sort_by": "Ordina per",
+  "relevance": "Rilevanza",
+  "name_az": "Nome (A-Z)",
+  "name_za": "Nome (Z-A)",
+  "recently_added": "Aggiunto di recente",
+  "no_categories_available": "Nessuna categoria disponibile",
+  "repositories": "Repositories",
+  "apply_filters": "Applica filtri",
+  "search_results_for_query": "{count} risultati per \"{query}\"",
+  "@search_results_for_query": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "query": {}
+    }
+  },
+  "loading_top_apps": "Caricamento delle migliori app...",
+  "failed_to_load_apps": "Non è stato possibile caricare le app",
+  "try_again": "Riprova",
+  "no_apps_from_izzyondroid": "Nessuna app da IzzyOnDroid",
+  "no_favourites_yet": "Non ci sono ancora preferiti",
+  "tap_star_to_save": "Tocca la stella su qualsiasi app per salvarla qui",
+  "update_failed_with_error": "Aggiornamento fallito: {error}",
+  "@update_failed_with_error": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "user": "Utente",
+  "auto_install_failed_with_error": "Installazione automatica non riuscita: {error}",
+  "@auto_install_failed_with_error": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "installing_app": "Installazione {appName}...",
+  "@installing_app": {
+    "placeholders": {
+      "appName": {}
+    }
+  },
+  "install_from_repository": "Installa da Repository",
+  "download_from_repository": "Scarica da Repository",
+  "choose_repository_for_action": "Puoi scegliere quale repository uttlizzare per {action} questa app.",
+  "@choose_repository_for_action": {
+    "placeholders": {
+      "action": {}
+    }
+  },
+  "unknown": "Sconosciuto",
+  "previously_installed_from": "Precedentemente installato da: {repositoryName}",
+  "@previously_installed_from": {
+    "placeholders": {
+      "repositoryName": {}
+    }
+  },
+  "previously_installed_from_here": "Precedentemente installato da qui",
+  "default_repository": "Predefinito",
+  "by_author": "da {author}",
+  "@by_author": {
+    "placeholders": {
+      "author": {}
+    }
+  },
+  "check_out_on_fdroid": "Scopri {appName} su F-Droid: https://f-droid.org/packages/{packageName}/",
+  "@check_out_on_fdroid": {
+    "placeholders": {
+      "appName": {},
+      "packageName": {}
+    }
+  },
+  "rebuild_repositories": "Ricostruisci le repositories",
+  "preset": "Preset",
+  "your_repositories": "I tuoi Repositories",
+  "no_custom_repositories": "Nessuna repositories personalizzata aggiunta",
+  "add_custom_repository_to_start": "Aggiungi un repository F-Droid personalizzato per iniziare",
+  "scan": "Scansione",
+  "point_camera_qr": "Inquadra il codice QR con la fotocamera",
+  "tap_keyboard_enter_url": "Toccare la tastiera per inserire manualmente l'URL",
+  "loading_repository_configuration": "Configurazione del repository in caricamento...",
+  "adding_selected_repositories": "Aggiungi repositories selezionati...",
+  "fetching_fdroid_repository_index": "Recupero indice del repository F-Droid...",
+  "importing_apps_to_database": "Importazione delle app nel database...",
+  "importing_apps_to_database_seconds": "Importazione delle applicazioni nel database... ({seconds}s)",
+  "@importing_apps_to_database_seconds": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "loading_custom_repositories": "Caricare repositories personalizzate...",
+  "setup_complete": "Configurazione completata!",
+  "welcome_to": "Benvenuti su",
+  "onboarding_intro_subtitle": "Un moderno client F-Droid per navigare, cercare e scaricare facilmente applicazioni Android open-source.",
+  "curated_open_source_apps": "App open-source selezionate",
+  "safe_downloads": "Scaricamenti sicuri",
+  "updates_and_notifications": "Aggiornamenti e notifiche",
+  "add_extra_repositories": "Aggiungi ulteriori repositories",
+  "repos_step_description": "Florid viene fornito con il repository ufficiale F-Droid. È inoltre possibile includere repository di terze parti affidabili per accedere a un numero maggiore di applicazioni.",
+  "available_repositories": "Repositories disponibili",
+  "manage_repositories_anytime": "È possibile aggiungere o rimuovere le repositories in qualsiasi momento nelle Impostazioni.",
+  "request_permissions": "Richiesta permessi",
+  "permissions_step_description": "Florid ha bisogno di alcuni permessi per offrirti la migliore esperienza possibile.",
+  "notifications": "Notifiche",
+  "get_notified_updates": "Ricevi una notifica quando le app vengono aggiornate",
+  "app_installation": "Installazione app",
+  "allow_florid_install_apps": "Consentire a Florid di installare le app scaricate",
+  "enable_permissions_anytime": "È possibile abilitare queste autorizzazioni in qualsiasi momento nelle Impostazioni.",
+  "setting_up_florid": "Configurazione di Florid",
+  "no_antifeature_listed": "Nessuna funzionalità indesiderata elencata",
+  "open_link": "Apri collegamento",
+  "loading_recently_updated_apps": "Carica app aggiornate di recente...",
+  "checking_for_updates": "Controllo degli aggiornamenti",
+  "import_favourites": "Importa preferiti",
+  "merge": "Unisci",
+  "update_all": "Aggiorna tutto",
+  "apps": "Applicazioni",
+  "troubleshooting": "Risoluzione dei problemi",
+  "replace": "Sovrascrivi",
+  "your_name": "Il tuo nome",
+  "enter_your_name": "Inserisci il tuo nome",
+  "top_apps": "Top Apps",
+  "games": "Giochi",
+  "auth_all_apps": "All Apps",
+  "auth_all_apps_desc": "Require authentication for all installations",
+  "auth_all_apps_w_anti_feat": "Apps with Anti-Features",
+  "auth_all_apps_w_anti_feat_desc": "Require authentication only for apps that have anti-features.",
+  "support_the_developer": "Support the Developer",
+  "available_on_repository": "Available on: {repositoryName}",
+  "@available_on_repository": {
+    "description": "Label showing the primary repository name for an app.",
+    "placeholders": {
+      "repositoryName": {}
+    }
+  },
+  "also_available_from_repositories": "Also available from: {repositoryNames}",
+  "@also_available_from_repositories": {
+    "description": "Label listing additional repository names where the app is available.",
+    "placeholders": {
+      "repositoryNames": {}
+    }
+  },
+  "onboarding_setup_type": "Setup Type",
+  "onboarding_setup_type_desc": "Choose how you want to set up Florid",
+  "onboarding_setup_basic": "Basic Setup",
+  "onboarding_setup_basic_desc": "Quick start with recommended repositories",
+  "onboarding_setup_advanced": "Advanced Setup",
+  "onboarding_setup_advanced_desc": "Customize repositories and preferences",
+  "help_us_improve_florid": "Help us improve Florid"
+}

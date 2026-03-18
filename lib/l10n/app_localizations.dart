@@ -101,6 +101,7 @@ abstract class AppLocalizations {
     Locale('en'),
     Locale('zh'),
     Locale('zh', 'CN'),
+    Locale('it'),
   ];
 
   /// No description provided for @app_name.
