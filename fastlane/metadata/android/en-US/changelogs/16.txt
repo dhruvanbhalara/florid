@@ -1,0 +1,19 @@
+Never thought I would be consistent with something in my life. I am so happy that this app has been downloaded by many people now (approx 15k+ downloads from IzzyOnDroid).Some of you might know that I am just a student, that too a non-CS student.I am not sure how long I will be able to maintain this app but I will try to keep it up to date with new features and improvements as long as I can. Developing this app comes at a cost for me in terms of time and effort. I would be appreciated if you could support the development of the app by donating. You can find the donate button in the settings screen. If you want to contribute to the development of the app, you can check out the GitHub repository and submit a pull request. I am open to any kind of contributions, whether it's code, design, translations, or even just reporting bugs and suggesting features. Thank you for the support and love ❤️.
+
+Help us translate Florid to more languages! Check out the translation project on [Crowdin](https://crowdin.com/project/florid). Join our Matrix room for more updates and discussions: [https://matrix.to/#/#florid:matrix.org](https://matrix.to/#/#florid:matrix.org). 
+
+### New Features
+
+- Apps with video trailers will now show a widget to play the trailer on the app detail screen. This will help users get a better idea of the app before downloading it.
+- Analytics! I have added analytics to the app to help me understand how users are using the app. This will help me make better decisions about future updates and improvements. The analytics data is anonymous and does not contain any personally identifiable information. You can opt-out of analytics in the settings screen.
+- Added support for Turkish(tr) Language
+- Added support for Italian(it) Language
+
+### Improvements
+- Fixed false update notifications for some users. This was caused by a bug in the update checking logic. I have fixed it and now you should only receive update notifications when there is actually an update available.
+- Redesigned app detail screen for better usability.
+- Added tabs for multi-repo versions in App detail screen. This will make it easier to navigate through different versions of an app from different repositories.
+- Unfocus search and hide keyboard on app tap
+- Added Lazy-load repo apps and DB-only lookups for better performance and reduced memory usage.
+- Enhanced onboarding flow: setup types & repos. The onboarding flow has been improved to make it easier for new users to set up the app and get started. You can now choose your setup type (basic or advanced) and select the repositories you want to enable during the onboarding process.
+- Allow users to add custom repositories while onboarding.
