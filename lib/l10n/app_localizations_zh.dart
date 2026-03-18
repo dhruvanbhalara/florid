@@ -857,6 +857,30 @@ class AppLocalizationsZh extends AppLocalizations {
   String also_available_from_repositories(Object repositoryNames) {
     return 'Also available from: $repositoryNames';
   }
+
+  @override
+  String get onboarding_setup_type => 'Setup Type';
+
+  @override
+  String get onboarding_setup_type_desc =>
+      'Choose how you want to set up Florid';
+
+  @override
+  String get onboarding_setup_basic => 'Basic Setup';
+
+  @override
+  String get onboarding_setup_basic_desc =>
+      'Quick start with recommended repositories';
+
+  @override
+  String get onboarding_setup_advanced => 'Advanced Setup';
+
+  @override
+  String get onboarding_setup_advanced_desc =>
+      'Customize repositories and preferences';
+
+  @override
+  String get help_us_improve_florid => 'Help us improve Florid';
 }
 
 /// The translations for Chinese, as used in China (`zh_CN`).

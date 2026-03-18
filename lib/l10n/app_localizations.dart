@@ -1716,6 +1716,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Also available from: {repositoryNames}'**
   String also_available_from_repositories(Object repositoryNames);
+
+  /// No description provided for @onboarding_setup_type.
+  ///
+  /// In en, this message translates to:
+  /// **'Setup Type'**
+  String get onboarding_setup_type;
+
+  /// No description provided for @onboarding_setup_type_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose how you want to set up Florid'**
+  String get onboarding_setup_type_desc;
+
+  /// No description provided for @onboarding_setup_basic.
+  ///
+  /// In en, this message translates to:
+  /// **'Basic Setup'**
+  String get onboarding_setup_basic;
+
+  /// No description provided for @onboarding_setup_basic_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick start with recommended repositories'**
+  String get onboarding_setup_basic_desc;
+
+  /// No description provided for @onboarding_setup_advanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced Setup'**
+  String get onboarding_setup_advanced;
+
+  /// No description provided for @onboarding_setup_advanced_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Customize repositories and preferences'**
+  String get onboarding_setup_advanced_desc;
+
+  /// No description provided for @help_us_improve_florid.
+  ///
+  /// In en, this message translates to:
+  /// **'Help us improve Florid'**
+  String get help_us_improve_florid;
 }
 
 class _AppLocalizationsDelegate

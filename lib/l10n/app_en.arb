@@ -371,5 +371,13 @@
     "placeholders": {
       "repositoryNames": {}
     }
-  }
+  },
+  "onboarding_setup_type": "Setup Type",
+  "onboarding_setup_type_desc":"Choose how you want to set up Florid",
+  "onboarding_setup_basic":"Basic Setup",
+  "onboarding_setup_basic_desc":"Quick start with recommended repositories",
+  "onboarding_setup_advanced":"Advanced Setup",
+  "onboarding_setup_advanced_desc":"Customize repositories and preferences",
+  "privacy":"Privacy",
+  "help_us_improve_florid":"Help us improve Florid"
 }

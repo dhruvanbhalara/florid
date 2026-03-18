@@ -1136,7 +1136,7 @@ class _SetupTypeStep extends StatelessWidget {
                 child: Icon(Symbols.settings, size: 48),
               ).animate().fadeIn(duration: 500.ms),
               Text(
-                'Setup Type',
+                AppLocalizations.of(context)!.onboarding_setup_type,
                 style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                   fontFamily: 'Google Sans Flex',
                   fontVariations: [
@@ -1146,7 +1146,7 @@ class _SetupTypeStep extends StatelessWidget {
                 ),
               ).animate().fadeIn(duration: 500.ms),
               Text(
-                'Choose how you want to set up Florid',
+                AppLocalizations.of(context)!.onboarding_setup_type_desc,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   color: colorScheme.onSurfaceVariant,
                 ),
@@ -1158,14 +1158,18 @@ class _SetupTypeStep extends StatelessWidget {
             spacing: 8.0,
             children: [
               _SetupOptionCard(
-                title: 'Basic Setup',
-                description: 'Quick start with recommended repositories',
+                title: AppLocalizations.of(context)!.onboarding_setup_basic,
+                description: AppLocalizations.of(
+                  context,
+                )!.onboarding_setup_basic_desc,
                 icon: Symbols.bolt_rounded,
                 onTap: () => onSelected(SetupType.basic),
               ).animate().fadeIn(duration: 500.ms, delay: 200.ms),
               _SetupOptionCard(
-                title: 'Advanced Setup',
-                description: 'Customize repositories and preferences',
+                title: AppLocalizations.of(context)!.onboarding_setup_advanced,
+                description: AppLocalizations.of(
+                  context,
+                )!.onboarding_setup_advanced_desc,
                 icon: Symbols.eyeglasses_2_rounded,
                 onTap: () => onSelected(SetupType.advanced),
               ).animate().fadeIn(duration: 500.ms, delay: 300.ms),
@@ -1303,7 +1307,7 @@ class _TelemetryStepState extends State<_TelemetryStep> {
                         ),
                       ).animate().fadeIn(duration: 500.ms),
                       Text(
-                        'Privacy',
+                        AppLocalizations.of(context)!.privacy,
                         style: Theme.of(context).textTheme.headlineLarge
                             ?.copyWith(
                               fontFamily: 'Google Sans Flex',
@@ -1316,7 +1320,7 @@ class _TelemetryStepState extends State<_TelemetryStep> {
                     ],
                   ).animate().fadeIn(duration: 500.ms),
                   Text(
-                    'Help us improve Florid',
+                    AppLocalizations.of(context)!.help_us_improve_florid,
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       color: colorScheme.onSurfaceVariant,
                     ),
