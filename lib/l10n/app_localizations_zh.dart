@@ -826,10 +826,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get enter_your_name => '输入你的昵称';
 
   @override
-  String get top_apps => 'Top Apps';
+  String get top_apps => '热门应用';
 
   @override
-  String get games => 'Games';
+  String get games => '游戏';
 
   @override
   String get auth_all_apps => 'All Apps';
@@ -1278,6 +1278,9 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   String get show_whats_new => '查看最新内容';
 
   @override
+  String get show_monthly_top_apps => 'Show Monthly Top Apps';
+
+  @override
   String get feedback_on_florid_theme => '反馈Florid主题';
 
   @override
@@ -1350,6 +1353,16 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
 
   @override
   String get alpha => 'Alpha';
+
+  @override
+  String get privacy => 'Privacy';
+
+  @override
+  String get opt_out_of_telemetry => 'Opt out of telemetry';
+
+  @override
+  String get opt_out_of_telemetry_subtitle =>
+      'Helps us know how many users (annoymous) are active';
 
   @override
   String get downloads_and_storage => '下载 & 存储';
@@ -1690,4 +1703,61 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
 
   @override
   String get enter_your_name => '输入你的昵称';
+
+  @override
+  String get top_apps => '热门应用';
+
+  @override
+  String get games => '游戏';
+
+  @override
+  String get auth_all_apps => 'All Apps';
+
+  @override
+  String get auth_all_apps_desc =>
+      'Require authentication for all installations';
+
+  @override
+  String get auth_all_apps_w_anti_feat => 'Apps with Anti-Features';
+
+  @override
+  String get auth_all_apps_w_anti_feat_desc =>
+      'Require authentication only for apps that have anti-features.';
+
+  @override
+  String get support_the_developer => 'Support the Developer';
+
+  @override
+  String available_on_repository(Object repositoryName) {
+    return 'Available on: $repositoryName';
+  }
+
+  @override
+  String also_available_from_repositories(Object repositoryNames) {
+    return 'Also available from: $repositoryNames';
+  }
+
+  @override
+  String get onboarding_setup_type => 'Setup Type';
+
+  @override
+  String get onboarding_setup_type_desc =>
+      'Choose how you want to set up Florid';
+
+  @override
+  String get onboarding_setup_basic => 'Basic Setup';
+
+  @override
+  String get onboarding_setup_basic_desc =>
+      'Quick start with recommended repositories';
+
+  @override
+  String get onboarding_setup_advanced => 'Advanced Setup';
+
+  @override
+  String get onboarding_setup_advanced_desc =>
+      'Customize repositories and preferences';
+
+  @override
+  String get help_us_improve_florid => 'Help us improve Florid';
 }
