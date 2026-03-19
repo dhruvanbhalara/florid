@@ -2,12 +2,12 @@ import 'dart:async';
 
 import 'package:florid/constants.dart';
 import 'package:florid/l10n/app_localizations.dart';
+import 'package:florid/providers/app_provider.dart';
 import 'package:florid/providers/repositories_provider.dart';
 import 'package:florid/providers/settings_provider.dart';
+import 'package:florid/screens/home/app_section_viewer.dart';
 import 'package:florid/screens/home/categories_screen.dart';
-import 'package:florid/screens/home/games_screen.dart';
 import 'package:florid/screens/home/home_screen.dart';
-import 'package:florid/screens/top_apps/top_apps_screen.dart';
 import 'package:florid/widgets/f_tabbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -92,11 +92,53 @@ class _LibraryScreenState extends State<LibraryScreen>
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     final tabs = <Widget>[
       const HomeScreen(),
-      if (_showTopAppsTab) const TopAppsAllTimeScreen(),
+      if (_showTopAppsTab)
+        AppSectionViewer(
+          showAppBar: false,
+          title: localizations.top_apps,
+          subtitle: localizations.from_izzyondroid,
+          stateSelector: (appProvider) => appProvider.topAppsAllTimeState,
+          appsSelector: (appProvider) => appProvider.topAppsAllTime,
+          errorSelector: (appProvider) => appProvider.topAppsAllTimeError,
+          onRefresh: (context) {
+            final appProvider = context.read<AppProvider>();
+            final repositoriesProvider = context.read<RepositoriesProvider>();
+            return appProvider.fetchTopAppsAllTime(
+              repositoriesProvider: repositoriesProvider,
+              limit: 100,
+            );
+          },
+          loadingMessage: localizations.loading_top_apps,
+          emptyMessage: localizations.no_apps_from_izzyondroid,
+          emptyIcon: Symbols.emoji_events,
+          showInstallStatus: true,
+          showRank: true,
+          showDownloadBadge: true,
+          downloadsSelector: (appProvider) =>
+              appProvider.topAppsAllTimeDownloads,
+          addFloridBottomSpacing: true,
+        ),
       const CategoriesScreen(),
-      const GamesScreen(),
+      AppSectionViewer(
+        showAppBar: false,
+        title: localizations.games,
+        stateSelector: (appProvider) => appProvider.categoryAppsState,
+        appsSelector: (appProvider) => appProvider.categoryApps['games'] ?? [],
+        errorSelector: (appProvider) => appProvider.categoryAppsError,
+        onRefresh: (context) async {
+          final appProvider = context.read<AppProvider>();
+          appProvider.categoryApps.remove('games');
+          await appProvider.fetchAppsByCategory('games');
+        },
+        loadingMessage: localizations.loading_apps,
+        emptyMessage: localizations.no_apps_in_category(localizations.games),
+        emptyIcon: Symbols.sports_esports,
+        showInstallStatus: true,
+        addFloridBottomSpacing: true,
+      ),
     ];
 
     final settingsProvider = context.watch<SettingsProvider>();

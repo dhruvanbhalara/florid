@@ -17,9 +17,7 @@ import '../../providers/repositories_provider.dart';
 import '../../utils/responsive.dart';
 import '../../widgets/app_list_item.dart';
 import '../app_details/app_details_screen.dart';
-import '../top_apps/monthly_top_apps_screen.dart';
-import 'latest_screen.dart';
-import 'recently_updated_screen.dart';
+import 'app_section_viewer.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -83,21 +81,79 @@ class _HomeScreenState extends State<HomeScreen>
   void _openLatestScreen() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const LatestScreen()),
+      MaterialPageRoute(
+        builder: (context) => AppSectionViewer(
+          title: AppLocalizations.of(context)!.latest_apps,
+          stateSelector: (appProvider) => appProvider.latestAppsState,
+          appsSelector: (appProvider) => appProvider.latestApps,
+          errorSelector: (appProvider) => appProvider.latestAppsError,
+          onRefresh: (context) {
+            final appProvider = context.read<AppProvider>();
+            final repositoriesProvider = context.read<RepositoriesProvider>();
+            return appProvider.fetchLatestApps(
+              repositoriesProvider: repositoriesProvider,
+            );
+          },
+          loadingMessage: AppLocalizations.of(context)!.loading_latest_apps,
+          emptyMessage: AppLocalizations.of(context)!.no_new_apps,
+          emptyIcon: Symbols.apps,
+        ),
+      ),
     );
   }
 
   void _openRecentlyUpdatedScreen() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const RecentlyUpdatedScreen()),
+      MaterialPageRoute(
+        builder: (context) => AppSectionViewer(
+          title: AppLocalizations.of(context)!.recently_updated,
+          stateSelector: (appProvider) => appProvider.recentlyUpdatedAppsState,
+          appsSelector: (appProvider) => appProvider.recentlyUpdatedApps,
+          errorSelector: (appProvider) => appProvider.recentlyUpdatedAppsError,
+          onRefresh: (context) {
+            final appProvider = context.read<AppProvider>();
+            final repositoriesProvider = context.read<RepositoriesProvider>();
+            return appProvider.fetchRecentlyUpdatedApps(
+              repositoriesProvider: repositoriesProvider,
+            );
+          },
+          loadingMessage:
+              AppLocalizations.of(context)!.loading_recently_updated_apps,
+          emptyMessage: AppLocalizations.of(context)!.no_recently_updated_apps,
+          emptyIcon: Symbols.update,
+        ),
+      ),
     );
   }
 
   void _openTopAppsScreen() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const TopAppsScreen()),
+      MaterialPageRoute(
+        builder: (context) => AppSectionViewer(
+          title: AppLocalizations.of(context)!.monthly_top_apps,
+          subtitle: AppLocalizations.of(context)!.from_izzyondroid,
+          stateSelector: (appProvider) => appProvider.topAppsState,
+          appsSelector: (appProvider) => appProvider.topApps,
+          errorSelector: (appProvider) => appProvider.topAppsError,
+          onRefresh: (context) {
+            final appProvider = context.read<AppProvider>();
+            final repositoriesProvider = context.read<RepositoriesProvider>();
+            return appProvider.fetchTopApps(
+              repositoriesProvider: repositoriesProvider,
+              limit: 100,
+            );
+          },
+          loadingMessage: AppLocalizations.of(context)!.loading_top_apps,
+          emptyMessage: AppLocalizations.of(context)!.no_apps_from_izzyondroid,
+          emptyIcon: Symbols.apps,
+          showInstallStatus: true,
+          showRank: true,
+          showDownloadBadge: true,
+          downloadsSelector: (appProvider) => appProvider.topAppsDownloads,
+        ),
+      ),
     );
   }
 

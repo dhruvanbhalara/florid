@@ -1762,6 +1762,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Help us improve Florid'**
   String get help_us_improve_florid;
+
+  /// Label showing the number of apps in a category
+  ///
+  /// In en, this message translates to:
+  /// **'{appCount} app'**
+  String section_app_count(Object appCount);
 }
 
 class _AppLocalizationsDelegate

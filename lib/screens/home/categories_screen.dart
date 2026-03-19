@@ -6,7 +6,7 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/app_provider.dart';
-import 'category_apps_screen.dart';
+import 'app_section_viewer.dart';
 
 class CategoriesScreen extends StatefulWidget {
   const CategoriesScreen({super.key});
@@ -150,8 +150,31 @@ class _CategoriesScreenState extends State<CategoriesScreen>
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) =>
-                            CategoryAppsScreen(category: category),
+                        builder: (context) => AppSectionViewer(
+                          title: category,
+                          subtitle: AppLocalizations.of(
+                            context,
+                          )!.section_app_count(category.length),
+                          stateSelector: (appProvider) =>
+                              appProvider.categoryAppsState,
+                          appsSelector: (appProvider) =>
+                              appProvider.categoryApps[category] ?? [],
+                          errorSelector: (appProvider) =>
+                              appProvider.categoryAppsError,
+                          onRefresh: (context) async {
+                            final appProvider = context.read<AppProvider>();
+                            appProvider.categoryApps.remove(category);
+                            await appProvider.fetchAppsByCategory(category);
+                          },
+                          loadingMessage: AppLocalizations.of(
+                            context,
+                          )!.loading_apps,
+                          emptyMessage: AppLocalizations.of(
+                            context,
+                          )!.no_apps_in_category(category),
+                          emptyIcon: Symbols.apps,
+                          showInstallStatus: true,
+                        ),
                       ),
                     );
                   },

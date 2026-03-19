@@ -901,4 +901,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get help_us_improve_florid => 'Help us improve Florid';
+
+  @override
+  String section_app_count(Object appCount) {
+    return '$appCount app';
+  }
 }

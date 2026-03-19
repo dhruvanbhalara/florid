@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:florid/l10n/app_localizations.dart';
 import 'package:florid/screens/app_details/developer_apps_screen.dart';
 import 'package:florid/screens/app_details/permissions_screen.dart';
-import 'package:florid/screens/home/category_apps_screen.dart';
+import 'package:florid/screens/home/app_section_viewer.dart';
 import 'package:florid/widgets/app_details_icon.dart';
 import 'package:florid/widgets/changelog_preview.dart';
 import 'package:florid/widgets/f_tabbar.dart';
@@ -1069,8 +1069,34 @@ class _AppDetailsScreenState extends State<AppDetailsScreen>
                               onPressed: () {
                                 Navigator.of(context).push(
                                   MaterialPageRoute(
-                                    builder: (context) =>
-                                        CategoryAppsScreen(category: category),
+                                    builder: (context) => AppSectionViewer(
+                                      title: category,
+                                      stateSelector: (appProvider) =>
+                                          appProvider.categoryAppsState,
+                                      appsSelector: (appProvider) =>
+                                          appProvider.categoryApps[category] ??
+                                          [],
+                                      errorSelector: (appProvider) =>
+                                          appProvider.categoryAppsError,
+                                      onRefresh: (context) async {
+                                        final appProvider = context
+                                            .read<AppProvider>();
+                                        appProvider.categoryApps.remove(
+                                          category,
+                                        );
+                                        await appProvider.fetchAppsByCategory(
+                                          category,
+                                        );
+                                      },
+                                      loadingMessage: AppLocalizations.of(
+                                        context,
+                                      )!.loading_apps,
+                                      emptyMessage: AppLocalizations.of(
+                                        context,
+                                      )!.no_apps_in_category(category),
+                                      emptyIcon: Symbols.apps,
+                                      showInstallStatus: true,
+                                    ),
                                   ),
                                 );
                               },
@@ -2894,7 +2920,6 @@ class _AppExtraInfoSectionState extends State<AppExtraInfoSection> {
         FutureBuilder<String?>(
           future: videoUrlFuture,
           builder: (context, videoSnapshot) {
-            final videoUrl = videoSnapshot.data;
             return MListView(
               items: [
                 if (widget.app.webSite != null)
