@@ -20,6 +20,20 @@
       "description": "Security and privacy focused apps",
       "fingerprint": "B7C2EEFD8DAC7806AF67DFCD92EB18126BC08312A7F2D6F3862E46013C7A6135",
       "default": false
+    },
+    {
+      "name": "Brave Browser",
+      "url": "https://brave-browser-apk-release.s3.brave.com/fdroid/repo",
+      "description": "Brave Browser APK repository",
+      "fingerprint": "3C60DE135AA19EC949E998469C908F7171885C1E2805F39EB403DDB0F37B4BD2",
+      "default": false
+    },
+    {
+      "name": "microG F-Droid repo",
+      "url": "https://repo.microg.org/fdroid/repo",
+      "description": "This is a repository of microG apps to be used with F-Droid. Applications in this repository are signed official binaries built by the microG Team from the corresponding source code.",
+      "fingerprint": "9BD06727E62796C0130EB6DAB39B73157451582CBD138E86C468ACC395D14165",
+      "default": false
     }
   ]
 }
