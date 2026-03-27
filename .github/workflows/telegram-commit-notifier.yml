@@ -21,6 +21,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
 
       - name: Read last seen SHA (state)
         id: state
@@ -117,7 +119,10 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p .github
-          echo "${{ steps.build.outputs.newest_sha }}" > .github/telegram_notifier_last_sha.txt
+          # Only update the file if SHA is different to avoid unnecessary commits
+          if [ ! -f .github/telegram_notifier_last_sha.txt ] || [ "$(cat .github/telegram_notifier_last_sha.txt)" != "${{ steps.build.outputs.newest_sha }}" ]; then
+            echo "${{ steps.build.outputs.newest_sha }}" > .github/telegram_notifier_last_sha.txt
+          fi
 
       - name: Commit state file
         if: steps.build.outputs.has_new == 'true'
@@ -127,5 +132,10 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add .github/telegram_notifier_last_sha.txt
-          git commit -m "chore: update telegram notifier last sha" || exit 0
+          # Only commit if the state file changed
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git commit -m "chore: update telegram notifier last sha"
           git push
