@@ -30,6 +30,7 @@ const kAndroidSdkVersions = <int, String>{
   33: 'Android 13',
   34: 'Android 14',
   35: 'Android 15',
+  36: 'Android 16',
 };
 
 const kPermissionDescriptions = <String, String>{
