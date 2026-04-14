@@ -18,7 +18,7 @@ Browse, search, and install open‑source Android apps from the F‑Droid reposi
 
 <div align="center">
 
-Join our [Matrix Group](https://matrix.to/#/#florid:matrix.org) or [Telegram](https://t.me/florid_app)for discussions, support, and contributing!
+Join our [Matrix Group](https://matrix.to/#/#florid:matrix.org) or [Telegram](https://t.me/florid_app) for discussions, support, and contributing!
 
 </div>
 
