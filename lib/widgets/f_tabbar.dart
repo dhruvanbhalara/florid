@@ -44,12 +44,12 @@ class FTabBar extends StatelessWidget implements PreferredSizeWidget {
       ThemeStyle.florid => (
         BoxDecoration(
           color: isDark
-              ? Theme.of(context).colorScheme.surfaceContainer
+              ? Theme.of(context).colorScheme.surfaceContainerHigh
               : Theme.of(context).colorScheme.surfaceBright,
           borderRadius: BorderRadius.circular(99),
         ),
         TabBarIndicatorSize.tab,
-        Theme.of(context).colorScheme.onSurface,
+        Theme.of(context).colorScheme.primary,
         Theme.of(context).colorScheme.onSurfaceVariant,
         const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 8.0),
       ),
@@ -75,7 +75,7 @@ class FTabBar extends StatelessWidget implements PreferredSizeWidget {
       child: Material(
         borderRadius: isFlorid ? BorderRadius.circular(99) : null,
         color: isFlorid
-            ? Theme.of(context).colorScheme.surfaceContainerHighest
+            ? Theme.of(context).colorScheme.surfaceContainerLow
             : Colors.transparent,
         clipBehavior: isFlorid ? Clip.antiAlias : Clip.none,
         child: TabBar(

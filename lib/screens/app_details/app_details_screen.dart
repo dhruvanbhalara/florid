@@ -18,6 +18,8 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:solar_icon_pack/solar_bold_icons.dart';
+import 'package:solar_icon_pack/solar_icon_pack.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../models/fdroid_app.dart';
@@ -190,7 +192,7 @@ class _AppDetailsScreenState extends State<AppDetailsScreen>
                           icon: Icon(
                             isDownloaded
                                 ? Symbols.install_mobile
-                                : Symbols.download,
+                                : SolarBoldIcons.download,
                           ),
                           label: Text(isDownloaded ? 'Install' : 'Download'),
                           style: FilledButton.styleFrom(),
@@ -228,7 +230,9 @@ class _AppDetailsScreenState extends State<AppDetailsScreen>
                       defaultRepoUrl,
                     ),
                     icon: Icon(
-                      isDownloaded ? Symbols.install_mobile : Symbols.download,
+                      isDownloaded
+                          ? Symbols.install_mobile
+                          : SolarBoldIcons.download,
                     ),
                     label: Text(isDownloaded ? 'Install' : 'Download'),
                   ),
@@ -661,12 +665,16 @@ class _AppDetailsScreenState extends State<AppDetailsScreen>
               backgroundColor: _isCollapsed
                   ? Theme.of(context).colorScheme.surface
                   : Colors.transparent,
-              leading: BackButton(
+              leading: IconButton(
                 style: ButtonStyle(
                   backgroundColor: WidgetStateProperty.all(
                     Theme.of(context).colorScheme.surface,
                   ),
                 ),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                icon: Icon(SolarLinearIcons.altArrowLeft),
               ),
               flexibleSpace: FlexibleSpaceBar(
                 collapseMode: CollapseMode.pin,
@@ -693,7 +701,7 @@ class _AppDetailsScreenState extends State<AppDetailsScreen>
                           gradient: LinearGradient(
                             colors: [
                               Colors.transparent,
-                              Theme.of(context).colorScheme.surface,
+                              Theme.of(context).colorScheme.surfaceContainerLowest,
                             ],
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
@@ -713,7 +721,7 @@ class _AppDetailsScreenState extends State<AppDetailsScreen>
                                   : Theme.of(
                                       context,
                                     ).colorScheme.primaryContainer,
-                              Theme.of(context).colorScheme.surface,
+                              Theme.of(context).colorScheme.surfaceContainerLowest,
                             ],
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
@@ -868,11 +876,9 @@ class _AppDetailsScreenState extends State<AppDetailsScreen>
                           Theme.of(context).colorScheme.surface,
                         ),
                       ),
-                      icon: Icon(
-                        Symbols.favorite_rounded,
-                        fill: isFavorite ? 1 : 0,
-                        color: isFavorite ? Colors.red : null,
-                      ),
+                      icon: !isFavorite
+                          ? Icon(SolarLinearIcons.heart)
+                          : Icon(SolarBoldIcons.heart, color: Colors.redAccent),
                       onPressed: () {
                         appProvider.toggleFavorite(widget.app.packageName);
                       },
@@ -886,7 +892,7 @@ class _AppDetailsScreenState extends State<AppDetailsScreen>
                       Theme.of(context).colorScheme.surface,
                     ),
                   ),
-                  icon: Icon(Symbols.share),
+                  icon: Icon(SolarLinearIcons.share),
                   onPressed: () {
                     _shareApp();
                   },
@@ -1235,7 +1241,7 @@ class _DetailsSheetsSection extends StatelessWidget {
                       title: AppLocalizations.of(context)!.version_information,
                       trailing: IconButton(
                         onPressed: () => Navigator.pop(context),
-                        icon: Icon(Symbols.keyboard_arrow_down),
+                        icon: Icon(SolarLinearIcons.altArrowDown),
                       ),
                     ),
                     MListView(
@@ -1306,22 +1312,22 @@ class _DetailsSheetsSection extends StatelessWidget {
         MListItemData(
           title: AppLocalizations.of(context)!.app_information,
           subtitle: '',
-          leading: const ListIcon(iconData: Symbols.info),
-          suffix: const Icon(Symbols.arrow_forward),
+          leading: ListIcon(iconData: SolarBoldIcons.infoSquare),
+          suffix: Icon(SolarLinearIcons.altArrowRight),
           onTap: () => _showAppInfoSheet(context),
         ),
         MListItemData(
           title: AppLocalizations.of(context)!.version_information,
           subtitle: '',
-          leading: const ListIcon(iconData: Symbols.license),
-          suffix: const Icon(Symbols.arrow_forward),
+          leading: ListIcon(iconData: SolarBoldIcons.document),
+          suffix: Icon(SolarLinearIcons.altArrowRight),
           onTap: () => _showVersionInfoSheet(context),
         ),
         MListItemData(
           title: AppLocalizations.of(context)!.all_versions,
           subtitle: '',
-          leading: const ListIcon(iconData: Symbols.history),
-          suffix: const Icon(Symbols.arrow_forward),
+          leading: ListIcon(iconData: SolarBoldIcons.history),
+          suffix: Icon(SolarLinearIcons.altArrowRight),
           onTap: () => _showAllVersionsSheet(context),
         ),
       ],
@@ -1515,7 +1521,6 @@ class _IzzyStatsSection extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Card(
-        margin: EdgeInsets.zero,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -1526,7 +1531,7 @@ class _IzzyStatsSection extends StatelessWidget {
                 spacing: 8,
                 children: [
                   Icon(
-                    Symbols.query_stats,
+                    SolarLinearIcons.diagramUp,
                     color: Theme.of(context).colorScheme.primary,
                   ),
                   Text(
@@ -1537,23 +1542,30 @@ class _IzzyStatsSection extends StatelessWidget {
                   ),
                 ],
               ),
-              Column(
+              Row(
                 spacing: 8,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _IzzyStatTile(
-                    label: 'Last day',
-                    value: stats.lastDay,
-                    icon: Symbols.calendar_clock_rounded,
+                  Expanded(
+                    child: _IzzyStatTile(
+                      label: 'Last day',
+                      value: stats.lastDay,
+                      // icon: Symbols.calendar_clock_rounded,
+                    ),
                   ),
-                  _IzzyStatTile(
-                    label: 'Last 30 days',
-                    value: stats.last30Days,
-                    icon: Symbols.event_available,
+                  Expanded(
+                    child: _IzzyStatTile(
+                      label: 'Last 30 days',
+                      value: stats.last30Days,
+                      // icon: Symbols.event_available,
+                    ),
                   ),
-                  _IzzyStatTile(
-                    label: 'Last 365 days',
-                    value: stats.last365Days,
-                    icon: Symbols.timeline_rounded,
+                  Expanded(
+                    child: _IzzyStatTile(
+                      label: 'Last 365 days',
+                      value: stats.last365Days,
+                      // icon: Symbols.timeline_rounded,
+                    ),
                   ),
                 ],
               ),
@@ -1573,13 +1585,9 @@ class _IzzyStatsSection extends StatelessWidget {
 class _IzzyStatTile extends StatelessWidget {
   final String label;
   final int? value;
-  final IconData icon;
+  final IconData? icon;
 
-  const _IzzyStatTile({
-    required this.label,
-    required this.value,
-    required this.icon,
-  });
+  const _IzzyStatTile({required this.label, required this.value, this.icon});
 
   @override
   Widget build(BuildContext context) {
@@ -1587,20 +1595,15 @@ class _IzzyStatTile extends StatelessWidget {
     final subColor = Theme.of(context).colorScheme.onSurfaceVariant;
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       spacing: 6,
       children: [
-        Row(
-          spacing: 6,
-          children: [
-            Icon(icon, size: 18, color: subColor),
-            Text(label, style: textTheme.bodySmall?.copyWith(color: subColor)),
-          ],
-        ),
+        Text(label, style: textTheme.bodySmall?.copyWith(color: subColor)),
         Text(
           value != null ? _formatCount(value!) : 'Not available',
           style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+          textAlign: TextAlign.center,
         ),
       ],
     );
@@ -1873,7 +1876,7 @@ class _InstallActionsSection extends StatelessWidget {
                                   }
                                 }
                               },
-                              icon: const Icon(Symbols.upgrade),
+                              icon: Icon(SolarBoldIcons.download),
                               label: Text(AppLocalizations.of(context)!.update),
                             ),
                           ),
@@ -1907,7 +1910,7 @@ class _InstallActionsSection extends StatelessWidget {
                                   }
                                 }
                               },
-                              icon: const Icon(Symbols.open_in_new_rounded),
+                              icon: Icon(SolarLinearIcons.squareBottomUp),
                               label: Text(AppLocalizations.of(context)!.open),
                             ),
                           ),
@@ -1944,10 +1947,7 @@ class _InstallActionsSection extends StatelessWidget {
                                   context,
                                 ).colorScheme.errorContainer,
                               ),
-                              child: const Icon(
-                                Symbols.delete_rounded,
-                                fill: 1,
-                              ),
+                              child: Icon(SolarBoldIcons.trashBin2),
                             ),
                           ),
                       ],
@@ -1988,7 +1988,7 @@ class _InstallActionsSection extends StatelessWidget {
                             }
                           }
                         },
-                        icon: const Icon(Symbols.delete_rounded, fill: 1),
+                        icon: Icon(SolarBoldIcons.trashBin2),
                         label: Text(AppLocalizations.of(context)!.uninstall),
                         style: FilledButton.styleFrom(
                           foregroundColor: Theme.of(
@@ -2027,7 +2027,7 @@ class _InstallActionsSection extends StatelessWidget {
                             }
                           }
                         },
-                        icon: const Icon(Symbols.open_in_new_rounded),
+                        icon: Icon(SolarLinearIcons.squareBottomUp),
                         label: Text(AppLocalizations.of(context)!.open),
                       ),
                     ),
@@ -2098,7 +2098,7 @@ class _ShortInfoRow extends StatelessWidget {
                 SizedBox(
                   height: 32,
                   child: Icon(
-                    Symbols.download,
+                    SolarLinearIcons.zipFile,
                     size: 32,
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
@@ -2128,7 +2128,7 @@ class _ShortInfoRow extends StatelessWidget {
                 SizedBox(
                   height: 32,
                   child: Icon(
-                    Symbols.code_rounded,
+                    SolarLinearIcons.codeFile,
                     size: 32,
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
@@ -2168,7 +2168,7 @@ class _ShortInfoRow extends StatelessWidget {
                       SizedBox(
                         height: 32,
                         child: Icon(
-                          Symbols.license_rounded,
+                          SolarLinearIcons.copyright,
                           size: 32,
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
@@ -2196,7 +2196,7 @@ class _ShortInfoRow extends StatelessWidget {
                     SizedBox(
                       height: 32,
                       child: Icon(
-                        Symbols.chart_data,
+                        SolarLinearIcons.graphUp,
                         size: 32,
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
@@ -2246,7 +2246,7 @@ class _AppInfoSection extends StatelessWidget {
                       title: AppLocalizations.of(context)!.app_information,
                       trailing: IconButton(
                         onPressed: () => Navigator.pop(context),
-                        icon: Icon(Symbols.keyboard_arrow_down),
+                        icon: Icon(SolarLinearIcons.altArrowDown),
                       ),
                     ),
                     MListView(
@@ -2282,7 +2282,7 @@ class _AppInfoSection extends StatelessWidget {
                             leading: ListIcon(iconData: Symbols.security),
                             title: AppLocalizations.of(context)!.permissions,
                             subtitle: '(${latestVersion!.permissions!.length})',
-                            suffix: Icon(Symbols.arrow_forward),
+                            suffix: Icon(SolarLinearIcons.altArrowRight),
                             onTap: () {
                               Navigator.push(
                                 context,
@@ -2403,7 +2403,9 @@ class _DescriptionSectionState extends State<_DescriptionSection>
             title: 'Description',
 
             trailing: Icon(
-              _isExpanded ? Symbols.expand_less : Symbols.expand_more,
+              _isExpanded
+                  ? SolarLinearIcons.altArrowUp
+                  : SolarLinearIcons.altArrowDown,
               color: Theme.of(context).colorScheme.primary,
             ),
           ),
@@ -2470,6 +2472,7 @@ class _DescriptionSectionState extends State<_DescriptionSection>
 
 class IncludeUnstableSection extends StatefulWidget {
   final FDroidApp app;
+
   const IncludeUnstableSection({super.key, required this.app});
 
   @override
@@ -2510,11 +2513,7 @@ class _IncludeUnstableSectionState extends State<IncludeUnstableSection> {
                       ),
                       child: Row(
                         children: [
-                          Icon(
-                            Symbols.science,
-                            size: 20,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
+                          ListIcon(iconData: SolarBoldIcons.testTube),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Column(
@@ -2596,7 +2595,7 @@ class _NoVersionInfoSection extends StatelessWidget {
             child: Column(
               children: [
                 Icon(
-                  Symbols.info,
+                  SolarLinearIcons.infoSquare,
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                   size: 32,
                 ),
@@ -2626,6 +2625,7 @@ class _NoVersionInfoSection extends StatelessWidget {
 
 class AppExtraInfoSection extends StatefulWidget {
   final FDroidApp app;
+
   const AppExtraInfoSection({super.key, required this.app});
 
   @override
@@ -2924,36 +2924,36 @@ class _AppExtraInfoSectionState extends State<AppExtraInfoSection> {
               items: [
                 if (widget.app.webSite != null)
                   MListItemData(
-                    leading: ListIcon(iconData: Symbols.public),
+                    leading: ListIcon(iconData: SolarLinearIcons.global),
                     title: AppLocalizations.of(context)!.website,
                     onTap: () async {
                       if (widget.app.webSite != null) {
                         await launchUrl(Uri.parse(widget.app.webSite!));
                       }
                     },
-                    suffix: Icon(Symbols.open_in_new_rounded),
+                    suffix: Icon(SolarLinearIcons.squareBottomUp),
                   ),
                 if (widget.app.sourceCode != null)
                   MListItemData(
-                    leading: ListIcon(iconData: Symbols.code),
+                    leading: ListIcon(iconData: SolarLinearIcons.code),
                     title: AppLocalizations.of(context)!.source_code,
                     onTap: () async {
                       if (widget.app.sourceCode != null) {
                         await launchUrl(Uri.parse(widget.app.sourceCode!));
                       }
                     },
-                    suffix: Icon(Symbols.open_in_new_rounded),
+                    suffix: Icon(SolarLinearIcons.squareBottomUp),
                   ),
                 if (widget.app.issueTracker != null)
                   MListItemData(
-                    leading: ListIcon(iconData: Symbols.bug_report),
+                    leading: ListIcon(iconData: SolarLinearIcons.bug),
                     title: AppLocalizations.of(context)!.issue_tracker,
                     onTap: () async {
                       if (widget.app.issueTracker != null) {
                         await launchUrl(Uri.parse(widget.app.issueTracker!));
                       }
                     },
-                    suffix: Icon(Symbols.open_in_new_rounded),
+                    suffix: Icon(SolarLinearIcons.squareBottomUp),
                   ),
               ],
             );
@@ -2962,7 +2962,7 @@ class _AppExtraInfoSectionState extends State<AppExtraInfoSection> {
         SizedBox(height: 16),
         if (donationItems.isNotEmpty) ...[
           MListHeader(
-            icon: Symbols.volunteer_activism_rounded,
+            icon: SolarLinearIcons.handMoney,
             title: AppLocalizations.of(context)!.support_the_developer,
           ),
           MListView(
@@ -2971,7 +2971,7 @@ class _AppExtraInfoSectionState extends State<AppExtraInfoSection> {
                 MListItemData(
                   title: item.key,
                   subtitle: item.value,
-                  suffix: const Icon(Symbols.open_in_new_rounded),
+                  suffix: Icon(SolarLinearIcons.squareBottomUp),
                   onTap: () => _openDonateLink(context, item.key, item.value),
                 ),
             ],

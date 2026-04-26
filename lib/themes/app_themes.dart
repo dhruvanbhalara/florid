@@ -126,12 +126,12 @@ class AppThemes {
       useMaterial3: true,
       colorScheme: scheme,
       fontFamily: 'Google Sans Flex',
-      appBarTheme: AppBarTheme(
+      appBarTheme: AppBarThemeData(
         titleTextStyle: TextStyle(
           fontFamily: 'Google Sans Flex',
           fontSize: 24,
           fontVariations: [
-            FontVariation('wght', 900),
+            FontVariation('wght', 600),
             FontVariation('ROND', 100),
           ],
           color: scheme.onSurface,
@@ -144,9 +144,8 @@ class AppThemes {
         extendedTextStyle: TextStyle(
           fontFamily: 'Google Sans Flex',
           fontVariations: [
-            FontVariation('wght', 700),
+            FontVariation('wght', 600),
             FontVariation('ROND', 100),
-            FontVariation('wdth', 125),
           ],
           color: darkScheme.onSurface,
         ),
@@ -202,20 +201,14 @@ class AppThemes {
         }),
       ),
       navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: scheme.onPrimaryFixedVariant,
+        backgroundColor: scheme.surfaceContainerHighest,
         iconTheme: WidgetStateProperty.resolveWith((Set<WidgetState> states) {
           if (states.contains(WidgetState.selected)) {
-            return IconThemeData(color: scheme.onPrimaryContainer);
+            return IconThemeData(color: scheme.primary);
           }
-          return IconThemeData(color: scheme.onInverseSurface);
+          return IconThemeData(color: scheme.onSurface);
         }),
-        labelTextStyle: WidgetStateProperty.resolveWith((
-          Set<WidgetState> states,
-        ) {
-          return TextStyle(color: scheme.onInverseSurface);
-        }),
-        labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
-        elevation: 0,
+        indicatorColor: Colors.transparent,
       ),
       navigationRailTheme: NavigationRailThemeData(
         backgroundColor: scheme.surfaceContainer,
@@ -294,11 +287,13 @@ class AppThemes {
       scheme = ColorScheme.fromSeed(
         seedColor: colorScheme.primary,
         brightness: Brightness.dark,
+        dynamicSchemeVariant: DynamicSchemeVariant.tonalSpot,
       );
     } else {
       scheme = ColorScheme.fromSeed(
         seedColor: kAppColor,
         brightness: Brightness.dark,
+        dynamicSchemeVariant: DynamicSchemeVariant.tonalSpot,
       );
     }
 
@@ -306,12 +301,15 @@ class AppThemes {
       useMaterial3: true,
       colorScheme: scheme,
       fontFamily: 'Google Sans Flex',
+      scaffoldBackgroundColor: scheme.surfaceContainerLowest,
       appBarTheme: AppBarThemeData(
+        backgroundColor: scheme.surfaceContainerLowest,
+        surfaceTintColor: scheme.surfaceContainer,
         titleTextStyle: TextStyle(
           fontFamily: 'Google Sans Flex',
           fontSize: 24,
           fontVariations: [
-            FontVariation('wght', 900),
+            FontVariation('wght', 600),
             FontVariation('ROND', 100),
           ],
           color: scheme.onSurface,
@@ -324,9 +322,8 @@ class AppThemes {
         extendedTextStyle: TextStyle(
           fontFamily: 'Google Sans Flex',
           fontVariations: [
-            FontVariation('wght', 700),
+            FontVariation('wght', 600),
             FontVariation('ROND', 100),
-            FontVariation('wdth', 125),
           ],
           color: scheme.onSurface,
         ),
@@ -385,21 +382,14 @@ class AppThemes {
         }),
       ),
       navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: scheme.onPrimaryFixedVariant,
+        backgroundColor: scheme.surfaceContainerLow,
         iconTheme: WidgetStateProperty.resolveWith((Set<WidgetState> states) {
           if (states.contains(WidgetState.selected)) {
-            return IconThemeData(color: scheme.onInverseSurface);
+            return IconThemeData(color: scheme.primary);
           }
           return IconThemeData(color: scheme.onSurface);
         }),
-        indicatorColor: scheme.onSurface,
-        labelTextStyle: WidgetStateProperty.resolveWith((
-          Set<WidgetState> states,
-        ) {
-          return TextStyle(color: scheme.onSurface);
-        }),
-        labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
-        elevation: 0,
+        indicatorColor: Colors.transparent,
       ),
       navigationRailTheme: NavigationRailThemeData(
         backgroundColor: scheme.surfaceContainer,

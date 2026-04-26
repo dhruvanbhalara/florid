@@ -122,67 +122,70 @@ class _CategoriesScreenState extends State<CategoriesScreen>
       );
     }
 
-    return RefreshIndicator(
-      onRefresh: _onRefresh,
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            GridView.builder(
-              padding: const EdgeInsets.all(16),
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                // crossAxisCount:
-                //     MediaQuery.sizeOf(context).width < Responsive.largeWidth
-                //     ? 2
-                //     : 3,
-                maxCrossAxisExtent: 300,
-                crossAxisSpacing: 8,
-                mainAxisSpacing: 8,
-                childAspectRatio: 2.5,
-              ),
-              itemCount: categories.length,
-              itemBuilder: (context, index) {
-                final category = categories[index];
-
-                return _CategoryCard(
-                  category: category,
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => AppSectionViewer(
-                          title: category,
-                          subtitle: AppLocalizations.of(
-                            context,
-                          )!.section_app_count(category.length),
-                          stateSelector: (appProvider) =>
-                              appProvider.categoryAppsState,
-                          appsSelector: (appProvider) =>
-                              appProvider.categoryApps[category] ?? [],
-                          errorSelector: (appProvider) =>
-                              appProvider.categoryAppsError,
-                          onRefresh: (context) async {
-                            final appProvider = context.read<AppProvider>();
-                            appProvider.categoryApps.remove(category);
-                            await appProvider.fetchAppsByCategory(category);
-                          },
-                          loadingMessage: AppLocalizations.of(
-                            context,
-                          )!.loading_apps,
-                          emptyMessage: AppLocalizations.of(
-                            context,
-                          )!.no_apps_in_category(category),
-                          emptyIcon: Symbols.apps,
-                          showInstallStatus: true,
-                        ),
-                      ),
-                    );
+    return Scaffold(
+      body: SafeArea(
+        child: RefreshIndicator(
+          onRefresh: _onRefresh,
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                GridView.builder(
+                  padding: const EdgeInsets.all(16),
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                    // crossAxisCount:
+                    //     MediaQuery.sizeOf(context).width < Responsive.largeWidth
+                    //     ? 2
+                    //     : 3,
+                    maxCrossAxisExtent: 300,
+                    crossAxisSpacing: 8,
+                    mainAxisSpacing: 8,
+                    childAspectRatio: 2.5,
+                  ),
+                  itemCount: categories.length,
+                  itemBuilder: (context, index) {
+                    final category = categories[index];
+        
+                    return _CategoryCard(
+                      category: category,
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => AppSectionViewer(
+                              title: category,
+                              subtitle: AppLocalizations.of(
+                                context,
+                              )!.section_app_count(category.length),
+                              stateSelector: (appProvider) =>
+                                  appProvider.categoryAppsState,
+                              appsSelector: (appProvider) =>
+                                  appProvider.categoryApps[category] ?? [],
+                              errorSelector: (appProvider) =>
+                                  appProvider.categoryAppsError,
+                              onRefresh: (context) async {
+                                final appProvider = context.read<AppProvider>();
+                                appProvider.categoryApps.remove(category);
+                                await appProvider.fetchAppsByCategory(category);
+                              },
+                              loadingMessage: AppLocalizations.of(
+                                context,
+                              )!.loading_apps,
+                              emptyMessage: AppLocalizations.of(
+                                context,
+                              )!.no_apps_in_category(category),
+                              emptyIcon: Symbols.apps,
+                              showInstallStatus: true,
+                            ),
+                          ),
+                        );
+                      },
+                    ).animate().fadeIn(duration: 300.ms, delay: (10 * index).ms);
                   },
-                ).animate().fadeIn(duration: 300.ms, delay: (10 * index).ms);
-              },
+                ),
+              ],
             ),
-            if (isFlorid || isDarkKnight) SizedBox(height: 96),
-          ],
+          ),
         ),
       ),
     );

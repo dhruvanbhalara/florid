@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
+import 'package:solar_icon_pack/solar_icon_pack.dart';
 
 import '../../models/fdroid_app.dart';
 import '../../providers/app_provider.dart';
@@ -148,18 +149,20 @@ class _UpdatesScreenState extends State<UpdatesScreen>
                       appProvider.repository!.apps[installedApp.packageName]!,
                 )
                 .toList();
+            final isDark = Theme.of(context).brightness == Brightness.dark;
 
             return Scaffold(
               body: NestedScrollView(
                 headerSliverBuilder: (context, innerBoxIsScrolled) => [
                   SliverAppBar(
+                    snap: true,
                     floating: true,
-                    backgroundColor: isDarkKnight
-                        ? null
-                        : Theme.of(context).colorScheme.surfaceContainerLow,
-                    surfaceTintColor: isDarkKnight
-                        ? null
-                        : Theme.of(context).colorScheme.surfaceContainerLow,
+                    backgroundColor: isDark
+                        ? Theme.of(context).colorScheme.surfaceContainerLowest
+                        : Theme.of(context).colorScheme.surface,
+                    surfaceTintColor: isDark
+                        ? Theme.of(context).colorScheme.surfaceContainerLowest
+                        : Theme.of(context).colorScheme.surface,
                     title: Text(AppLocalizations.of(context)!.apps),
                     scrolledUnderElevation: isDarkKnight ? 0 : null,
                     // pinned: false,
@@ -179,12 +182,12 @@ class _UpdatesScreenState extends State<UpdatesScreen>
                           ? 68
                           : 56,
                       child: Material(
-                        color: isDarkKnight
-                            ? null
-                            : Theme.of(context).colorScheme.surfaceContainerLow,
-                        surfaceTintColor: isDarkKnight
-                            ? null
-                            : Theme.of(context).colorScheme.surfaceContainerLow,
+                        color: isDark
+                            ? Theme.of(context).colorScheme.surfaceContainerLowest
+                            : Theme.of(context).colorScheme.surface,
+                        surfaceTintColor: isDark
+                            ? Theme.of(context).colorScheme.surfaceContainerLowest
+                            : Theme.of(context).colorScheme.surface,
                         child: FTabBar(
                           controller: _tabController,
                           showBadge: true,
@@ -366,7 +369,7 @@ class _UpdatesScreenState extends State<UpdatesScreen>
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Material(
               color: Theme.of(context).colorScheme.primaryContainer,
-              borderRadius: BorderRadius.circular(99),
+              borderRadius: BorderRadius.circular(24),
               child: Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(
@@ -424,8 +427,7 @@ class _UpdatesScreenState extends State<UpdatesScreen>
                   app.packageName,
                 );
 
-                return Card(
-                  elevation: 0,
+                return Container(
                   key: Key(app.packageName),
                   child: Column(
                     children: [
@@ -477,12 +479,20 @@ class _UpdatesScreenState extends State<UpdatesScreen>
                           settingsProvider.showWhatsNew)
                         ChangelogPreview(text: app.latestVersion!.whatsNew),
                     ],
-                  ),
-                ).animate().fadeIn(duration: 300.ms, delay: (100 * index).ms);
+                  ).animate().fadeIn(duration: 300.ms, delay: (100 * index).ms),
+                );
               },
             ),
           ),
         ],
+      ),
+      floatingActionButton:  Visibility(
+        visible: updatableApps.isNotEmpty,
+        child: FloatingActionButton.extended(
+          onPressed: () => _updateAllApps(context, updatableApps),
+          icon: Icon(SolarBoldIcons.downloadSquare),
+          label: Text(AppLocalizations.of(context)!.update_all),
+        ).animate().scale(duration: 250.ms),
       ),
     );
   }
@@ -582,14 +592,13 @@ class _UpdatesScreenState extends State<UpdatesScreen>
         final hasUpdate = updatableApps.any(
           (updateApp) => updateApp.packageName == app.packageName,
         );
-        return Card(
+        return Container(
           key: Key(app.packageName),
-          elevation: 0,
           child: Column(
             children: [
               AppListItem(
                 app: app,
-                showInstallStatus: true,
+                showInstallStatus: false,
                 onUpdate: hasUpdate ? () => _updateApp(context, app) : null,
                 onTap: () {
                   Navigator.of(context).push(

@@ -124,17 +124,17 @@ class MListView extends StatelessWidget {
         return ClipRRect(
           borderRadius: BorderRadius.only(
             topLeft: index == 0
-                ? Radius.circular(isFlorid ? 16.0 : 0)
-                : Radius.circular(isFlorid ? 4.0 : 0),
+                ? Radius.circular(isFlorid ? 24.0 : 0)
+                : Radius.circular(isFlorid ? 8.0 : 0),
             topRight: index == 0
-                ? Radius.circular(isFlorid ? 16.0 : 0)
-                : Radius.circular(isFlorid ? 4.0 : 0),
+                ? Radius.circular(isFlorid ? 24.0 : 0)
+                : Radius.circular(isFlorid ? 8.0 : 0),
             bottomLeft: isLastItem(index)
-                ? Radius.circular(isFlorid ? 16.0 : 0)
-                : Radius.circular(isFlorid ? 4.0 : 0),
+                ? Radius.circular(isFlorid ? 24.0 : 0)
+                : Radius.circular(isFlorid ? 8.0 : 0),
             bottomRight: isLastItem(index)
-                ? Radius.circular(isFlorid ? 16.0 : 0)
-                : Radius.circular(isFlorid ? 4.0 : 0),
+                ? Radius.circular(isFlorid ? 24.0 : 0)
+                : Radius.circular(isFlorid ? 8.0 : 0),
           ),
           child: Material(
             color: isFlorid
@@ -148,7 +148,7 @@ class MListView extends StatelessWidget {
               subtitle:
                   items[index].subtitle != null &&
                       items[index].subtitle!.isNotEmpty
-                  ? Text(items[index].subtitle!)
+                  ? Text(items[index].subtitle!, maxLines: 2, overflow: TextOverflow.ellipsis,)
                   : null,
               onTap: () => items[index].onTap(),
               trailing: items[index].suffix,
@@ -210,17 +210,17 @@ class MListViewBuilder extends StatelessWidget {
         return ClipRRect(
           borderRadius: BorderRadius.only(
             topLeft: index == 0
-                ? Radius.circular(isFlorid ? 16.0 : 0)
-                : Radius.circular(isFlorid ? 4.0 : 0),
+                ? Radius.circular(isFlorid ? 24.0 : 0)
+                : Radius.circular(isFlorid ? 8.0 : 0),
             topRight: index == 0
-                ? Radius.circular(isFlorid ? 16.0 : 0)
-                : Radius.circular(isFlorid ? 4.0 : 0),
+                ? Radius.circular(isFlorid ? 24.0 : 0)
+                : Radius.circular(isFlorid ? 8.0 : 0),
             bottomLeft: isLastItem
-                ? Radius.circular(isFlorid ? 16.0 : 0)
-                : Radius.circular(isFlorid ? 4.0 : 0),
+                ? Radius.circular(isFlorid ? 24.0 : 0)
+                : Radius.circular(isFlorid ? 8.0 : 0),
             bottomRight: isLastItem
-                ? Radius.circular(isFlorid ? 16.0 : 0)
-                : Radius.circular(isFlorid ? 4.0 : 0),
+                ? Radius.circular(isFlorid ? 24.0 : 0)
+                : Radius.circular(isFlorid ? 8.0 : 0),
           ),
           child: Material(
             color: isFlorid
@@ -232,7 +232,7 @@ class MListViewBuilder extends StatelessWidget {
               title: Text(item.title),
               leading: item.leading,
               subtitle: item.subtitle != null && item.subtitle!.isNotEmpty
-                  ? Text(item.subtitle!)
+                  ? Text(item.subtitle!, maxLines: 2, overflow: TextOverflow.ellipsis,)
                   : null,
               onTap: () => item.onTap(),
               trailing: item.suffix,
@@ -313,17 +313,17 @@ class MRadioListView<T> extends StatelessWidget {
         return ClipRRect(
           borderRadius: BorderRadius.only(
             topLeft: index == 0
-                ? Radius.circular(isFlorid ? 16.0 : 0)
-                : Radius.circular(isFlorid ? 4.0 : 0),
+                ? Radius.circular(isFlorid ? 24.0 : 0)
+                : Radius.circular(isFlorid ? 8.0 : 0),
             topRight: index == 0
-                ? Radius.circular(isFlorid ? 16.0 : 0)
-                : Radius.circular(isFlorid ? 4.0 : 0),
+                ? Radius.circular(isFlorid ? 24.0 : 0)
+                : Radius.circular(isFlorid ? 8.0 : 0),
             bottomLeft: isLastItem(index)
-                ? Radius.circular(isFlorid ? 16.0 : 0)
-                : Radius.circular(isFlorid ? 4.0 : 0),
+                ? Radius.circular(isFlorid ? 24.0 : 0)
+                : Radius.circular(isFlorid ? 8.0 : 0),
             bottomRight: isLastItem(index)
-                ? Radius.circular(isFlorid ? 16.0 : 0)
-                : Radius.circular(isFlorid ? 4.0 : 0),
+                ? Radius.circular(isFlorid ? 24.0 : 0)
+                : Radius.circular(isFlorid ? 8.0 : 0),
           ),
           child: Material(
             color: isFlorid
@@ -334,7 +334,7 @@ class MRadioListView<T> extends StatelessWidget {
               contentPadding: EdgeInsets.only(left: 16.0, right: 18.0),
               title: Text(items[index].title),
               subtitle: items[index].subtitle.isNotEmpty
-                  ? Text(items[index].subtitle)
+                  ? Text(items[index].subtitle, maxLines: 2, overflow: TextOverflow.ellipsis,)
                   : null,
               value: items[index].value,
               groupValue: groupValue,
@@ -418,17 +418,17 @@ class MCheckboxListView extends StatelessWidget {
         return ClipRRect(
           borderRadius: BorderRadius.only(
             topLeft: index == 0
-                ? Radius.circular(isFlorid ? 16.0 : 0)
-                : Radius.circular(isFlorid ? 4.0 : 0),
+                ? Radius.circular(isFlorid ? 24.0 : 0)
+                : Radius.circular(isFlorid ? 8.0 : 0),
             topRight: index == 0
-                ? Radius.circular(isFlorid ? 16.0 : 0)
-                : Radius.circular(isFlorid ? 4.0 : 0),
+                ? Radius.circular(isFlorid ? 24.0 : 0)
+                : Radius.circular(isFlorid ? 8.0 : 0),
             bottomLeft: isLastItem(index)
-                ? Radius.circular(isFlorid ? 16.0 : 0)
-                : Radius.circular(isFlorid ? 4.0 : 0),
+                ? Radius.circular(isFlorid ? 24.0 : 0)
+                : Radius.circular(isFlorid ? 8.0 : 0),
             bottomRight: isLastItem(index)
-                ? Radius.circular(isFlorid ? 16.0 : 0)
-                : Radius.circular(isFlorid ? 4.0 : 0),
+                ? Radius.circular(isFlorid ? 24.0 : 0)
+                : Radius.circular(isFlorid ? 8.0 : 0),
           ),
           child: Material(
             clipBehavior: Clip.antiAlias,
@@ -439,7 +439,7 @@ class MCheckboxListView extends StatelessWidget {
               contentPadding: EdgeInsets.only(left: 16.0, right: 4.0),
               title: Text(items[index].title),
               subtitle: items[index].subtitle.isNotEmpty
-                  ? Text(items[index].subtitle)
+                  ? Text(items[index].subtitle, maxLines: 2, overflow: TextOverflow.ellipsis,)
                   : null,
               value: items[index].value,
               onChanged: (value) {
@@ -506,14 +506,18 @@ class MCheckboxListViewBuilder extends StatelessWidget {
 
         return ClipRRect(
           borderRadius: BorderRadius.only(
-            topLeft: index == 0 ? Radius.circular(16.0) : Radius.circular(4.0),
-            topRight: index == 0 ? Radius.circular(16.0) : Radius.circular(4.0),
+            topLeft: index == 0
+                ? Radius.circular(isFlorid ? 24.0 : 0)
+                : Radius.circular(isFlorid ? 8.0 : 0),
+            topRight: index == 0
+                ? Radius.circular(isFlorid ? 24.0 : 0)
+                : Radius.circular(isFlorid ? 8.0 : 0),
             bottomLeft: isLastItem
-                ? const Radius.circular(16.0)
-                : const Radius.circular(4.0),
+                ? Radius.circular(isFlorid ? 24.0 : 0)
+                : Radius.circular(isFlorid ? 8.0 : 0),
             bottomRight: isLastItem
-                ? const Radius.circular(16.0)
-                : const Radius.circular(4.0),
+                ? Radius.circular(isFlorid ? 24.0 : 0)
+                : Radius.circular(isFlorid ? 8.0 : 0),
           ),
           child: Material(
             clipBehavior: Clip.antiAlias,
@@ -523,7 +527,7 @@ class MCheckboxListViewBuilder extends StatelessWidget {
             child: CheckboxListTile(
               contentPadding: EdgeInsets.only(left: 16.0, right: 4.0),
               title: Text(item.title),
-              subtitle: item.subtitle.isNotEmpty ? Text(item.subtitle) : null,
+              subtitle: item.subtitle.isNotEmpty ? Text(item.subtitle, maxLines: 2, overflow: TextOverflow.ellipsis,) : null,
               value: item.value,
               onChanged: (value) {
                 if (value != null) {

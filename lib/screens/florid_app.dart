@@ -1,6 +1,7 @@
 import 'package:florid/l10n/app_localizations.dart';
 import 'package:florid/models/fdroid_app.dart';
 import 'package:florid/providers/app_update_provider.dart';
+import 'package:florid/screens/home/categories_screen.dart';
 import 'package:florid/screens/home/library_screen.dart';
 import 'package:florid/screens/settings/app_updater.dart';
 import 'package:florid/screens/settings/settings_screen.dart';
@@ -13,6 +14,8 @@ import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
+import 'package:solar_icon_pack/solar_bold_icons.dart';
+import 'package:solar_icon_pack/solar_linear_icons.dart';
 
 import '../providers/app_provider.dart';
 import '../providers/repositories_provider.dart';
@@ -37,6 +40,8 @@ class _FloridAppState extends State<FloridApp> {
 
   late final List<Widget> _screens = [
     const LibraryScreen(),
+    CategoriesScreen(),
+    SearchScreen(),
     UpdatesScreen(),
     UserScreen(),
   ];
@@ -484,25 +489,6 @@ class _FloridAppState extends State<FloridApp> {
                         ),
                     ],
                   ),
-                  if (isFlorid && !isWide)
-                    Positioned(
-                      left: 0,
-                      right: 0,
-                      bottom: MediaQuery.of(context).viewInsets.bottom + 24,
-                      child: SafeArea(
-                        child: FNavBar(
-                          currentIndex: floridNavIndex,
-                          onChanged: (index) {
-                            setState(() {
-                              _currentIndex = index;
-                            });
-                            _tabNotifier.value = index;
-                          },
-                          items: floridNavItems,
-                          fab: searchFab,
-                        ),
-                      ),
-                    ),
                   if ((isFlorid || isDarkKnight) && isWide)
                     Positioned.fill(
                       child: SafeArea(
@@ -534,12 +520,7 @@ class _FloridAppState extends State<FloridApp> {
         },
       ),
       bottomNavigationBar: Visibility(
-        visible:
-            (Provider.of<SettingsProvider>(context).themeStyle ==
-                    ThemeStyle.material ||
-                Provider.of<SettingsProvider>(context).themeStyle ==
-                    ThemeStyle.darkKnight) &&
-            MediaQuery.sizeOf(context).width < Responsive.largeWidth,
+        visible: MediaQuery.sizeOf(context).width < Responsive.largeWidth,
         child: Consumer2<AppProvider, SettingsProvider>(
           builder: (context, appProvider, settings, child) {
             return FutureBuilder<List<FDroidApp>>(
@@ -550,41 +531,39 @@ class _FloridAppState extends State<FloridApp> {
 
                 final destinations = [
                   NavigationDestination(
-                    icon: const Icon(Symbols.newsstand_rounded),
-                    selectedIcon: const Icon(
-                      Symbols.newsstand_rounded,
-                      fill: 1,
-                      weight: 600,
-                    ),
+                    icon: const Icon(SolarLinearIcons.home2),
+                    selectedIcon: const Icon(SolarBoldIcons.home2),
                     label: localizations.home,
+                  ),
+                  NavigationDestination(
+                    icon: const Icon(SolarLinearIcons.widget5),
+                    selectedIcon: const Icon(SolarBoldIcons.widget5),
+                    label: localizations.categories,
+                  ),
+                  NavigationDestination(
+                    icon: const Icon(SolarLinearIcons.magniferRounded),
+                    selectedIcon: const Icon(SolarBoldIcons.magniferRounded),
+                    label: localizations.search,
                   ),
                   NavigationDestination(
                     icon: updatableAppsCount > 0
                         ? Badge.count(
                             count: updatableAppsCount,
-                            child: const Icon(Symbols.mobile_3_rounded),
+                            child: const Icon(SolarLinearIcons.smartphone),
                           )
-                        : const Icon(Symbols.mobile_3_rounded),
+                        : const Icon(SolarLinearIcons.smartphone),
                     selectedIcon: updatableAppsCount > 0
                         ? Badge.count(
                             count: updatableAppsCount,
-                            child: const Icon(
-                              Symbols.mobile_3_rounded,
-                              fill: 1,
-                              weight: 600,
-                            ),
+                            child: const Icon(SolarBoldIcons.smartphone),
                           )
-                        : const Icon(
-                            Symbols.mobile_3_rounded,
-                            fill: 1,
-                            weight: 600,
-                          ),
+                        : const Icon(SolarBoldIcons.smartphone),
                     label: localizations.device,
                   ),
                   NavigationDestination(
-                    icon: Icon(Symbols.person_rounded),
+                    icon: Icon(SolarLinearIcons.user),
                     selectedIcon: Icon(
-                      Symbols.person_rounded,
+                      SolarBoldIcons.user,
                       fill: 1,
                       weight: 600,
                     ),

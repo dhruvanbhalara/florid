@@ -30,6 +30,8 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:solar_icon_pack/solar_bold_icons.dart';
+import 'package:solar_icon_pack/solar_linear_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class UserScreen extends StatefulWidget {
@@ -893,12 +895,19 @@ class _FavoriteAppsScreenState extends State<_FavoriteAppsScreen> {
         return Scaffold(
           body: CustomScrollView(
             slivers: [
-              SliverAppBar.large(
-                pinned: true,
+              SliverAppBar(
+                floating: true,
+                leading: IconButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  icon: Icon(SolarLinearIcons.altArrowLeft),
+                ),
                 title: Text(AppLocalizations.of(context)!.favourites),
                 actions: [
                   if (favoriteApps.isNotEmpty)
                     PopupMenuButton(
+                      icon: Icon(SolarBoldIcons.menuDots),
                       itemBuilder: (context) {
                         return [
                           PopupMenuItem(
@@ -1008,9 +1017,8 @@ class _FavoriteAppsScreenState extends State<_FavoriteAppsScreen> {
                     itemCount: favoriteApps.length,
                     itemBuilder: (context, index) {
                       final app = favoriteApps[index];
-                      return Card(
+                      return Container(
                         key: Key(app.packageName),
-                        elevation: 0,
                         child: AppListItem(
                           app: app,
                           showInstallStatus: true,

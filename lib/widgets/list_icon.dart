@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 class ListIcon extends StatefulWidget {
   final IconData iconData;
   final bool? primary;
+
   const ListIcon({super.key, required this.iconData, this.primary = false});
 
   @override
@@ -26,22 +27,7 @@ class _ListIconState extends State<ListIcon> {
                 color: Theme.of(context).colorScheme.outlineVariant,
                 width: 0.5,
               ),
-              gradient: LinearGradient(
-                colors: [
-                  if (widget.primary == true)
-                    Theme.of(
-                      context,
-                    ).colorScheme.primary.withValues(alpha: 0.12)
-                  else
-                    Theme.of(context).colorScheme.surfaceContainerHigh,
-                  if (widget.primary == true)
-                    Theme.of(context).colorScheme.primary
-                  else
-                    Theme.of(context).colorScheme.surfaceContainer,
-                ],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
+              color: Theme.of(context).colorScheme.surfaceDim,
             )
           : null,
       child: Icon(
@@ -49,7 +35,7 @@ class _ListIconState extends State<ListIcon> {
         fill: 1,
         weight: 300,
         color: widget.primary == true
-            ? Theme.of(context).colorScheme.onPrimary
+            ? Theme.of(context).colorScheme.onSurface
             : null,
       ),
     );
@@ -59,6 +45,7 @@ class _ListIconState extends State<ListIcon> {
 class SocialListIcon extends StatefulWidget {
   final String icon;
   final bool? primary;
+
   const SocialListIcon({super.key, required this.icon, this.primary = false});
 
   @override
@@ -79,22 +66,7 @@ class _SocialListIconState extends State<SocialListIcon> {
                 color: Theme.of(context).colorScheme.outlineVariant,
                 width: 0.5,
               ),
-              gradient: LinearGradient(
-                colors: [
-                  if (widget.primary == true)
-                    Theme.of(
-                      context,
-                    ).colorScheme.primary.withValues(alpha: 0.12)
-                  else
-                    Theme.of(context).colorScheme.surfaceContainerHigh,
-                  if (widget.primary == true)
-                    Theme.of(context).colorScheme.primary
-                  else
-                    Theme.of(context).colorScheme.surfaceContainer,
-                ],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
+              color: Theme.of(context).colorScheme.surfaceDim,
             )
           : null,
       child: Iconify(

@@ -5,6 +5,7 @@ import 'package:florid/widgets/list_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
+import 'package:solar_icon_pack/solar_linear_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../themes/app_themes.dart';
@@ -25,7 +26,16 @@ class AppearanceScreen extends StatelessWidget {
             return Scaffold(
               body: CustomScrollView(
                 slivers: [
-                  SliverAppBar.large(title: Text(localizations.appearance)),
+                  SliverAppBar(
+                    floating: true,
+                    leading: IconButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      icon: Icon(SolarLinearIcons.altArrowLeft),
+                    ),
+                    title: Text(localizations.appearance),
+                  ),
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 16.0),

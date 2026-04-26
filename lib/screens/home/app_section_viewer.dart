@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
+import 'package:solar_icon_pack/solar_linear_icons.dart';
 
 class AppSectionViewer extends StatefulWidget {
   const AppSectionViewer({
@@ -298,6 +299,12 @@ class _AppSectionViewerState extends State<AppSectionViewer>
                       if (widget.showAppBar)
                         SliverAppBar(
                           floating: true,
+                          leading: IconButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            icon: Icon(SolarLinearIcons.altArrowLeft),
+                          ),
                           title: _buildTitle(context),
                         ),
                       SliverPadding(
@@ -328,7 +335,13 @@ class _AppSectionViewerState extends State<AppSectionViewer>
               : CustomScrollView(
                   slivers: [
                     if (widget.showAppBar)
-                      SliverAppBar(floating: true, title: _buildTitle(context)),
+                      SliverAppBar(floating: true,
+                          leading: IconButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            icon: Icon(SolarLinearIcons.altArrowLeft),
+                          ),title: _buildTitle(context)),
                     SliverFillRemaining(
                       hasScrollBody: false,
                       child: state == LoadingState.loading

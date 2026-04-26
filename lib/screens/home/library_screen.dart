@@ -14,6 +14,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:provider/provider.dart';
+import 'package:solar_icon_pack/solar_icon_pack.dart';
 
 class LibraryScreen extends StatefulWidget {
   const LibraryScreen({super.key});
@@ -32,7 +33,7 @@ class _LibraryScreenState extends State<LibraryScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 2, vsync: this);
     _titleSwitchTimer = Timer(const Duration(seconds: 3), () {
       if (!mounted) return;
       setState(() {
@@ -70,7 +71,7 @@ class _LibraryScreenState extends State<LibraryScreen>
         newIndex = oldIndex + 1;
       }
 
-      final newLength = shouldShowTopApps ? 4 : 3;
+      final newLength = shouldShowTopApps ? 3 : 2;
       final clampedIndex = newIndex.clamp(0, newLength - 1);
 
       _tabController.dispose();
@@ -121,7 +122,7 @@ class _LibraryScreenState extends State<LibraryScreen>
               appProvider.topAppsAllTimeDownloads,
           addFloridBottomSpacing: true,
         ),
-      const CategoriesScreen(),
+      // const CategoriesScreen(),
       AppSectionViewer(
         showAppBar: false,
         title: localizations.games,
@@ -143,6 +144,7 @@ class _LibraryScreenState extends State<LibraryScreen>
 
     final settingsProvider = context.watch<SettingsProvider>();
     final isDarkKnight = settingsProvider.themeStyle == ThemeStyle.darkKnight;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       body: NestedScrollView(
@@ -171,25 +173,26 @@ class _LibraryScreenState extends State<LibraryScreen>
                         ),
                       ).animate().fadeIn(duration: 500.ms, delay: 100.ms),
               ),
-              backgroundColor: isDarkKnight
-                  ? null
-                  : Theme.of(context).colorScheme.surfaceContainerLow,
-              surfaceTintColor: isDarkKnight
-                  ? null
-                  : Theme.of(context).colorScheme.surfaceContainerLow,
+              backgroundColor: isDark
+                  ? Theme.of(context).colorScheme.surfaceContainerLowest
+                  : Theme.of(context).colorScheme.surface,
+              surfaceTintColor: isDark
+                  ? Theme.of(context).colorScheme.surfaceContainerLowest
+                  : Theme.of(context).colorScheme.surface,
               snap: true,
               floating: true,
+              shape: LinearBorder(bottom: LinearBorderEdge(), side: BorderSide(color: Theme.of(context).colorScheme.surfaceContainerLow)),
               bottom: PreferredSize(
                 preferredSize: Size.fromHeight(
                   settingsProvider.themeStyle == ThemeStyle.florid ? 64 : 56,
                 ),
                 child: Material(
-                  color: isDarkKnight
-                      ? null
-                      : Theme.of(context).colorScheme.surfaceContainerLow,
-                  surfaceTintColor: isDarkKnight
-                      ? null
-                      : Theme.of(context).colorScheme.surfaceContainerLow,
+                  color: isDark
+                      ? Theme.of(context).colorScheme.surfaceContainerLowest
+                      : Theme.of(context).colorScheme.surface,
+                  surfaceTintColor: isDark
+                      ? Theme.of(context).colorScheme.surfaceContainerLowest
+                      : Theme.of(context).colorScheme.surface,
                   child: FTabBar(
                     controller: _tabController,
                     onTabChanged: (index) {
@@ -198,20 +201,16 @@ class _LibraryScreenState extends State<LibraryScreen>
                     isScrollable: true,
                     items: [
                       FloridTabBarItem(
-                        icon: Symbols.home,
+                        icon: SolarLinearIcons.home,
                         label: AppLocalizations.of(context)!.home,
                       ),
                       if (_showTopAppsTab)
                         FloridTabBarItem(
-                          icon: Symbols.emoji_events,
+                          icon: SolarLinearIcons.courseUp,
                           label: AppLocalizations.of(context)!.top_apps,
                         ),
                       FloridTabBarItem(
-                        icon: Symbols.category,
-                        label: AppLocalizations.of(context)!.categories,
-                      ),
-                      FloridTabBarItem(
-                        icon: Symbols.sports_esports,
+                        icon: SolarLinearIcons.gamepad,
                         label: AppLocalizations.of(context)!.games,
                       ),
                     ],

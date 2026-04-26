@@ -6,6 +6,7 @@ import 'package:florid/widgets/m_list.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
+import 'package:solar_icon_pack/solar_linear_icons.dart';
 
 import '../../models/repository.dart';
 import '../../providers/app_provider.dart';
@@ -62,8 +63,22 @@ class _RepositoriesScreenState extends State<RepositoriesScreen> {
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          SliverAppBar.large(
-            title: Text(localizations.manage_repositories),
+          SliverAppBar(
+            floating: true,
+            leading: IconButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              icon: Icon(SolarLinearIcons.altArrowLeft),
+            ),
+            title: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(localizations.repositories),
+                Text(localizations.manage_repositories, style: TextStyle(fontSize: 13),),
+              ],
+            ),
             actions: [
               IconButton(
                 icon: const Icon(Symbols.sync),

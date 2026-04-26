@@ -98,12 +98,7 @@ class _ChangelogPreviewState extends State<ChangelogPreview> {
                   }
                 : null,
             child: Padding(
-              padding: const EdgeInsets.only(
-                left: 16.0,
-                right: 8.0,
-                top: 4.0,
-                bottom: 16.0,
-              ),
+              padding: EdgeInsets.only(top: 8, left: 16, bottom: 16, right: 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 spacing: 4,
@@ -124,6 +119,8 @@ class _ChangelogPreviewState extends State<ChangelogPreview> {
                         ),
                       ),
                       Spacer(),
+                      if (!isOverflowing)
+                        SizedBox(height: 48,),
                       if (isOverflowing)
                         IconButton(
                           onPressed: () {

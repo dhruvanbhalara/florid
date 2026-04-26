@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
+import 'package:solar_icon_pack/solar_linear_icons.dart';
 
 class TroubleshootingScreen extends StatelessWidget {
   const TroubleshootingScreen({super.key});
@@ -109,7 +110,14 @@ class TroubleshootingScreen extends StatelessWidget {
         return Scaffold(
           body: CustomScrollView(
             slivers: [
-              SliverAppBar.large(
+              SliverAppBar(
+                floating: true,
+                leading: IconButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  icon: Icon(SolarLinearIcons.altArrowLeft),
+                ),
                 title: Text(AppLocalizations.of(context)!.troubleshooting),
               ),
               SliverToBoxAdapter(

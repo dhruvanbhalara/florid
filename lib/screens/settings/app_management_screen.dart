@@ -15,6 +15,7 @@ import 'package:local_auth/local_auth.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
+import 'package:solar_icon_pack/solar_linear_icons.dart';
 
 class AppManagementScreen extends StatefulWidget {
   const AppManagementScreen({super.key});
@@ -290,7 +291,16 @@ class _AppManagementScreenState extends State<AppManagementScreen> {
         return Scaffold(
           body: CustomScrollView(
             slivers: [
-              SliverAppBar.large(title: Text(localizations.app_management)),
+              SliverAppBar(
+                floating: true,
+                leading: IconButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  icon: Icon(SolarLinearIcons.altArrowLeft),
+                ),
+                title: Text(localizations.app_management),
+              ),
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 16.0),
