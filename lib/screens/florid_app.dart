@@ -70,6 +70,17 @@ class _FloridAppState extends State<FloridApp> {
     try {
       final repositoriesProvider = context.read<RepositoriesProvider>();
       final appProvider = context.read<AppProvider>();
+      final apiService = context.read<FDroidApiService>();
+
+      // If the local repository database already contains app data,
+      // do not force a network sync on startup.
+      final isDbPopulated = await apiService.isDatabasePopulated();
+      if (isDbPopulated) {
+        debugPrint(
+          '✅ Local repository database already populated; skipping startup auto-sync',
+        );
+        return;
+      }
 
       // Check if there are enabled repositories that have never been synced
       final unsyncedRepos = repositoriesProvider.repositories
@@ -89,7 +100,6 @@ class _FloridAppState extends State<FloridApp> {
       }
 
       // Sync repositories in the background
-      final apiService = context.read<FDroidApiService>();
       await apiService.clearRepositoryCache();
       await appProvider.refreshAll(repositoriesProvider: repositoriesProvider);
 

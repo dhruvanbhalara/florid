@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
-var kAppColor = Color(0xFF74DAB6);
+var kAppColor = Color(0xFFF33333);
 String kAppName = 'Florid';
 const kAppPackageName = 'com.nahnah.florid';
 

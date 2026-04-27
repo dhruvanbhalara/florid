@@ -558,14 +558,9 @@ class AppProvider extends ChangeNotifier {
         await repositoriesProvider.loadRepositories();
       }
 
-      // Fetch all apps from the robust database service, which caches them centrally
-      // Increase limit slightly since we'll filter out disabled ones
-      final allApps = await _apiService.fetchApps(limit: limit * 4);
-      allApps.sort((a, b) {
-        final aUpdated = a.lastUpdated?.millisecondsSinceEpoch ?? 0;
-        final bUpdated = b.lastUpdated?.millisecondsSinceEpoch ?? 0;
-        return bUpdated.compareTo(aUpdated);
-      });
+      final allApps = await _apiService.fetchRecentlyUpdatedApps(
+        limit: limit * 4,
+      );
 
       if (repositoriesProvider != null) {
         final customRepos = repositoriesProvider.enabledRepositories;
@@ -934,34 +929,8 @@ class AppProvider extends ChangeNotifier {
         }).toList();
       }
 
-      // Apply sorting
-      switch (filters.sortBy) {
-        case SortOption.nameAsc:
-          filteredResults.sort((a, b) => a.name.compareTo(b.name));
-          break;
-        case SortOption.nameDesc:
-          filteredResults.sort((a, b) => b.name.compareTo(a.name));
-          break;
-        case SortOption.dateAddedDesc:
-          filteredResults.sort((a, b) {
-            final dateA = a.added ?? DateTime(1970);
-            final dateB = b.added ?? DateTime(1970);
-            return dateB.compareTo(dateA);
-          });
-          break;
-        case SortOption.dateUpdatedDesc:
-          filteredResults.sort((a, b) {
-            final dateA = a.lastUpdated ?? DateTime(1970);
-            final dateB = b.lastUpdated ?? DateTime(1970);
-            return dateB.compareTo(dateA);
-          });
-          break;
-        case SortOption.relevance:
-          // Keep search relevance order (default from API)
-          break;
-      }
-
       _allSearchResults = filteredResults;
+      _searchResults = [];
       _searchCurrentPage = 0;
       _searchLoadMoreState = LoadingState.idle;
       _loadSearchResultsPage();
@@ -971,6 +940,53 @@ class AppProvider extends ChangeNotifier {
       _searchState = LoadingState.error;
     }
     notifyListeners();
+  }
+
+  /// Fetches autocomplete suggestions for the current query from the local DB.
+  Future<List<String>> fetchSearchSuggestions(
+    String query, {
+    RepositoriesProvider? repositoriesProvider,
+    int limit = 10,
+  }) async {
+    final trimmedQuery = query.trim();
+    if (trimmedQuery.isEmpty) {
+      return [];
+    }
+
+    final enabledRepoUrls = <String>{};
+    if (repositoriesProvider != null) {
+      if (repositoriesProvider.repositories.isEmpty &&
+          !repositoriesProvider.isLoading) {
+        await repositoriesProvider.loadRepositories();
+      }
+      enabledRepoUrls.addAll(
+        repositoriesProvider.enabledRepositories.map((repo) => repo.url),
+      );
+    }
+
+    final suggestions = await _apiService.searchAppNameSuggestionsDatabaseOnly(
+      trimmedQuery,
+      limit: limit * 2,
+    );
+
+    if (enabledRepoUrls.isEmpty) {
+      return suggestions.take(limit).toList();
+    }
+
+    final filtered = <String>[];
+    for (final name in suggestions) {
+      final apps = await _apiService.searchAppsDatabaseOnly(name);
+      if (apps.any(
+        (app) =>
+            app.repositoryUrl == 'https://f-droid.org/repo' ||
+            enabledRepoUrls.contains(app.repositoryUrl),
+      )) {
+        filtered.add(name);
+        if (filtered.length >= limit) break;
+      }
+    }
+
+    return filtered;
   }
 
   /// Loads the current page of search results

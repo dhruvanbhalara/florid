@@ -18,7 +18,6 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:solar_icon_pack/solar_bold_icons.dart';
 import 'package:solar_icon_pack/solar_icon_pack.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -638,6 +637,7 @@ class _AppDetailsScreenState extends State<AppDetailsScreen>
   Widget build(BuildContext context) {
     final isDarkKnight =
         context.read<SettingsProvider>().themeStyle == ThemeStyle.darkKnight;
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     return NotificationListener<ScrollNotification>(
       onNotification: (notification) {
         // Compute collapsed state synchronously but schedule state change
@@ -701,7 +701,11 @@ class _AppDetailsScreenState extends State<AppDetailsScreen>
                           gradient: LinearGradient(
                             colors: [
                               Colors.transparent,
-                              Theme.of(context).colorScheme.surfaceContainerLowest,
+                              isDarkMode
+                                  ? Theme.of(
+                                      context,
+                                    ).colorScheme.surfaceContainerLowest
+                                  : Theme.of(context).colorScheme.surface,
                             ],
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
@@ -721,7 +725,11 @@ class _AppDetailsScreenState extends State<AppDetailsScreen>
                                   : Theme.of(
                                       context,
                                     ).colorScheme.primaryContainer,
-                              Theme.of(context).colorScheme.surfaceContainerLowest,
+                              isDarkMode
+                                  ? Theme.of(
+                                      context,
+                                    ).colorScheme.surfaceContainerLowest
+                                  : Theme.of(context).colorScheme.surface,
                             ],
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,

@@ -1,11 +1,15 @@
 import 'package:florid/l10n/app_localizations.dart';
 import 'package:florid/providers/settings_provider.dart';
+import 'package:florid/widgets/app_list_item.dart';
+import 'package:florid/widgets/m_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
+import 'package:solar_icon_pack/solar_icon_pack.dart';
 
 import '../../providers/app_provider.dart';
+import '../app_details/app_details_screen.dart';
 import 'app_section_viewer.dart';
 
 class CategoriesScreen extends StatefulWidget {
@@ -17,6 +21,8 @@ class CategoriesScreen extends StatefulWidget {
 
 class _CategoriesScreenState extends State<CategoriesScreen>
     with AutomaticKeepAliveClientMixin {
+  final Set<String> _requestedCategoryLoads = {};
+
   @override
   bool get wantKeepAlive => true;
 
@@ -30,12 +36,90 @@ class _CategoriesScreenState extends State<CategoriesScreen>
 
   void _loadData() {
     final appProvider = context.read<AppProvider>();
+    _requestedCategoryLoads.clear();
     appProvider.fetchCategories();
   }
 
   Future<void> _onRefresh() async {
+    _requestedCategoryLoads.clear();
     final appProvider = context.read<AppProvider>();
     await appProvider.fetchCategories();
+  }
+
+  void _ensureCategoryAppsLoaded(String category) {
+    final appProvider = context.read<AppProvider>();
+    if (appProvider.categoryApps.containsKey(category) ||
+        _requestedCategoryLoads.contains(category)) {
+      return;
+    }
+
+    _requestedCategoryLoads.add(category);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      appProvider.fetchAppsByCategory(category);
+    });
+  }
+
+  void _openCategoryViewer(BuildContext context, String category) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => AppSectionViewer(
+          title: category,
+          subtitle: AppLocalizations.of(
+            context,
+          )!.section_app_count(category.length),
+          stateSelector: (appProvider) => appProvider.categoryAppsState,
+          appsSelector: (appProvider) =>
+              appProvider.categoryApps[category] ?? [],
+          errorSelector: (appProvider) => appProvider.categoryAppsError,
+          onRefresh: (context) async {
+            final appProvider = context.read<AppProvider>();
+            appProvider.categoryApps.remove(category);
+            await appProvider.fetchAppsByCategory(category);
+          },
+          loadingMessage: AppLocalizations.of(context)!.loading_apps,
+          emptyMessage: AppLocalizations.of(
+            context,
+          )!.no_apps_in_category(category),
+          emptyIcon: Symbols.apps,
+          showInstallStatus: true,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildShowMoreCard(BuildContext context, String category) {
+    return SizedBox(
+      width: 150,
+      child: Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () => _openCategoryViewer(context, category),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  AppLocalizations.of(context)!.show_more,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(width: 12),
+                Icon(
+                  SolarLinearIcons.arrowRight,
+                  size: 26,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -123,282 +207,162 @@ class _CategoriesScreenState extends State<CategoriesScreen>
     }
 
     return Scaffold(
-      body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: _onRefresh,
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                GridView.builder(
-                  padding: const EdgeInsets.all(16),
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                    // crossAxisCount:
-                    //     MediaQuery.sizeOf(context).width < Responsive.largeWidth
-                    //     ? 2
-                    //     : 3,
-                    maxCrossAxisExtent: 300,
-                    crossAxisSpacing: 8,
-                    mainAxisSpacing: 8,
-                    childAspectRatio: 2.5,
-                  ),
-                  itemCount: categories.length,
-                  itemBuilder: (context, index) {
-                    final category = categories[index];
-        
-                    return _CategoryCard(
-                      category: category,
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => AppSectionViewer(
-                              title: category,
-                              subtitle: AppLocalizations.of(
+      body: RefreshIndicator(
+        onRefresh: _onRefresh,
+        child: CustomScrollView(
+          slivers: [
+            SliverAppBar(
+              floating: true,
+              title: Text(AppLocalizations.of(context)!.categories),
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.only(bottom: 16),
+              sliver: SliverList(
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  if (index.isOdd) {
+                    return const SizedBox(height: 8);
+                  }
+                  final categoryIndex = index ~/ 2;
+                  final category = categories[categoryIndex];
+                  final categoryApps =
+                      context.watch<AppProvider>().categoryApps[category] ?? [];
+                  final appProvider = context.read<AppProvider>();
+                  if (state == LoadingState.success) {
+                    _ensureCategoryAppsLoaded(category);
+                  }
+                  final isCategoryLoading =
+                      appProvider.categoryAppsState == LoadingState.loading &&
+                      !appProvider.categoryApps.containsKey(category);
+                  final isCategoryError =
+                      appProvider.categoryAppsState == LoadingState.error &&
+                      !appProvider.categoryApps.containsKey(category);
+                  final displayedApps = categoryApps.length > 10
+                      ? categoryApps.sublist(0, 10)
+                      : categoryApps;
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      MListHeader(
+                        title: category,
+                        onTap: () => _openCategoryViewer(context, category),
+                        subtitle: categoryApps.isNotEmpty
+                            ? AppLocalizations.of(
                                 context,
-                              )!.section_app_count(category.length),
-                              stateSelector: (appProvider) =>
-                                  appProvider.categoryAppsState,
-                              appsSelector: (appProvider) =>
-                                  appProvider.categoryApps[category] ?? [],
-                              errorSelector: (appProvider) =>
-                                  appProvider.categoryAppsError,
-                              onRefresh: (context) async {
-                                final appProvider = context.read<AppProvider>();
-                                appProvider.categoryApps.remove(category);
-                                await appProvider.fetchAppsByCategory(category);
-                              },
-                              loadingMessage: AppLocalizations.of(
-                                context,
-                              )!.loading_apps,
-                              emptyMessage: AppLocalizations.of(
+                              )!.section_app_count(categoryApps.length)
+                            : null,
+                        trailing: IconButton(
+                          onPressed: () =>
+                              _openCategoryViewer(context, category),
+                          icon: const Icon(SolarLinearIcons.arrowRight),
+                        ),
+                      ),
+                      if (isCategoryLoading) ...[
+                        const SizedBox(height: 160),
+                        const Center(
+                          child: CircularProgressIndicator(year2023: false),
+                        ),
+                      ] else if (isCategoryError) ...[
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.failed_to_load_apps,
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                ),
+                              ),
+                              ElevatedButton(
+                                onPressed: () {
+                                  appProvider.categoryApps.remove(category);
+                                  appProvider.fetchAppsByCategory(category);
+                                },
+                                child: Text(
+                                  AppLocalizations.of(context)!.retry,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                      ] else if (categoryApps.isEmpty) ...[
+                        SizedBox(
+                          height: 160,
+                          child: Center(
+                            child: Text(
+                              AppLocalizations.of(
                                 context,
                               )!.no_apps_in_category(category),
-                              emptyIcon: Symbols.apps,
-                              showInstallStatus: true,
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context).textTheme.bodyMedium,
                             ),
                           ),
-                        );
-                      },
-                    ).animate().fadeIn(duration: 300.ms, delay: (10 * index).ms);
-                  },
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _CategoryCard extends StatelessWidget {
-  final String category;
-  final VoidCallback onTap;
-
-  const _CategoryCard({required this.category, required this.onTap});
-
-  IconData _getCategoryIcon(String category) {
-    switch (category.toLowerCase()) {
-      case 'ai chat':
-        return Symbols.robot_2;
-      case 'app store & updater':
-        return Symbols.store;
-      case 'bookmark':
-        return Symbols.bookmark;
-      case 'browser':
-        return Symbols.globe;
-      case 'calculator':
-        return Symbols.calculate;
-      case 'calendar & agenda':
-        return Symbols.calendar_clock;
-      case 'cloud storage & file sync':
-        return Symbols.cloud;
-      case 'dns & hosts':
-        return Symbols.dns;
-      case 'ebook reader':
-        return Symbols.book;
-      case 'draw':
-        return Symbols.draw;
-      case 'email':
-        return Symbols.email;
-      case 'file encryption & vault':
-        return Symbols.encrypted;
-      case 'file transfer':
-        return Symbols.drive_folder_upload;
-      case 'finance manager':
-        return Symbols.finance;
-      case 'forum':
-        return Symbols.forum;
-      case 'gallery':
-        return Symbols.photo_library;
-      case 'habit tracker':
-        return Symbols.fitness_center;
-      case 'icon pack':
-        return Symbols.apps;
-      case 'keyboard & ime':
-        return Symbols.keyboard;
-      case 'launcher':
-        return Symbols.home;
-      case 'local media player':
-        return Symbols.play_circle;
-      case 'location tracker & sharer':
-        return Symbols.gps_fixed;
-      case 'messaging':
-        return Symbols.message;
-      case 'music practice tool':
-        return Symbols.music_note;
-      case 'news':
-        return Symbols.newspaper;
-      case 'note':
-        return Symbols.note;
-      case 'online media player':
-        return Symbols.connected_tv;
-      case 'pass wallet':
-        return Symbols.passkey;
-      case 'password & 2fa':
-        return Symbols.password_2;
-      case 'games':
-        return Symbols.sports_esports;
-      case 'multimedia':
-        return Symbols.perm_media;
-      case 'internet':
-        return Symbols.language;
-      case 'system':
-        return Symbols.settings;
-      case 'phone & sms':
-        return Symbols.phone;
-      case 'development':
-        return Symbols.code;
-      case 'office':
-        return Symbols.business;
-      case 'graphics':
-        return Symbols.palette;
-      case 'security':
-        return Symbols.security;
-      case 'reading':
-        return Symbols.menu_book;
-      case 'science & education':
-        return Symbols.school;
-      case 'sports & health':
-        return Symbols.fitness_center;
-      case 'navigation':
-        return Symbols.navigation;
-      case 'money':
-        return Symbols.attach_money;
-      case 'writing':
-        return Symbols.edit;
-      case 'time':
-        return Symbols.schedule;
-      case 'theming':
-        return Symbols.palette;
-      case 'connectivity':
-        return Symbols.wifi;
-      case 'battery':
-        return Symbols.battery_4_bar_rounded;
-      case 'clock':
-        return Symbols.watch_later;
-      case 'contact':
-        return Symbols.person_rounded;
-      case 'firewall':
-        return Symbols.shield;
-      case 'flashlight':
-        return Symbols.flashlight_on_rounded;
-      case 'food':
-        return Symbols.food_bank_rounded;
-      case 'inventory':
-        return Symbols.inventory_2_rounded;
-      case 'network analyzer':
-        return Symbols.analytics_rounded;
-      case 'podcast':
-        return Symbols.podcasts_rounded;
-      case 'public transport':
-        return Symbols.bus_railway_rounded;
-      case 'radio':
-        return Symbols.radio_rounded;
-      case 'recipe manager':
-        return Symbols.chef_hat_rounded;
-      case 'religion':
-        return Symbols.folded_hands_rounded;
-      case 'remote controller':
-        return Symbols.remote_gen_rounded;
-      case 'shopping list':
-        return Symbols.shopping_basket_rounded;
-      case 'social network':
-        return Symbols.share_rounded;
-      case 'task':
-        return Symbols.check_circle_rounded;
-      case 'text editor':
-        return Symbols.edit_rounded;
-      case 'translation & dictionary':
-        return Symbols.translate_rounded;
-      case 'unit convertor':
-        return Symbols.currency_exchange;
-      case 'vpn & proxy':
-        return Symbols.vpn_key_rounded;
-      case 'voice & video chat':
-        return Symbols.videocam_rounded;
-      case 'wallet':
-        return Symbols.account_balance_wallet_rounded;
-      case 'wallpaper':
-        return Symbols.wallpaper_rounded;
-      case 'weather':
-        return Symbols.wb_sunny_rounded;
-      case 'workout':
-        return Symbols.fitness_center_rounded;
-      default:
-        return Symbols.category;
-    }
-  }
-
-  Color _getCategoryColor(String category) {
-    final colors = [
-      Colors.blue,
-      Colors.green,
-      Colors.orange,
-      Colors.purple,
-      Colors.red,
-      Colors.teal,
-      Colors.amber,
-      Colors.indigo,
-      Colors.pink,
-      Colors.cyan,
-    ];
-
-    return colors[category.hashCode % colors.length];
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final categoryColor = _getCategoryColor(category);
-
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(24),
-      child: Card(
-        margin: EdgeInsets.zero,
-        elevation: 0,
-        color: categoryColor.withValues(alpha: 0.2),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            spacing: 8,
-            children: [
-              Icon(_getCategoryIcon(category), size: 32, color: categoryColor),
-              Expanded(
-                child: Text(
-                  category,
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    color: theme.colorScheme.onSurface,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
+                        ),
+                      ] else ...[
+                        SizedBox(
+                          height: 200,
+                          child: Card(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 8.0,
+                              ),
+                              child: GridView.builder(
+                                scrollDirection: Axis.horizontal,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                ),
+                                gridDelegate:
+                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 2,
+                                      mainAxisSpacing: 8,
+                                      crossAxisSpacing: 8,
+                                      childAspectRatio: 0.3,
+                                    ),
+                                itemCount:
+                                    displayedApps.length +
+                                    (categoryApps.length > 10 ? 1 : 0),
+                                itemBuilder: (context, itemIndex) {
+                                  if (itemIndex < displayedApps.length) {
+                                    final app = displayedApps[itemIndex];
+                                    final heroTag =
+                                        'category_${category}_$itemIndex';
+                                    return AppListItem(
+                                      key: ValueKey(app.packageName),
+                                      app: app,
+                                      heroTag: heroTag,
+                                      showInstallStatus: false,
+                                      onTap: () {
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                AppDetailsScreen(
+                                                  app: app,
+                                                  heroTag: heroTag,
+                                                ),
+                                          ),
+                                        );
+                                      },
+                                    ).animate().fadeIn(
+                                      duration: 300.ms,
+                                      delay: (50 * itemIndex).ms,
+                                    );
+                                  }
+                                  return _buildShowMoreCard(context, category);
+                                },
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  );
+                }, childCount: categories.length * 2 - 1),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

@@ -152,6 +152,11 @@ class FDroidApiService {
   /// Checks if a repository URL has been configured
   bool hasRepositoryUrl() => repoIndexUrl != null;
 
+  /// Returns whether the local repository database has any cached apps.
+  Future<bool> isDatabasePopulated() async {
+    return await _databaseService.isPopulated();
+  }
+
   /// Returns the cache file location for the repo index.
   Future<File> _cacheFile() async {
     final dir = await getApplicationDocumentsDirectory();
@@ -761,6 +766,31 @@ class FDroidApiService {
     }
   }
 
+  /// Fetches recently updated apps
+  Future<List<FDroidApp>> fetchRecentlyUpdatedApps({int limit = 50}) async {
+    try {
+      final isPopulated = await _databaseService.isPopulated();
+
+      if (isPopulated) {
+        return await _databaseService.getRecentlyUpdatedApps(limit: limit);
+      } else {
+        final repository = await fetchRepository();
+        final updatedApps =
+            repository.apps.values
+                .where((app) => app.lastUpdated != null)
+                .toList()
+              ..sort((a, b) {
+                final aUpdated = a.lastUpdated?.millisecondsSinceEpoch ?? 0;
+                final bUpdated = b.lastUpdated?.millisecondsSinceEpoch ?? 0;
+                return bUpdated.compareTo(aUpdated);
+              });
+        return updatedApps.take(limit).toList();
+      }
+    } catch (e) {
+      throw Exception('Error fetching recently updated apps: $e');
+    }
+  }
+
   /// Fetches apps by category
   Future<List<FDroidApp>> fetchAppsByCategory(String category) async {
     try {
@@ -822,6 +852,21 @@ class FDroidApiService {
       return await _databaseService.searchApps(query);
     } catch (e) {
       throw Exception('Error searching apps in database: $e');
+    }
+  }
+
+  /// Fetches app name suggestions from the local database.
+  Future<List<String>> searchAppNameSuggestionsDatabaseOnly(
+    String query, {
+    int limit = 10,
+  }) async {
+    try {
+      return await _databaseService.searchAppNameSuggestions(
+        query,
+        limit: limit,
+      );
+    } catch (e) {
+      throw Exception('Error searching app name suggestions from database: $e');
     }
   }
 

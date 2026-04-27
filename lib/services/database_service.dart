@@ -554,6 +554,69 @@ class DatabaseService {
     return apps;
   }
 
+  /// Gets recently updated apps ordered by last update date
+  Future<List<FDroidApp>> getRecentlyUpdatedApps({int limit = 50}) async {
+    final db = await database;
+    final appMaps = await db.rawQuery(
+      '''
+      SELECT a.*, r.url as repository_url FROM $_appsTable a
+      LEFT JOIN $_repositoriesTable r ON a.repository_id = r.id
+      WHERE a.last_updated IS NOT NULL
+      ORDER BY a.last_updated DESC
+      LIMIT ?
+    ''',
+      [limit],
+    );
+
+    final packageNames = appMaps
+        .map((m) => m['package_name'] as String)
+        .toList();
+
+    if (packageNames.isEmpty) return [];
+
+    final categoriesResults = await db.query(
+      _appCategoriesTable,
+      where:
+          'package_name IN (${List.filled(packageNames.length, '?').join(',')})',
+      whereArgs: packageNames,
+    );
+
+    final versionsResults = await db.query(
+      _versionsTable,
+      where:
+          'package_name IN (${List.filled(packageNames.length, '?').join(',')})',
+      whereArgs: packageNames,
+      orderBy: 'version_code DESC',
+    );
+
+    final categoriesByPackage = <String, List<String>>{};
+    for (final catRow in categoriesResults) {
+      final pkg = catRow['package_name'] as String;
+      final cat = catRow['category'] as String;
+      categoriesByPackage.putIfAbsent(pkg, () => []).add(cat);
+    }
+
+    final versionsByPackage = <String, List<Map<String, dynamic>>>{};
+    for (final verRow in versionsResults) {
+      final pkg = verRow['package_name'] as String;
+      versionsByPackage.putIfAbsent(pkg, () => []).add(verRow);
+    }
+
+    final apps = <FDroidApp>[];
+    for (final appMap in appMaps) {
+      final packageName = appMap['package_name'] as String;
+      final app = _mapToAppWithData(
+        appMap,
+        categoriesByPackage[packageName] ?? [],
+        versionsByPackage[packageName] ?? [],
+        repositoryUrl: appMap['repository_url'] as String?,
+      );
+      apps.add(app);
+    }
+
+    return apps;
+  }
+
   /// Gets all categories
   Future<List<String>> getCategories() async {
     final db = await database;
@@ -884,6 +947,46 @@ class DatabaseService {
     }
 
     return apps;
+  }
+
+  /// Searches app names for suggestions from the local database.
+  Future<List<String>> searchAppNameSuggestions(
+    String query, {
+    int limit = 10,
+  }) async {
+    final db = await database;
+    final normalizedQuery = query.toLowerCase().replaceAll('-', '');
+    final exactQuery = query.toLowerCase();
+    final startsWithTerm = '$normalizedQuery%';
+    final containsTerm = '%$normalizedQuery%';
+
+    final rows = await db.rawQuery(
+      '''
+      SELECT DISTINCT a.name
+      FROM $_appsTable a
+      WHERE LOWER(a.name) LIKE ?
+         OR REPLACE(LOWER(a.name), '-', '') LIKE ?
+      ORDER BY
+        CASE
+          WHEN LOWER(a.name) = ? THEN 0
+          WHEN REPLACE(LOWER(a.name), '-', '') LIKE ? THEN 1
+          WHEN LOWER(a.name) LIKE ? THEN 2
+          ELSE 3
+        END,
+        a.name ASC
+      LIMIT ?
+      ''',
+      [
+        startsWithTerm,
+        startsWithTerm,
+        exactQuery,
+        startsWithTerm,
+        containsTerm,
+        limit,
+      ],
+    );
+
+    return rows.map((row) => row['name'] as String).toList();
   }
 
   /// Gets apps from a specific repository URL by package names.

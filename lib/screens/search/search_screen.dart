@@ -19,7 +19,7 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
-  final TextEditingController _searchController = TextEditingController();
+  final SearchController _searchController = SearchController();
   final FocusNode _searchFocus = FocusNode();
   SearchFilters _filters = const SearchFilters();
 
@@ -65,14 +65,15 @@ class _SearchScreenState extends State<SearchScreen> {
     _searchController.dispose();
     _searchFocus.dispose();
     super.dispose();
-    _scrollController.dispose();
   }
 
   void _performSearch(String query) {
+    final trimmedQuery = query.trim();
+    _searchController.text = trimmedQuery;
     final appProvider = context.read<AppProvider>();
     final repositoriesProvider = context.read<RepositoriesProvider>();
     appProvider.searchApps(
-      query,
+      trimmedQuery,
       repositoriesProvider: repositoriesProvider,
       filters: _filters,
     );
@@ -82,6 +83,22 @@ class _SearchScreenState extends State<SearchScreen> {
     _searchController.clear();
     final appProvider = context.read<AppProvider>();
     appProvider.clearSearch();
+    setState(() {});
+  }
+
+  List<String> _filteredSuggestions() {
+    final input = _searchController.text.trim().toLowerCase();
+    if (input.isEmpty) {
+      return _SearchSuggestions._suggestions;
+    }
+
+    return _SearchSuggestions._suggestions
+        .where(
+          (suggestion) =>
+              suggestion.toLowerCase().contains(input) ||
+              suggestion.toLowerCase().startsWith(input),
+        )
+        .toList();
   }
 
   void _openFilters() {
@@ -115,78 +132,70 @@ class _SearchScreenState extends State<SearchScreen> {
         }
       },
       child: Scaffold(
-        extendBody: true,
-        bottomNavigationBar: Padding(
-          padding: MediaQuery.of(context).viewInsets,
-          child: BottomAppBar(
-            color: Colors.transparent,
-            child: TextField(
-              controller: _searchController,
-              focusNode: _searchFocus,
-              decoration: InputDecoration(
-                hintText: localizations.search_fdroid_apps,
-                prefixIcon: const Icon(Symbols.search),
-                suffixIcon: _searchController.text.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Symbols.close),
-                        onPressed: _clearSearch,
-                      )
-                    : null,
-              ),
-              textInputAction: TextInputAction.search,
-              onSubmitted: _performSearch,
-              onChanged: (query) {
-                // Rebuild to show/hide clear button
-                setState(() {});
-
-                // Debounced search - search after user stops typing
-                if (query.trim().isNotEmpty) {
-                  Future.delayed(const Duration(milliseconds: 500), () {
-                    if (_searchController.text.trim() == query.trim()) {
-                      _performSearch(query.trim());
-                    }
-                  });
-                } else {
-                  _clearSearch();
-                }
-              },
-            ),
-          ),
-        ),
         body: CustomScrollView(
           controller: _scrollController,
           slivers: [
             SliverAppBar(
               floating: true,
-              title: Consumer<AppProvider>(
-                builder: (context, appProvider, _) {
-                  final results = appProvider.searchResults;
-                  final query = appProvider.searchQuery;
+              title: SearchAnchor.bar(
+                barLeading: const Icon(Symbols.search),
+                barHintText: localizations.search,
+                barElevation: WidgetStatePropertyAll(0),
+                searchController: _searchController,
+                barTrailing: [
+                  if (_searchController.text.isNotEmpty)
+                    IconButton(
+                      icon: const Icon(Symbols.close),
+                      onPressed: _clearSearch,
+                    ),
+                  Badge(
+                    isLabelVisible: _filters.hasActiveFilters,
+                    label: Text(_filters.activeFilterCount.toString()),
+                    child: IconButton.filledTonal(
+                      onPressed: _openFilters,
+                      icon: const Icon(Symbols.filter_list),
+                      tooltip: localizations.filters,
+                    ),
+                  ),
+                ],
+                onChanged: (query) {
+                  setState(() {});
+                },
+                onSubmitted: (query) {
+                  _searchController.closeView(query.trim());
+                  _performSearch(query);
+                },
+                suggestionsBuilder: (context, controller) async {
+                  final query = controller.text.trim();
+                  final appProvider = context.read<AppProvider>();
+                  final repositoriesProvider = context
+                      .read<RepositoriesProvider>();
+                  final suggestions = await appProvider.fetchSearchSuggestions(
+                    query,
+                    repositoriesProvider: repositoriesProvider,
+                    limit: 8,
+                  );
 
-                  if (query.isNotEmpty && results.isNotEmpty) {
-                    return Text(
-                      localizations.search_results_for_query(
-                        appProvider.totalSearchResults,
-                        query,
-                      ),
-                      style: Theme.of(context).textTheme.titleMedium,
-                    );
+                  // If the text changed while waiting for db results, ignore stale results.
+                  if (controller.text.trim() != query) {
+                    return const <Widget>[];
                   }
-                  return const SizedBox.shrink();
+
+                  if (suggestions.isEmpty) {
+                    return [ListTile(title: Text('No suggestions found'))];
+                  }
+
+                  return suggestions.map((suggestion) {
+                    return ListTile(
+                      title: Text(suggestion),
+                      onTap: () {
+                        controller.closeView(suggestion);
+                        _performSearch(suggestion);
+                      },
+                    );
+                  }).toList();
                 },
               ),
-              actions: [
-                Badge(
-                  isLabelVisible: _filters.hasActiveFilters,
-                  label: Text(_filters.activeFilterCount.toString()),
-                  child: IconButton.filledTonal(
-                    onPressed: _openFilters,
-                    icon: const Icon(Symbols.filter_list),
-                    tooltip: localizations.filters,
-                  ),
-                ),
-                SizedBox(width: 8),
-              ],
             ),
             SliverToBoxAdapter(
               child: Consumer<AppProvider>(
@@ -202,8 +211,12 @@ class _SearchScreenState extends State<SearchScreen> {
                       ? 96.0
                       : 16.0;
 
-                  // Show initial state
+                  // Show initial state or typed suggestions before submit.
                   if (query.isEmpty) {
+                    final suggestions = _searchController.text.trim().isNotEmpty
+                        ? _filteredSuggestions()
+                        : null;
+
                     return Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -219,8 +232,8 @@ class _SearchScreenState extends State<SearchScreen> {
                         ),
                         const SizedBox(height: 32),
                         Card(
-                          // margin: const EdgeInsets.symmetric(horizontal: 16),
                           child: _SearchSuggestions(
+                            suggestions: suggestions,
                             onSuggestionTap: (suggestion) {
                               FocusScope.of(context).unfocus();
                               setState(() {
@@ -240,8 +253,8 @@ class _SearchScreenState extends State<SearchScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          CircularProgressIndicator(),
-                          SizedBox(height: 16),
+                          const CircularProgressIndicator(),
+                          const SizedBox(height: 16),
                           Text(AppLocalizations.of(context)!.searching),
                         ],
                       ),
@@ -384,8 +397,9 @@ class _SearchScreenState extends State<SearchScreen> {
 
 class _SearchSuggestions extends StatelessWidget {
   final Function(String) onSuggestionTap;
+  final List<String>? suggestions;
 
-  const _SearchSuggestions({required this.onSuggestionTap});
+  const _SearchSuggestions({required this.onSuggestionTap, this.suggestions});
 
   static const List<String> _suggestions = [
     'browser',
@@ -405,13 +419,18 @@ class _SearchSuggestions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
+    final displaySuggestions = suggestions ?? _suggestions;
+    final title = suggestions == null
+        ? localizations.popular_searches
+        : 'Search suggestions';
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 16.0),
           child: Text(
-            localizations.popular_searches,
+            title,
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
@@ -419,21 +438,31 @@ class _SearchSuggestions extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 12),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          alignment: WrapAlignment.center,
-          children: _suggestions.map((suggestion) {
-            return ActionChip(
-              label: Text(suggestion),
-              onPressed: () => onSuggestionTap(suggestion),
-              backgroundColor: Theme.of(
-                context,
-              ).colorScheme.surfaceContainerHighest,
-              side: BorderSide.none,
-            );
-          }).toList(),
-        ),
+        if (displaySuggestions.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16.0),
+            child: Text(
+              'No suggestions found',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+          )
+        else
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            alignment: WrapAlignment.center,
+            children: displaySuggestions.map((suggestion) {
+              return ActionChip(
+                label: Text(suggestion),
+                onPressed: () => onSuggestionTap(suggestion),
+                backgroundColor: Theme.of(
+                  context,
+                ).colorScheme.surfaceContainerHighest,
+                side: BorderSide.none,
+              );
+            }).toList(),
+          ),
       ],
     );
   }
