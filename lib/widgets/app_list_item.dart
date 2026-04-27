@@ -2,6 +2,7 @@ import 'package:florid/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
+import 'package:solar_icon_pack/solar_icon_pack.dart';
 
 import '../models/fdroid_app.dart';
 import '../providers/app_provider.dart';
@@ -17,6 +18,8 @@ class AppListItem extends StatelessWidget {
   final bool showInstallStatus;
   final bool showFavorite;
   final bool showDescription;
+  final bool showRanking;
+  final String? rankingNumber;
 
   const AppListItem({
     super.key,
@@ -28,86 +31,129 @@ class AppListItem extends StatelessWidget {
     this.showInstallStatus = true,
     this.showFavorite = false,
     this.showDescription = true,
+    this.showRanking = false,
+    this.rankingNumber,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final localizations = AppLocalizations.of(context)!;
-    return ListTile(
+    return InkWell(
       onTap: onTap,
       onLongPress: () => _showQuickViewModal(context),
-      contentPadding: const EdgeInsets.symmetric(vertical: 6),
-      leading: Consumer2<AppProvider, DownloadProvider>(
-        builder: (context, appProvider, downloadProvider, _) {
-          final version = app.latestVersion;
-          final isDownloading = version != null
-              ? downloadProvider.isDownloading(
-                  app.packageName,
-                  version.versionName,
-                )
-              : false;
-          final progress = version != null
-              ? downloadProvider.getProgress(
-                  app.packageName,
-                  version.versionName,
-                )
-              : 0.0;
-          return SizedBox(
-            width: 72,
-            height: 72,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                AnimatedOpacity(
-                  opacity: isDownloading ? 1.0 : 0.0,
-                  duration: const Duration(milliseconds: 300),
-                  child: SizedBox(
-                    width: 86,
-                    height: 86,
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        value: isDownloading ? progress : null,
-                        strokeWidth: 2,
-                        backgroundColor:
-                            theme.colorScheme.surfaceContainerHighest,
+      borderRadius: BorderRadius.circular(16),
+      child: Padding(
+        padding: const EdgeInsets.only(
+          left: 4.0,
+          top: 4.0,
+          bottom: 4.0,
+          right: 16.0,
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Consumer2<AppProvider, DownloadProvider>(
+              builder: (context, appProvider, downloadProvider, _) {
+                final version = app.latestVersion;
+                final isDownloading = version != null
+                    ? downloadProvider.isDownloading(
+                        app.packageName,
+                        version.versionName,
+                      )
+                    : false;
+                final progress = version != null
+                    ? downloadProvider.getProgress(
+                        app.packageName,
+                        version.versionName,
+                      )
+                    : 0.0;
+                return Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (showRanking)
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: Text(
+                          '$rankingNumber',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ),
+                    SizedBox(
+                      width: 72,
+                      height: 72,
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          AnimatedOpacity(
+                            opacity: isDownloading ? 1.0 : 0.0,
+                            duration: const Duration(milliseconds: 300),
+                            child: SizedBox(
+                              width: 86,
+                              height: 86,
+                              child: Center(
+                                child: CircularProgressIndicator(
+                                  value: isDownloading ? progress : null,
+                                  strokeWidth: 2,
+                                  backgroundColor:
+                                      theme.colorScheme.surfaceContainerHighest,
+                                ),
+                              ),
+                            ),
+                          ),
+                          AnimatedContainer(
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut,
+                            width: isDownloading ? 24 : 48,
+                            height: isDownloading ? 24 : 48,
+                            clipBehavior: Clip.antiAlias,
+                            decoration: const BoxDecoration(),
+                            child: Hero(
+                              tag: heroTag ?? app.packageName,
+                              child: AppDetailsIcon(app: app),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
-                ),
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeInOut,
-                  width: isDownloading ? 24 : 48,
-                  height: isDownloading ? 24 : 48,
-                  clipBehavior: Clip.antiAlias,
-                  decoration: BoxDecoration(),
-                  child: Hero(
-                    tag: heroTag ?? app.packageName,
-                    child: AppDetailsIcon(app: app),
-                  ),
-                ),
-              ],
+                  ],
+                );
+              },
             ),
-          );
-        },
-      ),
-      title: Text(
-        app.name,
-        style: theme.textTheme.titleMedium?.copyWith(
-          fontWeight: FontWeight.w600,
-        ),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-      subtitle: showDescription
-          ? Text(app.summary, maxLines: 2, overflow: TextOverflow.ellipsis)
-          : null,
-      trailing: showInstallStatus || showFavorite
-          ? Padding(
-              padding: const EdgeInsets.only(right: 8.0),
-              child: Consumer<AppProvider>(
-                builder: (context, appProvider, _) {
+            const SizedBox(width: 4),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    app.name,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  if (showDescription) ...[
+                    Text(
+                      app.summary,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.labelMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            if (showInstallStatus || showFavorite) ...[
+              const SizedBox(width: 12),
+              Consumer2<AppProvider, DownloadProvider>(
+                builder: (context, appProvider, downloadProvider, _) {
                   final isFavorite = appProvider.isFavorite(app.packageName);
 
                   return FutureBuilder<FDroidVersion?>(
@@ -120,6 +166,12 @@ class AppListItem extends StatelessWidget {
                       final installedApp = appProvider.getInstalledApp(
                         app.packageName,
                       );
+                      final isDownloading =
+                          latestVersion != null &&
+                          downloadProvider.isDownloading(
+                            app.packageName,
+                            latestVersion.versionName,
+                          );
 
                       // Check for real updates: not just rebuilds with same versionName or SHA256
                       final hasUpdate =
@@ -129,33 +181,46 @@ class AppListItem extends StatelessWidget {
                           latestVersion != null &&
                           installedApp.versionCode! <
                               latestVersion.versionCode &&
-                          // If SHA256 matches, it's the same build - no update needed
                           !(installedApp.sha256 != null &&
                               installedApp.sha256!.isNotEmpty &&
                               installedApp.sha256 == latestVersion.hash) &&
-                          // If versionName is available and matches, it's a rebuild - no update
-                          // If versionName is null on installed app, we can't compare so allow update
                           !(installedApp.versionName != null &&
                               installedApp.versionName ==
                                   latestVersion.versionName);
 
                       final statusWidget = showInstallStatus
-                          ? hasUpdate
-                                ? TextButton(
+                          ? isDownloading
+                                ? IconButton.filledTonal(
+                                    onPressed: () =>
+                                        downloadProvider.cancelDownload(
+                                          app.packageName,
+                                          latestVersion.versionName,
+                                        ),
+                                    icon: const Icon(Symbols.close),
+                                    tooltip: 'Cancel download',
+                                  )
+                                : hasUpdate
+                                ? IconButton.filledTonal(
                                     onPressed: onUpdate,
-                                    child: Text(localizations.update),
+                                    icon: const Icon(
+                                      SolarBoldIcons.downloadMinimalistic,
+                                    ),
+                                    tooltip: 'Update',
                                   )
                                 : isInstalled
                                 ? Icon(
-                                    Symbols.check_circle,
+                                    SolarBoldIcons.checkCircle,
                                     fill: 1,
-                                    color: Colors.green,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
                                   )
                                 : const SizedBox.shrink()
                           : const SizedBox.shrink();
 
                       return Row(
                         mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           if (showInstallStatus) statusWidget,
                           if (showFavorite)
@@ -178,16 +243,16 @@ class AppListItem extends StatelessWidget {
                   );
                 },
               ),
-            )
-          : null,
-      dense: true,
+            ],
+          ],
+        ),
+      ),
     );
   }
 
   void _showQuickViewModal(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      showDragHandle: true,
       isDismissible: true,
       builder: (context) => _QuickViewModal(app: app, onViewDetails: onTap),
     );
@@ -225,290 +290,294 @@ class _QuickViewModal extends StatelessWidget {
             ? downloadProvider.getProgress(app.packageName, version.versionName)
             : 0.0;
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Header with app icon and info
-            InkWell(
-              onTap: onViewDetails != null
-                  ? () {
-                      Navigator.pop(context);
-                      onViewDetails!();
-                    }
-                  : null,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16.0,
-                  vertical: 8.0,
-                ),
-                child: Row(
-                  spacing: 16,
-                  children: [
-                    AnimatedSize(
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeInOut,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          AnimatedOpacity(
-                            opacity: isDownloading ? 1.0 : 0.0,
-                            duration: const Duration(milliseconds: 300),
-                            child: SizedBox(
-                              width: 64,
-                              height: 64,
-                              child: CircularProgressIndicator(
-                                value: isDownloading ? progress : null,
-                                strokeWidth: 4,
-                                backgroundColor:
-                                    theme.colorScheme.surfaceContainerHighest,
+        return Padding(
+          padding: const EdgeInsets.only(top: 16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Header with app icon and info
+              InkWell(
+                onTap: onViewDetails != null
+                    ? () {
+                        Navigator.pop(context);
+                        onViewDetails!();
+                      }
+                    : null,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 8.0,
+                  ),
+                  child: Row(
+                    spacing: 16,
+                    children: [
+                      AnimatedSize(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            AnimatedOpacity(
+                              opacity: isDownloading ? 1.0 : 0.0,
+                              duration: const Duration(milliseconds: 300),
+                              child: SizedBox(
+                                width: 64,
+                                height: 64,
+                                child: CircularProgressIndicator(
+                                  value: isDownloading ? progress : null,
+                                  strokeWidth: 4,
+                                  backgroundColor:
+                                      theme.colorScheme.surfaceContainerHighest,
+                                ),
                               ),
                             ),
-                          ),
-                          AnimatedContainer(
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.easeInOut,
-                            width: isDownloading ? 32 : 48,
-                            height: isDownloading ? 32 : 48,
-                            clipBehavior: Clip.antiAlias,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12),
-                              color: theme.colorScheme.surfaceContainerHighest,
+                            AnimatedContainer(
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeInOut,
+                              width: isDownloading ? 32 : 48,
+                              height: isDownloading ? 32 : 48,
+                              clipBehavior: Clip.antiAlias,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                color:
+                                    theme.colorScheme.surfaceContainerHighest,
+                              ),
+                              child: AppDetailsIcon(app: app),
                             ),
-                            child: AppDetailsIcon(app: app),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        spacing: 4,
-                        children: [
-                          Text(
-                            app.name,
-                            style: theme.textTheme.titleSmall?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          Text(
-                            app.packageName,
-                            style: theme.textTheme.labelSmall?.copyWith(
-                              color: theme.colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                          if (version != null)
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          spacing: 4,
+                          children: [
                             Text(
-                              'v${version.versionName}',
+                              app.name,
+                              style: theme.textTheme.titleSmall?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Text(
+                              app.packageName,
                               style: theme.textTheme.labelSmall?.copyWith(
                                 color: theme.colorScheme.onSurfaceVariant,
                               ),
                             ),
-                        ],
+                            if (version != null)
+                              Text(
+                                'v${version.versionName}',
+                                style: theme.textTheme.labelSmall?.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                          ],
+                        ),
                       ),
-                    ),
-                    Icon(Symbols.arrow_right_alt_rounded),
+                      Icon(SolarLinearIcons.arrowRight),
+                    ],
+                  ),
+                ),
+              ),
+              // Status badges
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16.0,
+                  vertical: 8.0,
+                ),
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    if (isInstalled)
+                      Chip(
+                        label: Text(localizations.installed),
+                        avatar: const Icon(Symbols.check_circle, size: 18),
+                        backgroundColor: theme.colorScheme.primaryContainer,
+                        labelStyle: TextStyle(
+                          color: theme.colorScheme.onPrimaryContainer,
+                        ),
+                      ),
+                    if (version != null && app.license.isNotEmpty)
+                      Chip(
+                        label: Text(app.license),
+                        backgroundColor: theme.colorScheme.secondaryContainer,
+                        labelStyle: TextStyle(
+                          color: theme.colorScheme.onSecondaryContainer,
+                        ),
+                      ),
                   ],
                 ),
               ),
-            ),
-            // Status badges
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-                vertical: 8.0,
-              ),
-              child: Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  if (isInstalled)
-                    Chip(
-                      label: Text(localizations.installed),
-                      avatar: const Icon(Symbols.check_circle, size: 18),
-                      backgroundColor: theme.colorScheme.primaryContainer,
-                      labelStyle: TextStyle(
-                        color: theme.colorScheme.onPrimaryContainer,
-                      ),
-                    ),
-                  if (version != null && app.license.isNotEmpty)
-                    Chip(
-                      label: Text(app.license),
-                      backgroundColor: theme.colorScheme.secondaryContainer,
-                      labelStyle: TextStyle(
-                        color: theme.colorScheme.onSecondaryContainer,
-                      ),
-                    ),
-                ],
-              ),
-            ),
-            // Action buttons
-            SafeArea(
-              bottom: true,
-              child: Padding(
-                padding: const EdgeInsets.only(
-                  bottom: 16.0,
-                  left: 16.0,
-                  right: 16.0,
-                  top: 8.0,
-                ),
-                child: Row(
-                  spacing: 8,
-                  children: [
-                    Expanded(
-                      child: FilledButton.tonalIcon(
-                        onPressed: onViewDetails != null
-                            ? () {
-                                Navigator.pop(context);
-                                onViewDetails!();
-                              }
-                            : null,
-                        icon: const Icon(Symbols.info),
-                        label: Text(localizations.view_details),
-                      ),
-                    ),
-                    if (version != null)
+              // Action buttons
+              SafeArea(
+                bottom: true,
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                    bottom: 16.0,
+                    left: 16.0,
+                    right: 16.0,
+                    top: 8.0,
+                  ),
+                  child: Row(
+                    spacing: 8,
+                    children: [
                       Expanded(
-                        child: isDownloading
-                            ? FilledButton.tonalIcon(
-                                onPressed: () {
-                                  downloadProvider.cancelDownload(
-                                    app.packageName,
-                                    version.versionName,
-                                  );
-                                },
-                                style: FilledButton.styleFrom(
-                                  foregroundColor:
-                                      theme.colorScheme.onErrorContainer,
-                                  backgroundColor:
-                                      theme.colorScheme.errorContainer,
-                                ),
-                                icon: const Icon(Symbols.close),
-                                label: Text(localizations.cancel),
-                              )
-                            : FilledButton.icon(
-                                onPressed: () async {
-                                  if (isDownloaded) {
-                                    // Install
-                                    try {
-                                      final downloadInfo = downloadProvider
-                                          .getDownloadInfo(
+                        child: FilledButton.tonalIcon(
+                          onPressed: onViewDetails != null
+                              ? () {
+                                  Navigator.pop(context);
+                                  onViewDetails!();
+                                }
+                              : null,
+                          icon: const Icon(Symbols.info),
+                          label: Text(localizations.view_details),
+                        ),
+                      ),
+                      if (version != null)
+                        Expanded(
+                          child: isDownloading
+                              ? FilledButton.tonalIcon(
+                                  onPressed: () {
+                                    downloadProvider.cancelDownload(
+                                      app.packageName,
+                                      version.versionName,
+                                    );
+                                  },
+                                  style: FilledButton.styleFrom(
+                                    foregroundColor:
+                                        theme.colorScheme.onErrorContainer,
+                                    backgroundColor:
+                                        theme.colorScheme.errorContainer,
+                                  ),
+                                  icon: const Icon(Symbols.close),
+                                  label: Text(localizations.cancel),
+                                )
+                              : FilledButton.icon(
+                                  onPressed: () async {
+                                    if (isDownloaded) {
+                                      // Install
+                                      try {
+                                        final downloadInfo = downloadProvider
+                                            .getDownloadInfo(
+                                              app.packageName,
+                                              version.versionName,
+                                            );
+                                        if (downloadInfo?.filePath != null) {
+                                          final hasPermission =
+                                              await downloadProvider
+                                                  .requestInstallPermission();
+                                          if (!hasPermission) {
+                                            if (context.mounted) {
+                                              ScaffoldMessenger.of(
+                                                context,
+                                              ).showSnackBar(
+                                                SnackBar(
+                                                  content: Text(
+                                                    localizations
+                                                        .install_permission_required,
+                                                  ),
+                                                ),
+                                              );
+                                            }
+                                            return;
+                                          }
+
+                                          await downloadProvider.installApk(
+                                            downloadInfo!.filePath!,
                                             app.packageName,
                                             version.versionName,
+                                            app.name,
+                                            antiFeatures: app.antiFeatures,
                                           );
-                                      if (downloadInfo?.filePath != null) {
-                                        final hasPermission =
-                                            await downloadProvider
-                                                .requestInstallPermission();
-                                        if (!hasPermission) {
                                           if (context.mounted) {
+                                            Navigator.pop(context);
                                             ScaffoldMessenger.of(
                                               context,
                                             ).showSnackBar(
                                               SnackBar(
                                                 content: Text(
                                                   localizations
-                                                      .install_permission_required,
+                                                      .installation_started(
+                                                        app.name,
+                                                      ),
                                                 ),
                                               ),
                                             );
                                           }
-                                          return;
                                         }
-
-                                        await downloadProvider.installApk(
-                                          downloadInfo!.filePath!,
-                                          app.packageName,
-                                          version.versionName,
-                                          app.name,
-                                          antiFeatures: app.antiFeatures,
-                                        );
+                                      } catch (e) {
                                         if (context.mounted) {
-                                          Navigator.pop(context);
                                           ScaffoldMessenger.of(
                                             context,
                                           ).showSnackBar(
                                             SnackBar(
                                               content: Text(
                                                 localizations
-                                                    .installation_started(
-                                                      app.name,
+                                                    .installation_failed_with_error(
+                                                      e.toString(),
                                                     ),
                                               ),
                                             ),
                                           );
                                         }
                                       }
-                                    } catch (e) {
-                                      if (context.mounted) {
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          SnackBar(
-                                            content: Text(
-                                              localizations
-                                                  .installation_failed_with_error(
-                                                    e.toString(),
-                                                  ),
-                                            ),
-                                          ),
-                                        );
-                                      }
-                                    }
-                                  } else {
-                                    // Download
-                                    try {
-                                      await downloadProvider.downloadApk(app);
-                                      if (context.mounted) {
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          SnackBar(
-                                            content: Text(
-                                              localizations.download_started(
-                                                app.name,
+                                    } else {
+                                      // Download
+                                      try {
+                                        await downloadProvider.downloadApk(app);
+                                        if (context.mounted) {
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                localizations.download_started(
+                                                  app.name,
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                        );
-                                      }
-                                    } catch (e) {
-                                      if (context.mounted) {
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          SnackBar(
-                                            content: Text(
-                                              localizations
-                                                  .download_failed_with_error(
-                                                    e.toString(),
-                                                  ),
+                                          );
+                                        }
+                                      } catch (e) {
+                                        if (context.mounted) {
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                localizations
+                                                    .download_failed_with_error(
+                                                      e.toString(),
+                                                    ),
+                                              ),
                                             ),
-                                          ),
-                                        );
+                                          );
+                                        }
                                       }
                                     }
-                                  }
-                                },
-                                icon: Icon(
-                                  isDownloaded
-                                      ? Symbols.install_mobile
-                                      : Symbols.download,
+                                  },
+                                  icon: Icon(
+                                    isDownloaded
+                                        ? Symbols.install_mobile
+                                        : Symbols.download,
+                                  ),
+                                  label: Text(
+                                    isDownloaded
+                                        ? localizations.install
+                                        : localizations.download,
+                                  ),
                                 ),
-                                label: Text(
-                                  isDownloaded
-                                      ? localizations.install
-                                      : localizations.download,
-                                ),
-                              ),
-                      ),
-                  ],
+                        ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         );
       },
     );

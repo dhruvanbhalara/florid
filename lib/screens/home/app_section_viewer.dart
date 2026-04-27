@@ -209,21 +209,14 @@ class _AppSectionViewerState extends State<AppSectionViewer>
   ) {
     return Row(
       children: [
-        if (widget.showRank)
-          SizedBox(
-            width: 36,
-            child: Text(
-              '${index + 1}',
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-          ),
         Expanded(
           child: Stack(
             children: [
               AppListItem(
                 key: ValueKey(app.packageName),
                 app: app,
+                showRanking: widget.showRank,
+                rankingNumber: '${index + 1}',
                 showInstallStatus: widget.showInstallStatus,
                 onUpdate: () {
                   final updateHandler = widget.onUpdate;
@@ -335,13 +328,16 @@ class _AppSectionViewerState extends State<AppSectionViewer>
               : CustomScrollView(
                   slivers: [
                     if (widget.showAppBar)
-                      SliverAppBar(floating: true,
-                          leading: IconButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            icon: Icon(SolarLinearIcons.altArrowLeft),
-                          ),title: _buildTitle(context)),
+                      SliverAppBar(
+                        floating: true,
+                        leading: IconButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          icon: Icon(SolarLinearIcons.altArrowLeft),
+                        ),
+                        title: _buildTitle(context),
+                      ),
                     SliverFillRemaining(
                       hasScrollBody: false,
                       child: state == LoadingState.loading

@@ -163,12 +163,28 @@ class AppThemes {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
+          textStyle: TextStyle(
+            fontFamily: 'Google Sans Flex',
+            fontVariations: [
+              FontVariation('wght', 700),
+              FontVariation('ROND', 100),
+            ],
+            color: scheme.onSurface,
+          ),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
+          ),
+          textStyle: TextStyle(
+            fontFamily: 'Google Sans Flex',
+            fontVariations: [
+              FontVariation('wght', 700),
+              FontVariation('ROND', 100),
+            ],
+            color: scheme.onSurface,
           ),
         ),
       ),
@@ -351,12 +367,28 @@ class AppThemes {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
+          textStyle: TextStyle(
+            fontFamily: 'Google Sans Flex',
+            fontVariations: [
+              FontVariation('wght', 700),
+              FontVariation('ROND', 100),
+            ],
+            color: scheme.onSurface,
+          ),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
+          ),
+          textStyle: TextStyle(
+            fontFamily: 'Google Sans Flex',
+            fontVariations: [
+              FontVariation('wght', 700),
+              FontVariation('ROND', 100),
+            ],
+            color: scheme.onSurface,
           ),
         ),
       ),

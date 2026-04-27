@@ -436,7 +436,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       return AppListItem(
                         key: ValueKey(app.packageName),
                         app: app,
-                        showInstallStatus: false,
+                        showInstallStatus: true,
                         onTap: () async {
                           _searchFocus.unfocus(
                             disposition: UnfocusDisposition.scope,

@@ -50,7 +50,12 @@ class _MListHeaderState extends State<MListHeader> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            if (widget.icon != null) Icon(widget.icon, size: 20),
+            if (widget.icon != null)
+              Icon(
+                widget.icon,
+                size: 20,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             if (widget.icon != null) SizedBox(width: 8),
             Expanded(
               child: Column(
@@ -148,7 +153,11 @@ class MListView extends StatelessWidget {
               subtitle:
                   items[index].subtitle != null &&
                       items[index].subtitle!.isNotEmpty
-                  ? Text(items[index].subtitle!, maxLines: 2, overflow: TextOverflow.ellipsis,)
+                  ? Text(
+                      items[index].subtitle!,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    )
                   : null,
               onTap: () => items[index].onTap(),
               trailing: items[index].suffix,
@@ -232,7 +241,11 @@ class MListViewBuilder extends StatelessWidget {
               title: Text(item.title),
               leading: item.leading,
               subtitle: item.subtitle != null && item.subtitle!.isNotEmpty
-                  ? Text(item.subtitle!, maxLines: 2, overflow: TextOverflow.ellipsis,)
+                  ? Text(
+                      item.subtitle!,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    )
                   : null,
               onTap: () => item.onTap(),
               trailing: item.suffix,
@@ -334,7 +347,11 @@ class MRadioListView<T> extends StatelessWidget {
               contentPadding: EdgeInsets.only(left: 16.0, right: 18.0),
               title: Text(items[index].title),
               subtitle: items[index].subtitle.isNotEmpty
-                  ? Text(items[index].subtitle, maxLines: 2, overflow: TextOverflow.ellipsis,)
+                  ? Text(
+                      items[index].subtitle,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    )
                   : null,
               value: items[index].value,
               groupValue: groupValue,
@@ -439,7 +456,11 @@ class MCheckboxListView extends StatelessWidget {
               contentPadding: EdgeInsets.only(left: 16.0, right: 4.0),
               title: Text(items[index].title),
               subtitle: items[index].subtitle.isNotEmpty
-                  ? Text(items[index].subtitle, maxLines: 2, overflow: TextOverflow.ellipsis,)
+                  ? Text(
+                      items[index].subtitle,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    )
                   : null,
               value: items[index].value,
               onChanged: (value) {
@@ -527,7 +548,13 @@ class MCheckboxListViewBuilder extends StatelessWidget {
             child: CheckboxListTile(
               contentPadding: EdgeInsets.only(left: 16.0, right: 4.0),
               title: Text(item.title),
-              subtitle: item.subtitle.isNotEmpty ? Text(item.subtitle, maxLines: 2, overflow: TextOverflow.ellipsis,) : null,
+              subtitle: item.subtitle.isNotEmpty
+                  ? Text(
+                      item.subtitle,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    )
+                  : null,
               value: item.value,
               onChanged: (value) {
                 if (value != null) {

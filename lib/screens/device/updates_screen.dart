@@ -1,19 +1,18 @@
 import 'package:florid/l10n/app_localizations.dart';
+import 'package:florid/models/fdroid_app.dart';
+import 'package:florid/providers/app_provider.dart';
+import 'package:florid/providers/download_provider.dart';
 import 'package:florid/providers/settings_provider.dart';
+import 'package:florid/screens/app_details/app_details_screen.dart';
 import 'package:florid/utils/menu_actions.dart';
+import 'package:florid/widgets/app_list_item.dart';
 import 'package:florid/widgets/changelog_preview.dart';
-import 'package:florid/widgets/f_tabbar.dart';
+import 'package:florid/widgets/m_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
 import 'package:solar_icon_pack/solar_icon_pack.dart';
-
-import '../../models/fdroid_app.dart';
-import '../../providers/app_provider.dart';
-import '../../providers/download_provider.dart';
-import '../../widgets/app_list_item.dart';
-import '../app_details/app_details_screen.dart';
 
 class UpdatesScreen extends StatefulWidget {
   const UpdatesScreen({super.key});
@@ -22,50 +21,14 @@ class UpdatesScreen extends StatefulWidget {
   State<UpdatesScreen> createState() => _UpdatesScreenState();
 }
 
-class _FTabBarHeaderDelegate extends SliverPersistentHeaderDelegate {
-  _FTabBarHeaderDelegate({required this.height, required this.child});
-
-  final double height;
-  final Widget child;
-
-  @override
-  double get minExtent => height;
-
-  @override
-  double get maxExtent => height;
-
-  @override
-  Widget build(
-    BuildContext context,
-    double shrinkOffset,
-    bool overlapsContent,
-  ) {
-    return SizedBox.expand(child: child);
-  }
-
-  @override
-  bool shouldRebuild(covariant _FTabBarHeaderDelegate oldDelegate) {
-    return oldDelegate.height != height || oldDelegate.child != child;
-  }
-}
-
 class _UpdatesScreenState extends State<UpdatesScreen>
-    with AutomaticKeepAliveClientMixin, SingleTickerProviderStateMixin {
-  late TabController _tabController;
-
+    with AutomaticKeepAliveClientMixin {
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadData();
     });
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
   }
 
   @override
@@ -73,7 +36,6 @@ class _UpdatesScreenState extends State<UpdatesScreen>
 
   void _loadData() {
     final appProvider = context.read<AppProvider>();
-    // Load both repository data and installed apps
     appProvider.fetchRepository();
     appProvider.fetchInstalledApps();
   }
@@ -96,9 +58,7 @@ class _UpdatesScreenState extends State<UpdatesScreen>
         final repositoryError = appProvider.repositoryError;
         final installedAppsState = appProvider.installedAppsState;
         final installedApps = appProvider.installedApps;
-        // Do not block UI on repository loading; render with guarded data.
 
-        // Show error if failed to load installed apps
         if (installedAppsState == LoadingState.error) {
           return Center(
             child: Column(
@@ -137,7 +97,6 @@ class _UpdatesScreenState extends State<UpdatesScreen>
           builder: (context, snapshot) {
             final updatableApps = snapshot.data ?? <FDroidApp>[];
 
-            // Get all F-Droid apps installed on device
             final allFDroidApps = installedApps
                 .where(
                   (installedApp) =>
@@ -149,7 +108,45 @@ class _UpdatesScreenState extends State<UpdatesScreen>
                       appProvider.repository!.apps[installedApp.packageName]!,
                 )
                 .toList();
+            final updatedPackageNames = updatableApps
+                .map((app) => app.packageName)
+                .toSet();
+            final installedOnlyApps = allFDroidApps
+                .where((app) => !updatedPackageNames.contains(app.packageName))
+                .toList();
             final isDark = Theme.of(context).brightness == Brightness.dark;
+            // final bottomPadding =
+            //     settingsProvider.themeStyle == ThemeStyle.florid ||
+            //         settingsProvider.themeStyle == ThemeStyle.darkKnight
+            //     ? 96.0
+            //     : 16.0;
+
+            Widget content;
+            if (repositoryState == LoadingState.loading && !repositoryLoaded) {
+              content = Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const CircularProgressIndicator(),
+                    const SizedBox(height: 12),
+                    Text(AppLocalizations.of(context)!.loading_repository),
+                  ],
+                ),
+              );
+            } else if (!repositoryLoaded &&
+                repositoryState == LoadingState.error) {
+              content = _buildRepositoryError(context, repositoryError);
+            } else {
+              content = _buildUnifiedList(
+                context,
+                appProvider,
+                settingsProvider,
+                updatableApps,
+                installedOnlyApps,
+                allFDroidApps,
+                // bottomPadding,
+              );
+            }
 
             return Scaffold(
               body: NestedScrollView(
@@ -163,7 +160,7 @@ class _UpdatesScreenState extends State<UpdatesScreen>
                     surfaceTintColor: isDark
                         ? Theme.of(context).colorScheme.surfaceContainerLowest
                         : Theme.of(context).colorScheme.surface,
-                    title: Text(AppLocalizations.of(context)!.apps),
+                    title: Text(AppLocalizations.of(context)!.on_device),
                     scrolledUnderElevation: isDarkKnight ? 0 : null,
                     shape: LinearBorder(
                       bottom: LinearBorderEdge(),
@@ -180,76 +177,9 @@ class _UpdatesScreenState extends State<UpdatesScreen>
                         tooltip: AppLocalizations.of(context)!.refresh,
                       ),
                     ],
-                    bottom: PreferredSize(
-                      preferredSize: Size.fromHeight(
-                        settingsProvider.themeStyle == ThemeStyle.florid
-                            ? 64
-                            : 56,
-                      ),
-                      child: Material(
-                        color: isDark
-                            ? Theme.of(
-                                context,
-                              ).colorScheme.surfaceContainerLowest
-                            : Theme.of(context).colorScheme.surface,
-                        surfaceTintColor: isDark
-                            ? Theme.of(
-                                context,
-                              ).colorScheme.surfaceContainerLowest
-                            : Theme.of(context).colorScheme.surface,
-                        child: FTabBar(
-                          controller: _tabController,
-                          showBadge: true,
-                          items: [
-                            FloridTabBarItem(
-                              icon: Symbols.system_update,
-                              label: AppLocalizations.of(context)!.updates,
-                              badgeCount: updatableApps.length,
-                            ),
-                            FloridTabBarItem(
-                              icon: Symbols.devices,
-                              label: AppLocalizations.of(context)!.on_device,
-                              badgeCount: allFDroidApps.length,
-                            ),
-                          ],
-                          onTabChanged: (index) {
-                            _tabController.animateTo(index);
-                          },
-                        ),
-                      ),
-                    ),
                   ),
                 ],
-                body: RefreshIndicator(
-                  onRefresh: _onRefresh,
-                  child: TabBarView(
-                    controller: _tabController,
-                    children: [
-                      // Tab 1: Updates Only
-                      _buildUpdatesTab(
-                        context,
-                        appProvider,
-                        context.read<SettingsProvider>(),
-                        updatableApps,
-                        repositoryLoaded,
-                        repositoryState,
-                        repositoryError,
-                      ),
-
-                      // Tab 2: All Installed F-Droid Apps
-                      _buildInstalledAppsTab(
-                        context,
-                        appProvider,
-                        context.read<SettingsProvider>(),
-                        allFDroidApps,
-                        updatableApps,
-                        repositoryLoaded,
-                        repositoryState,
-                        repositoryError,
-                      ),
-                    ],
-                  ),
-                ),
+                body: RefreshIndicator(onRefresh: _onRefresh, child: content),
               ),
             );
           },
@@ -258,311 +188,166 @@ class _UpdatesScreenState extends State<UpdatesScreen>
     );
   }
 
-  Widget _buildUpdatesTab(
-    BuildContext context,
-    AppProvider appProvider,
-    SettingsProvider settingsProvider,
-    List<FDroidApp> updatableApps,
-    bool repositoryLoaded,
-    LoadingState repositoryState,
-    String? repositoryError,
-  ) {
-    // Show loading state
-    if (repositoryState == LoadingState.loading) {
-      return Center(
+  Widget _buildRepositoryError(BuildContext context, String? repositoryError) {
+    return SingleChildScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      child: Container(
+        height: MediaQuery.of(context).size.height * 0.7,
+        alignment: Alignment.center,
+        padding: const EdgeInsets.symmetric(horizontal: 24),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          spacing: 16,
           children: [
-            CircularProgressIndicator(year2023: false),
-            SizedBox(height: 12),
-            Text(AppLocalizations.of(context)!.loading_repository),
+            Icon(
+              Symbols.cloud_off,
+              size: 64,
+              color: Theme.of(context).colorScheme.error,
+            ),
+            Text(
+              'Unable to load repository',
+              style: Theme.of(context).textTheme.headlineSmall,
+              textAlign: TextAlign.center,
+            ),
+            if (repositoryError != null)
+              SelectableText(
+                repositoryError.replaceAll('Exception: ', ''),
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.error,
+                ),
+              ),
+            Text(
+              'Check your connection or repository settings, then try again.',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                FilledButton.icon(
+                  onPressed: _loadData,
+                  icon: const Icon(Symbols.refresh),
+                  label: Text(AppLocalizations.of(context)!.retry),
+                ),
+                const SizedBox(width: 12),
+                OutlinedButton.icon(
+                  onPressed: () => MenuActions.showSettings(context),
+                  icon: const Icon(Symbols.settings),
+                  label: Text(AppLocalizations.of(context)!.settings),
+                ),
+              ],
+            ),
           ],
         ),
-      );
-    }
-
-    // Show error state
-    if (!repositoryLoaded && repositoryState == LoadingState.error) {
-      return SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        child: Container(
-          height: MediaQuery.of(context).size.height * 0.7,
-          alignment: Alignment.center,
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            spacing: 16,
-            children: [
-              Icon(
-                Symbols.cloud_off,
-                size: 64,
-                color: Theme.of(context).colorScheme.error,
-              ),
-              Text(
-                'Unable to load repository',
-                style: Theme.of(context).textTheme.headlineSmall,
-                textAlign: TextAlign.center,
-              ),
-              if (repositoryError != null)
-                SelectableText(
-                  repositoryError.replaceAll('Exception: ', ''),
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.error,
-                  ),
-                ),
-              Text(
-                'Check your connection or repository settings, then try again.',
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  FilledButton.icon(
-                    onPressed: _loadData,
-                    icon: const Icon(Symbols.refresh),
-                    label: Text(AppLocalizations.of(context)!.retry),
-                  ),
-                  const SizedBox(width: 12),
-                  OutlinedButton.icon(
-                    onPressed: () => MenuActions.showSettings(context),
-                    icon: const Icon(Symbols.settings),
-                    label: Text(AppLocalizations.of(context)!.settings),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    if (updatableApps.isEmpty) {
-      return SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        child: Container(
-          height: MediaQuery.of(context).size.height * 0.7,
-          alignment: Alignment.center,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Symbols.check_circle, size: 64, color: Colors.green[400]),
-              const SizedBox(height: 16),
-              Text(
-                'All apps are up to date!',
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'No updates available',
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    return Scaffold(
-      body: Column(
-        children: [
-          // Header
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Material(
-              color: Theme.of(context).colorScheme.primaryContainer,
-              borderRadius: BorderRadius.circular(24),
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        '${updatableApps.length} ${updatableApps.length == 1 ? 'update' : 'updates'} available',
-                        style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(
-                              fontWeight: FontWeight.w600,
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.onPrimaryContainer,
-                            ),
-                      ),
-                    ),
-
-                    TextButton(
-                      onPressed: () => _updateAllApps(context, updatableApps),
-                      style: TextButton.styleFrom(
-                        foregroundColor: Theme.of(
-                          context,
-                        ).colorScheme.onPrimaryContainer,
-                      ),
-                      child: Text(AppLocalizations.of(context)!.update_all),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-
-          // Apps list
-          Flexible(
-            child: ListView.builder(
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              padding: EdgeInsets.fromLTRB(
-                8,
-                8,
-                8,
-                settingsProvider.themeStyle == ThemeStyle.florid ||
-                        settingsProvider.themeStyle == ThemeStyle.darkKnight
-                    ? 96
-                    : 16,
-              ),
-              itemCount: updatableApps.length,
-              itemBuilder: (context, index) {
-                final app = updatableApps[index];
-                final installedApp = appProvider.getInstalledApp(
-                  app.packageName,
-                );
-
-                return Container(
-                  key: Key(app.packageName),
-                  child: Column(
-                    children: [
-                      AppListItem(
-                        app: app,
-                        showInstallStatus: true,
-                        onUpdate: () => _updateApp(context, app),
-                        onTap: () async {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => AppDetailsScreen(app: app),
-                            ),
-                          );
-                        },
-                      ),
-                      if (installedApp != null)
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                          child: Row(
-                            children: [
-                              Text(
-                                'Update from ${installedApp.versionName ?? 'Unknown'}',
-                                style: Theme.of(context).textTheme.labelMedium
-                                    ?.copyWith(
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.primary,
-                                    ),
-                              ),
-                              Icon(
-                                Symbols.arrow_right_alt,
-                                size: 16,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                              Text(
-                                app.latestVersion?.versionName ?? 'Unknown',
-                                style: Theme.of(context).textTheme.labelMedium
-                                    ?.copyWith(
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.primary,
-                                    ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      if (app.latestVersion?.whatsNew != null &&
-                          app.latestVersion!.whatsNew!.isNotEmpty &&
-                          settingsProvider.showWhatsNew)
-                        ChangelogPreview(text: app.latestVersion!.whatsNew),
-                    ],
-                  ).animate().fadeIn(duration: 300.ms, delay: (100 * index).ms),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-      floatingActionButton: Visibility(
-        visible: updatableApps.isNotEmpty,
-        child: FloatingActionButton.extended(
-          onPressed: () => _updateAllApps(context, updatableApps),
-          icon: Icon(SolarBoldIcons.downloadSquare),
-          label: Text(AppLocalizations.of(context)!.update_all),
-        ).animate().scale(duration: 250.ms),
       ),
     );
   }
 
-  Widget _buildInstalledAppsTab(
+  Widget _buildUnifiedList(
     BuildContext context,
     AppProvider appProvider,
     SettingsProvider settingsProvider,
-    List<FDroidApp> allFDroidApps,
     List<FDroidApp> updatableApps,
-    bool repositoryLoaded,
-    LoadingState repositoryState,
-    String? repositoryError,
+    List<FDroidApp> installedOnlyApps,
+    List<FDroidApp> allFDroidApps,
+    // double bottomPadding,
   ) {
-    if (!repositoryLoaded &&
-        (repositoryState == LoadingState.loading ||
-            repositoryState == LoadingState.idle)) {
-      return const Center(child: CircularProgressIndicator());
-    }
+    final widgets = <Widget>[];
 
-    if (!repositoryLoaded && repositoryState == LoadingState.error) {
-      return SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        child: Container(
-          height: MediaQuery.of(context).size.height * 0.7,
-          alignment: Alignment.center,
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            spacing: 12,
-            children: [
-              Icon(
-                Symbols.cloud_off,
-                size: 48,
-                color: Theme.of(context).colorScheme.error,
-              ),
-              Text(
-                'Unable to load app metadata',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              if (repositoryError != null)
-                Text(
-                  repositoryError.replaceAll('Exception: ', ''),
-                  textAlign: TextAlign.center,
-                ),
-              FilledButton.icon(
-                onPressed: _loadData,
-                icon: const Icon(Symbols.refresh),
-                label: Text(AppLocalizations.of(context)!.retry),
-              ),
-            ],
+    if (updatableApps.isNotEmpty) {
+      widgets.add(
+        MListHeader(
+          icon: SolarLinearIcons.downloadMinimalistic,
+          title: AppLocalizations.of(context)!.updates,
+          subtitle:
+              '${updatableApps.length} ${updatableApps.length == 1 ? 'update' : 'updates'} available',
+          trailing: TextButton(
+            onPressed: () => _updateAllApps(context, updatableApps),
+            child: Text(AppLocalizations.of(context)!.update_all),
           ),
         ),
       );
+
+      for (var index = 0; index < updatableApps.length; index++) {
+        final app = updatableApps[index];
+        final installedApp = appProvider.getInstalledApp(app.packageName);
+
+        widgets.add(
+          Card(
+            child: Container(
+              key: Key(app.packageName),
+              child: Column(
+                children: [
+                  AppListItem(
+                    app: app,
+                    showInstallStatus: true,
+                    onUpdate: () => _updateApp(context, app),
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => AppDetailsScreen(app: app),
+                        ),
+                      );
+                    },
+                  ),
+                  if (installedApp != null)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                      child: Row(
+                        children: [
+                          Text(
+                            'Update from ${installedApp.versionName ?? 'Unknown'}',
+                            style: Theme.of(context).textTheme.labelMedium
+                                ?.copyWith(
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                          ),
+                          Icon(
+                            Symbols.arrow_right_alt,
+                            size: 16,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          Text(
+                            app.latestVersion?.versionName ?? 'Unknown',
+                            style: Theme.of(context).textTheme.labelMedium
+                                ?.copyWith(
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  if (app.latestVersion?.whatsNew != null &&
+                      app.latestVersion!.whatsNew!.isNotEmpty &&
+                      settingsProvider.showWhatsNew)
+                    ChangelogPreview(text: app.latestVersion!.whatsNew),
+                ],
+              ).animate().fadeIn(duration: 300.ms),
+            ),
+          ),
+        );
+      }
     }
 
+    if (updatableApps.isNotEmpty) {
+      widgets.add(SizedBox(height: 16));
+    }
+
+    widgets.add(
+      MListHeader(
+        icon: SolarLinearIcons.devices,
+        title: AppLocalizations.of(context)!.installed,
+      ),
+    );
+
     if (allFDroidApps.isEmpty) {
-      return SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        child: Container(
-          height: MediaQuery.of(context).size.height * 0.7,
+      widgets.add(
+        Container(
+          height: MediaQuery.of(context).size.height * 0.6,
           alignment: Alignment.center,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -585,66 +370,73 @@ class _UpdatesScreenState extends State<UpdatesScreen>
           ),
         ),
       );
+    } else if (installedOnlyApps.isEmpty) {
+      widgets.add(
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+          child: Text(
+            'All installed F-Droid apps already have updates available.',
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ),
+      );
+    } else {
+      for (var index = 0; index < installedOnlyApps.length; index++) {
+        final app = installedOnlyApps[index];
+        widgets.add(
+          Card(
+            clipBehavior: Clip.antiAlias,
+            child: Container(
+              key: Key(app.packageName),
+              child: Column(
+                children: [
+                  AppListItem(
+                    app: app,
+                    showInstallStatus: false,
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => AppDetailsScreen(app: app),
+                        ),
+                      );
+                    },
+                  ),
+                  if (app.latestVersion?.whatsNew != null &&
+                      app.latestVersion!.whatsNew!.isNotEmpty &&
+                      settingsProvider.showWhatsNew)
+                    ChangelogPreview(text: app.latestVersion!.whatsNew),
+                ],
+              ).animate().fadeIn(duration: 300.ms),
+            ),
+          ),
+        );
+      }
     }
 
-    final bottomPadding =
-        settingsProvider.themeStyle == ThemeStyle.florid ||
-            settingsProvider.themeStyle == ThemeStyle.darkKnight
-        ? 96.0
-        : 16.0;
-
-    return ListView.builder(
-      padding: EdgeInsets.fromLTRB(8, 8, 8, bottomPadding),
-      itemCount: allFDroidApps.length,
-      itemBuilder: (context, index) {
-        final app = allFDroidApps[index];
-        final hasUpdate = updatableApps.any(
-          (updateApp) => updateApp.packageName == app.packageName,
-        );
-        return Container(
-          key: Key(app.packageName),
-          child: Column(
-            children: [
-              AppListItem(
-                app: app,
-                showInstallStatus: false,
-                onUpdate: hasUpdate ? () => _updateApp(context, app) : null,
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => AppDetailsScreen(app: app),
-                    ),
-                  );
-                },
-              ),
-              if (app.latestVersion?.whatsNew != null &&
-                  app.latestVersion!.whatsNew!.isNotEmpty)
-                ChangelogPreview(text: app.latestVersion!.whatsNew),
-            ],
-          ),
-        ).animate().fadeIn(duration: 300.ms, delay: (100 * index).ms);
-      },
+    return ListView(
+      padding: EdgeInsets.all(8),
+      physics: const AlwaysScrollableScrollPhysics(),
+      children: widgets,
     );
   }
 
   Future<void> _updateApp(BuildContext context, FDroidApp app) async {
     final downloadProvider = context.read<DownloadProvider>();
 
-    // Check if already downloading
     final downloadInfo = downloadProvider.getDownloadInfo(
       app.packageName,
       app.latestVersion?.versionName ?? '',
     );
     if (downloadInfo?.status == DownloadStatus.downloading) {
-      return; // Already downloading, don't start again
+      return;
     }
 
     try {
-      // Download the app (permission is handled internally by downloadProvider)
       await downloadProvider.downloadApk(app);
 
-      // The download provider handles installation automatically
-      // Just clean up the APK file after a delay
       if (context.mounted) {
         await Future.delayed(const Duration(seconds: 3));
         final finalDownloadInfo = downloadProvider.getDownloadInfo(
@@ -710,7 +502,6 @@ class _UpdatesScreenState extends State<UpdatesScreen>
       );
     }
 
-    // Download apps one by one
     int successful = 0;
     int failed = 0;
 
@@ -719,7 +510,6 @@ class _UpdatesScreenState extends State<UpdatesScreen>
         await downloadProvider.downloadApk(app);
         successful++;
 
-        // Clean up APK after installation
         await Future.delayed(const Duration(seconds: 2));
         final downloadInfo = downloadProvider.getDownloadInfo(
           app.packageName,
