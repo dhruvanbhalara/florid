@@ -907,6 +907,6 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String section_app_count(Object appCount) {
-    return '$appCount app';
+    return '$appCount apps';
   }
 }

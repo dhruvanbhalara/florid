@@ -28,6 +28,7 @@ class SettingsProvider extends ChangeNotifier {
   static const _showKeepAndroidOpenCardKey = 'show_keep_android_open_card';
   static const _showWhatsNewKey = 'show_whats_new';
   static const _showMonthlyTopAppsKey = 'show_monthly_top_apps';
+  static const _showNavigationLabelsKey = 'show_navigation_labels';
   static const _installAuthEnabledKey = 'install_auth_enabled';
   static const _installAuthPolicyKey = 'install_auth_policy';
 
@@ -43,6 +44,7 @@ class SettingsProvider extends ChangeNotifier {
   bool _backgroundUpdatesEnabled = true;
   bool _showKeepAndroidOpenCard = true;
   bool _showMonthlyTopApps = true;
+  bool _showNavigationLabels = true;
   bool _installAuthEnabled = false;
   InstallAuthPolicy _installAuthPolicy = InstallAuthPolicy.antiFeatures;
   int _updateIntervalHours = 6;
@@ -71,6 +73,7 @@ class SettingsProvider extends ChangeNotifier {
   UpdateNetworkPolicy get updateNetworkPolicy => _updateNetworkPolicy;
   bool get showKeepAndroidOpenCard => _showKeepAndroidOpenCard;
   bool get showMonthlyTopApps => _showMonthlyTopApps;
+  bool get showNavigationLabels => _showNavigationLabels;
   bool get installAuthEnabled => _installAuthEnabled;
   InstallAuthPolicy get installAuthPolicy => _installAuthPolicy;
   String get lastSeenVersion => _lastSeenVersion;
@@ -154,6 +157,7 @@ class SettingsProvider extends ChangeNotifier {
     _showKeepAndroidOpenCard =
         prefs.getBool(_showKeepAndroidOpenCardKey) ?? true;
     _showMonthlyTopApps = prefs.getBool(_showMonthlyTopAppsKey) ?? true;
+    _showNavigationLabels = prefs.getBool(_showNavigationLabelsKey) ?? true;
     _installAuthEnabled = prefs.getBool(_installAuthEnabledKey) ?? false;
     final authPolicyIndex = prefs.getInt(_installAuthPolicyKey);
     if (authPolicyIndex != null &&
@@ -344,6 +348,13 @@ class SettingsProvider extends ChangeNotifier {
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_showWhatsNewKey, value);
+  }
+
+  Future<void> setShowNavigationLabels(bool value) async {
+    _showNavigationLabels = value;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_showNavigationLabelsKey, value);
   }
 
   Future<void> setShowMonthlyTopApps(bool value) async {

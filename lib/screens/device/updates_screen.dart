@@ -425,6 +425,7 @@ class _UpdatesScreenState extends State<UpdatesScreen>
 
   Future<void> _updateApp(BuildContext context, FDroidApp app) async {
     final downloadProvider = context.read<DownloadProvider>();
+    final appProvider = context.read<AppProvider>();
 
     final downloadInfo = downloadProvider.getDownloadInfo(
       app.packageName,
@@ -435,10 +436,11 @@ class _UpdatesScreenState extends State<UpdatesScreen>
     }
 
     try {
-      await downloadProvider.downloadApk(app);
+      await downloadProvider.downloadApk(app, requireInstallAuth: false);
 
       if (context.mounted) {
         await Future.delayed(const Duration(seconds: 3));
+        await appProvider.fetchInstalledApps();
         final finalDownloadInfo = downloadProvider.getDownloadInfo(
           app.packageName,
           app.latestVersion!.versionName,
@@ -467,31 +469,15 @@ class _UpdatesScreenState extends State<UpdatesScreen>
   ) async {
     if (apps.isEmpty) return;
 
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        icon: const Icon(Symbols.system_update, size: 48),
-        title: const Text('Update All Apps?'),
-        content: Text(
-          'This will download and install ${apps.length} app updates.\n\n'
-          'The downloads will happen one at a time.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(AppLocalizations.of(context)!.cancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(AppLocalizations.of(context)!.update_all),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed != true) return;
-
     final downloadProvider = context.read<DownloadProvider>();
+    final appProvider = context.read<AppProvider>();
+    for (final app in apps) {
+      try {
+        await downloadProvider.queueDownload(app);
+      } catch (_) {
+        // If queueing fails, continue with the remaining apps.
+      }
+    }
 
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -506,11 +492,23 @@ class _UpdatesScreenState extends State<UpdatesScreen>
     int failed = 0;
 
     for (final app in apps) {
+      final queuedInfo = downloadProvider.getDownloadInfo(
+        app.packageName,
+        app.latestVersion?.versionName ?? '',
+      );
+      if (queuedInfo?.status == DownloadStatus.cancelled) {
+        continue;
+      }
+
       try {
-        await downloadProvider.downloadApk(app);
+        await downloadProvider.downloadApk(app, requireInstallAuth: false);
         successful++;
 
-        await Future.delayed(const Duration(seconds: 2));
+        if (context.mounted) {
+          await Future.delayed(const Duration(seconds: 2));
+          await appProvider.fetchInstalledApps();
+        }
+
         final downloadInfo = downloadProvider.getDownloadInfo(
           app.packageName,
           app.latestVersion!.versionName,

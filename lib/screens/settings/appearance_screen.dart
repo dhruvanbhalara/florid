@@ -132,6 +132,22 @@ class AppearanceScreen extends StatelessWidget {
                                           },
                                         ),
                                       ),
+                                      MListItemData(
+                                        title: 'Show navigation labels',
+                                        onTap: () {
+                                          settings.setShowNavigationLabels(
+                                            !settings.showNavigationLabels,
+                                          );
+                                        },
+                                        suffix: Switch(
+                                          value: settings.showNavigationLabels,
+                                          onChanged: (value) {
+                                            settings.setShowNavigationLabels(
+                                              value,
+                                            );
+                                          },
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ],

@@ -142,6 +142,45 @@ class DownloadProvider extends ChangeNotifier {
     return info?.progress ?? 0.0;
   }
 
+  bool isQueued(String packageName, String versionName) {
+    final info = getDownloadInfo(packageName, versionName);
+    return info?.status == DownloadStatus.idle;
+  }
+
+  Future<void> queueDownload(FDroidApp app) async {
+    final version = await _selectBestVersionForDevice(app);
+    if (version == null) {
+      throw Exception('No version available for download');
+    }
+
+    final key = DownloadInfo(
+      packageName: app.packageName,
+      versionName: version.versionName,
+      status: DownloadStatus.idle,
+    ).key;
+
+    final existingInfo = _downloads[key];
+    if (existingInfo?.status == DownloadStatus.downloading) {
+      throw Exception('Download already in progress');
+    }
+
+    if (existingInfo?.status == DownloadStatus.completed &&
+        existingInfo?.filePath != null) {
+      if (await File(existingInfo!.filePath!).exists()) {
+        return;
+      }
+      _downloads.remove(key);
+    }
+
+    _downloads[key] = DownloadInfo(
+      packageName: app.packageName,
+      versionName: version.versionName,
+      status: DownloadStatus.idle,
+      progress: 0.0,
+    );
+    notifyListeners();
+  }
+
   /// Requests necessary permissions for downloads
   /// On Android 13+ (API 33+), storage permission is not needed for app-specific directories.
   /// On older versions, we need WRITE_EXTERNAL_STORAGE permission.
@@ -185,11 +224,13 @@ class DownloadProvider extends ChangeNotifier {
 
     try {
       final info = await DeviceInfoPlugin().androidInfo;
-      final rawAbis =
-          info.supportedAbis ??
-          info.supported64BitAbis ??
-          info.supported32BitAbis ??
-          const <String>[];
+      final rawAbis = info.supportedAbis.isNotEmpty
+          ? info.supportedAbis
+          : info.supported64BitAbis.isNotEmpty
+          ? info.supported64BitAbis
+          : info.supported32BitAbis.isNotEmpty
+          ? info.supported32BitAbis
+          : const <String>[];
       final abis = rawAbis.where((abi) => abi.isNotEmpty).toList();
       if (abis.isNotEmpty) {
         _supportedAbis = abis;
@@ -252,7 +293,11 @@ class DownloadProvider extends ChangeNotifier {
   }
 
   /// Downloads an APK file
-  Future<String?> downloadApk(FDroidApp app, {bool? skipAutoInstall}) async {
+  Future<String?> downloadApk(
+    FDroidApp app, {
+    bool? skipAutoInstall,
+    bool requireInstallAuth = true,
+  }) async {
     final version = await _selectBestVersionForDevice(app);
     skipAutoInstall ??= false;
     if (version == null) {
@@ -269,6 +314,9 @@ class DownloadProvider extends ChangeNotifier {
     final existingInfo = _downloads[key];
     if (existingInfo?.status == DownloadStatus.downloading) {
       throw Exception('Download already in progress');
+    }
+    if (existingInfo?.status == DownloadStatus.cancelled) {
+      throw Exception('Download cancelled');
     }
     if (existingInfo?.status == DownloadStatus.completed &&
         existingInfo?.filePath != null) {
@@ -402,6 +450,7 @@ class DownloadProvider extends ChangeNotifier {
                   version.versionName,
                   app.name,
                   antiFeatures: app.antiFeatures,
+                  requireAuthentication: requireInstallAuth,
                 );
                 debugPrint('[DownloadProvider] Auto-install (shizuku) done');
               } catch (e) {
@@ -416,6 +465,7 @@ class DownloadProvider extends ChangeNotifier {
               version.versionName,
               app.name,
               antiFeatures: app.antiFeatures,
+              requireAuthentication: requireInstallAuth,
             );
             debugPrint('[DownloadProvider] Auto-install (system) done');
           }
@@ -452,11 +502,18 @@ class DownloadProvider extends ChangeNotifier {
     final key = '${packageName}_$versionName';
     final info = _downloads[key];
 
-    if (info?.status == DownloadStatus.downloading) {
+    if (info == null) {
+      return;
+    }
+
+    if (info.status == DownloadStatus.downloading) {
       // Cancel the ongoing download in the API service
       _apiService.cancelDownload(packageName);
+    }
 
-      _downloads[key] = info!.copyWith(status: DownloadStatus.cancelled);
+    if (info.status == DownloadStatus.downloading ||
+        info.status == DownloadStatus.idle) {
+      _downloads[key] = info.copyWith(status: DownloadStatus.cancelled);
       notifyListeners();
 
       // Cancel the notification
@@ -518,6 +575,7 @@ class DownloadProvider extends ChangeNotifier {
     String versionName,
     String appName, {
     List<String>? antiFeatures,
+    bool requireAuthentication = true,
   }) async {
     debugPrint('[DownloadProvider] installApk entry: $filePath');
     final key = '${packageName}_$versionName';
@@ -535,10 +593,12 @@ class DownloadProvider extends ChangeNotifier {
       }
 
       // Check if authentication is required based on policy
-      final needsAuth = _needsAuthentication(
-        _settingsProvider.installAuthPolicy,
-        antiFeatures,
-      );
+      final needsAuth =
+          requireAuthentication &&
+          _needsAuthentication(
+            _settingsProvider.installAuthPolicy,
+            antiFeatures,
+          );
 
       if (needsAuth) {
         final authenticated = await _authenticateForInstall(appName);

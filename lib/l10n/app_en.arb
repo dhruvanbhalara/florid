@@ -380,7 +380,7 @@
   "onboarding_setup_advanced_desc":"Customize repositories and preferences",
   "privacy":"Privacy",
   "help_us_improve_florid":"Help us improve Florid",
-  "section_app_count": "{appCount} app",
+  "section_app_count": "{appCount} apps",
   "@section_app_count": {
     "description": "Label showing the number of apps in a category",
     "placeholders": {

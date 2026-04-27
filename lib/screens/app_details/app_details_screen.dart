@@ -379,7 +379,13 @@ class _AppDetailsScreenState extends State<AppDetailsScreen>
         final appWithVersion = widget.app
             .copyWithVersion(version)
             .copyWith(repositoryUrl: repositoryUrl);
-        await downloadProvider.downloadApk(appWithVersion);
+        final requireInstallAuth = !context.read<AppProvider>().isAppInstalled(
+          widget.app.packageName,
+        );
+        await downloadProvider.downloadApk(
+          appWithVersion,
+          requireInstallAuth: requireInstallAuth,
+        );
 
         if (context.mounted) {
           final settings = context.read<SettingsProvider>();
@@ -1863,7 +1869,11 @@ class _InstallActionsSection extends StatelessWidget {
                                 }
 
                                 try {
-                                  await downloadProvider.downloadApk(app);
+                                  await downloadProvider.downloadApk(
+                                    app,
+                                    requireInstallAuth: !appProvider
+                                        .isAppInstalled(app.packageName),
+                                  );
 
                                   if (context.mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
@@ -3425,7 +3435,13 @@ class _AllVersionsSectionState extends State<_AllVersionsSection> {
                                             );
                                         await context
                                             .read<DownloadProvider>()
-                                            .downloadApk(appWithVersion);
+                                            .downloadApk(
+                                              appWithVersion,
+                                              requireInstallAuth: !appProvider
+                                                  .isAppInstalled(
+                                                    widget.app.packageName,
+                                                  ),
+                                            );
                                       } catch (e) {
                                         if (context.mounted) {
                                           ScaffoldMessenger.of(

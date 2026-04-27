@@ -585,15 +585,28 @@ class _FloridAppState extends State<FloridApp> {
                   ),
                 ];
 
-                return NavigationBar(
-                  selectedIndex: _currentIndex,
-                  onDestinationSelected: (index) {
-                    setState(() {
-                      _currentIndex = index;
-                    });
-                    _tabNotifier.value = index;
-                  },
-                  destinations: destinations,
+                return Material(
+                  shape: LinearBorder(
+                    top: LinearBorderEdge(),
+                    side: BorderSide(
+                      width: 2,
+                      color: Theme.of(context).colorScheme.surfaceContainerLow,
+                    ),
+                  ),
+                  color: Colors.transparent,
+                  child: NavigationBar(
+                    selectedIndex: _currentIndex,
+                    labelBehavior: settings.showNavigationLabels
+                        ? NavigationDestinationLabelBehavior.alwaysShow
+                        : NavigationDestinationLabelBehavior.alwaysHide,
+                    onDestinationSelected: (index) {
+                      setState(() {
+                        _currentIndex = index;
+                      });
+                      _tabNotifier.value = index;
+                    },
+                    destinations: destinations,
+                  ),
                 );
               },
             );

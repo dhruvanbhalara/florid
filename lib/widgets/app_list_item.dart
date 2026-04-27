@@ -172,6 +172,12 @@ class AppListItem extends StatelessWidget {
                             app.packageName,
                             latestVersion.versionName,
                           );
+                      final isQueued =
+                          latestVersion != null &&
+                          downloadProvider.isQueued(
+                            app.packageName,
+                            latestVersion.versionName,
+                          );
 
                       // Check for real updates: not just rebuilds with same versionName or SHA256
                       final hasUpdate =
@@ -189,7 +195,7 @@ class AppListItem extends StatelessWidget {
                                   latestVersion.versionName);
 
                       final statusWidget = showInstallStatus
-                          ? isDownloading
+                          ? (isDownloading || isQueued)
                                 ? IconButton.filledTonal(
                                     onPressed: () =>
                                         downloadProvider.cancelDownload(
@@ -210,7 +216,6 @@ class AppListItem extends StatelessWidget {
                                 : isInstalled
                                 ? Icon(
                                     SolarBoldIcons.checkCircle,
-                                    fill: 1,
                                     color: Theme.of(
                                       context,
                                     ).colorScheme.primary,
@@ -507,6 +512,8 @@ class _QuickViewModal extends StatelessWidget {
                                                 ),
                                               ),
                                             );
+                                            await appProvider
+                                                .fetchInstalledApps();
                                           }
                                         }
                                       } catch (e) {
@@ -528,7 +535,10 @@ class _QuickViewModal extends StatelessWidget {
                                     } else {
                                       // Download
                                       try {
-                                        await downloadProvider.downloadApk(app);
+                                        await downloadProvider.downloadApk(
+                                          app,
+                                          requireInstallAuth: !isInstalled,
+                                        );
                                         if (context.mounted) {
                                           ScaffoldMessenger.of(
                                             context,
@@ -541,6 +551,8 @@ class _QuickViewModal extends StatelessWidget {
                                               ),
                                             ),
                                           );
+                                          await appProvider
+                                              .fetchInstalledApps();
                                         }
                                       } catch (e) {
                                         if (context.mounted) {

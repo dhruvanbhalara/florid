@@ -1766,7 +1766,7 @@ abstract class AppLocalizations {
   /// Label showing the number of apps in a category
   ///
   /// In en, this message translates to:
-  /// **'{appCount} app'**
+  /// **'{appCount} apps'**
   String section_app_count(Object appCount);
 }
 
