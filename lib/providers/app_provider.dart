@@ -1092,6 +1092,11 @@ class AppProvider extends ChangeNotifier {
       if (fdroidApp == null) continue;
 
       // Get the latest version based on per-app unstable preference
+      final ignoreUpdates = await _preferencesService.getIgnoreUpdates(
+        installedApp.packageName,
+      );
+      if (ignoreUpdates) continue;
+
       final includeUnstable = await _preferencesService.getIncludeUnstable(
         installedApp.packageName,
       );
@@ -1159,6 +1164,20 @@ class AppProvider extends ChangeNotifier {
   /// This should only be called for installed apps
   Future<void> setIncludeUnstable(String packageName, bool include) async {
     await _preferencesService.setIncludeUnstable(packageName, include);
+    notifyListeners();
+  }
+
+  Future<bool> getIgnoreUpdates(String packageName) async {
+    return await _preferencesService.getIgnoreUpdates(packageName);
+  }
+
+  Future<void> setIgnoreUpdates(String packageName, bool ignore) async {
+    await _preferencesService.setIgnoreUpdates(packageName, ignore);
+    notifyListeners();
+  }
+
+  Future<void> removeIgnoreUpdates(String packageName) async {
+    await _preferencesService.removeIgnoreUpdates(packageName);
     notifyListeners();
   }
 

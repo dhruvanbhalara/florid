@@ -1768,6 +1768,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{appCount} apps'**
   String section_app_count(Object appCount);
+
+  /// No description provided for @ignore_future_updates.
+  ///
+  /// In en, this message translates to:
+  /// **'Ignore Future Updates'**
+  String get ignore_future_updates;
 }
 
 class _AppLocalizationsDelegate

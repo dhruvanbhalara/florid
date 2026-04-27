@@ -909,4 +909,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String section_app_count(Object appCount) {
     return '$appCount apps';
   }
+
+  @override
+  String get ignore_future_updates => 'Ignore Future Updates';
 }

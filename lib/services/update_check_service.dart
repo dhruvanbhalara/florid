@@ -187,6 +187,11 @@ Future<void> _runUpdateCheck({bool debug = false}) async {
     final fdroidApp = merged.apps[installed.packageName];
     if (fdroidApp == null) continue;
 
+    final ignoreUpdates = await appPrefs.getIgnoreUpdates(
+      installed.packageName,
+    );
+    if (ignoreUpdates) continue;
+
     final includeUnstable = await appPrefs.getIncludeUnstable(
       installed.packageName,
     );

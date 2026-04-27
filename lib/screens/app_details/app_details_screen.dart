@@ -38,6 +38,8 @@ class AppDetailsScreen extends StatefulWidget {
   State<AppDetailsScreen> createState() => _AppDetailsScreenState();
 }
 
+enum _AppDetailsMenuAction { share, toggleIgnoreUpdates }
+
 class _AppDetailsScreenState extends State<AppDetailsScreen>
     with WidgetsBindingObserver {
   late Future<List<String>> _screenshotsFuture;
@@ -899,16 +901,69 @@ class _AppDetailsScreenState extends State<AppDetailsScreen>
                     );
                   },
                 ),
-                IconButton(
-                  tooltip: AppLocalizations.of(context)!.share,
-                  style: ButtonStyle(
-                    backgroundColor: WidgetStateProperty.all(
-                      Theme.of(context).colorScheme.surface,
-                    ),
-                  ),
-                  icon: Icon(SolarLinearIcons.share),
-                  onPressed: () {
-                    _shareApp();
+                Consumer<AppProvider>(
+                  builder: (context, appProvider, _) {
+                    return FutureBuilder<bool>(
+                      future: appProvider.getIgnoreUpdates(
+                        widget.app.packageName,
+                      ),
+                      builder: (context, snapshot) {
+                        final ignoreUpdates = snapshot.data ?? false;
+                        return PopupMenuButton<_AppDetailsMenuAction>(
+                          icon: Icon(SolarBoldIcons.menuDots),
+                          style: ButtonStyle(
+                            backgroundColor: WidgetStateProperty.all(
+                              Theme.of(context).colorScheme.surface,
+                            ),
+                          ),
+                          tooltip: 'More actions',
+                          itemBuilder: (context) => [
+                            PopupMenuItem(
+                              value: _AppDetailsMenuAction.share,
+                              child: Row(
+                                spacing: 8.0,
+                                children: [
+                                  const Icon(Symbols.share),
+                                  Text(AppLocalizations.of(context)!.share),
+                                ],
+                              ),
+                            ),
+                            CheckedPopupMenuItem(
+                              checked: ignoreUpdates,
+                              value: _AppDetailsMenuAction.toggleIgnoreUpdates,
+                              child: Text(
+                                AppLocalizations.of(
+                                  context,
+                                )!.ignore_future_updates,
+                              ),
+                            ),
+                          ],
+                          onSelected: (value) async {
+                            switch (value) {
+                              case _AppDetailsMenuAction.share:
+                                _shareApp();
+                                break;
+                              case _AppDetailsMenuAction.toggleIgnoreUpdates:
+                                await appProvider.setIgnoreUpdates(
+                                  widget.app.packageName,
+                                  !ignoreUpdates,
+                                );
+                                if (!mounted) return;
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      ignoreUpdates
+                                          ? '${widget.app.name} update notifications are enabled again.'
+                                          : '${widget.app.name} will no longer appear in the update list.',
+                                    ),
+                                  ),
+                                );
+                                break;
+                            }
+                          },
+                        );
+                      },
+                    );
                   },
                 ),
               ],
@@ -1797,260 +1852,325 @@ class _InstallActionsSection extends StatelessWidget {
             }
 
             if (isInstalled && installedApp != null) {
-              // Check if update is available
-              // Exclude rebuilds: if SHA256 or versionName is the same, it's not a real update
-              final hasUpdate =
-                  installedApp.versionCode != null &&
-                  version.versionCode > installedApp.versionCode! &&
-                  // If SHA256 matches, it's the same build - no update needed
-                  !(installedApp.sha256 != null &&
-                      installedApp.sha256!.isNotEmpty &&
-                      installedApp.sha256 == version.hash) &&
-                  // If versionName is available and matches, it's a rebuild - no update
-                  !(installedApp.versionName != null &&
-                      installedApp.versionName == version.versionName);
+              return FutureBuilder<bool>(
+                future: appProvider.getIgnoreUpdates(app.packageName),
+                builder: (context, ignoreSnapshot) {
+                  if (!ignoreSnapshot.hasData) {
+                    return const SizedBox.shrink();
+                  }
 
-              if (hasUpdate) {
-                // Show Update button
-                // Hide uninstall/open buttons for Florid itself
-                final isFloridApp = app.packageName == 'com.nahnah.florid';
-                return Column(
-                  spacing: 8,
-                  children: [
-                    Row(
+                  final ignoreUpdates = ignoreSnapshot.data!;
+                  final hasUpdate =
+                      installedApp.versionCode != null &&
+                      version.versionCode > installedApp.versionCode! &&
+                      // If SHA256 matches, it's the same build - no update needed
+                      !(installedApp.sha256 != null &&
+                          installedApp.sha256!.isNotEmpty &&
+                          installedApp.sha256 == version.hash) &&
+                      // If versionName is available and matches, it's a rebuild - no update
+                      !(installedApp.versionName != null &&
+                          installedApp.versionName == version.versionName);
+                  final isFloridApp = app.packageName == 'com.nahnah.florid';
+
+                  if (hasUpdate && !ignoreUpdates) {
+                    return Column(
                       spacing: 8,
                       children: [
-                        Expanded(
-                          child: SizedBox(
-                            height: 48,
-                            child: FilledButton.icon(
-                              onPressed: () async {
-                                final hasPermission = await downloadProvider
-                                    .requestPermissions();
+                        Row(
+                          spacing: 8,
+                          children: [
+                            Expanded(
+                              child: SizedBox(
+                                height: 48,
+                                child: FilledButton.icon(
+                                  onPressed: () async {
+                                    final hasPermission = await downloadProvider
+                                        .requestPermissions();
 
-                                if (!hasPermission) {
-                                  if (context.mounted) {
-                                    await showDialog(
-                                      context: context,
-                                      builder: (context) => AlertDialog(
-                                        icon: const Icon(
-                                          Symbols.warning,
-                                          size: 48,
-                                        ),
-                                        title: const Text(
-                                          'Storage Permission Required',
-                                        ),
-                                        content: const Text(
-                                          'Florid needs storage permission to download APK files.\n\n'
-                                          'To enable:\n'
-                                          '1. Go to Settings (button below)\n'
-                                          '2. Find "Permissions"\n'
-                                          '3. Enable "Files and media" or "Storage"\n\n'
-                                          'Then try downloading again.',
-                                        ),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () =>
-                                                Navigator.of(context).pop(),
-                                            child: const Text('Cancel'),
+                                    if (!hasPermission) {
+                                      if (context.mounted) {
+                                        await showDialog(
+                                          context: context,
+                                          builder: (context) => AlertDialog(
+                                            icon: const Icon(
+                                              Symbols.warning,
+                                              size: 48,
+                                            ),
+                                            title: const Text(
+                                              'Storage Permission Required',
+                                            ),
+                                            content: const Text(
+                                              'Florid needs storage permission to download APK files.\n\n'
+                                              'To enable:\n'
+                                              '1. Go to Settings (button below)\n'
+                                              '2. Find "Permissions"\n'
+                                              '3. Enable "Files and media" or "Storage"\n\n'
+                                              'Then try downloading again.',
+                                            ),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () =>
+                                                    Navigator.of(context).pop(),
+                                                child: const Text('Cancel'),
+                                              ),
+                                              FilledButton(
+                                                onPressed: () async {
+                                                  Navigator.of(context).pop();
+                                                  await openAppSettings();
+                                                },
+                                                child: const Text(
+                                                  'Open Settings',
+                                                ),
+                                              ),
+                                            ],
                                           ),
-                                          FilledButton(
-                                            onPressed: () async {
-                                              Navigator.of(context).pop();
-                                              await openAppSettings();
-                                            },
-                                            child: const Text('Open Settings'),
+                                        );
+                                      }
+                                      return;
+                                    }
+
+                                    try {
+                                      await downloadProvider.downloadApk(
+                                        app,
+                                        requireInstallAuth: !appProvider
+                                            .isAppInstalled(app.packageName),
+                                      );
+
+                                      if (context.mounted) {
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              'Downloading ${app.name} update...',
+                                            ),
                                           ),
-                                        ],
-                                      ),
-                                    );
-                                  }
-                                  return;
-                                }
-
-                                try {
-                                  await downloadProvider.downloadApk(
-                                    app,
-                                    requireInstallAuth: !appProvider
-                                        .isAppInstalled(app.packageName),
-                                  );
-
-                                  if (context.mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          'Downloading ${app.name} update...',
-                                        ),
-                                      ),
-                                    );
-                                  }
-                                } catch (e) {
-                                  if (context.mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text('Update failed: $e'),
-                                      ),
-                                    );
-                                  }
-                                }
-                              },
-                              icon: Icon(SolarBoldIcons.download),
-                              label: Text(AppLocalizations.of(context)!.update),
-                            ),
-                          ),
-                        ),
-                        if (!isFloridApp)
-                          SizedBox(
-                            height: 48,
-                            child: FilledButton.tonalIcon(
-                              onPressed: () async {
-                                try {
-                                  final opened = await appProvider
-                                      .openInstalledApp(app.packageName);
-                                  if (!opened && context.mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          'Unable to open ${app.name}.',
-                                        ),
-                                      ),
-                                    );
-                                  }
-                                } catch (e) {
-                                  if (context.mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          'Open failed: ${e.toString()}',
-                                        ),
-                                      ),
-                                    );
-                                  }
-                                }
-                              },
-                              icon: Icon(SolarLinearIcons.squareBottomUp),
-                              label: Text(AppLocalizations.of(context)!.open),
-                            ),
-                          ),
-                        if (!isFloridApp)
-                          SizedBox(
-                            height: 48,
-                            child: FilledButton.tonal(
-                              onPressed: () async {
-                                try {
-                                  await downloadProvider.uninstallApp(
-                                    app.packageName,
-                                  );
-                                  await Future.delayed(
-                                    const Duration(seconds: 1),
-                                  );
-                                  await appProvider.fetchInstalledApps();
-                                } catch (e) {
-                                  if (context.mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          'Uninstall failed: ${e.toString()}',
-                                        ),
-                                      ),
-                                    );
-                                  }
-                                }
-                              },
-                              style: FilledButton.styleFrom(
-                                foregroundColor: Theme.of(
-                                  context,
-                                ).colorScheme.onErrorContainer,
-                                backgroundColor: Theme.of(
-                                  context,
-                                ).colorScheme.errorContainer,
-                              ),
-                              child: Icon(SolarBoldIcons.trashBin2),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ],
-                );
-              }
-
-              // No update available, show normal buttons
-              // Hide buttons for Florid itself
-              final isFloridApp = app.packageName == 'com.nahnah.florid';
-              if (isFloridApp) {
-                return const SizedBox.shrink();
-              }
-              return Row(
-                spacing: 8,
-                children: [
-                  Expanded(
-                    child: SizedBox(
-                      height: 48,
-                      child: FilledButton.tonalIcon(
-                        onPressed: () async {
-                          try {
-                            await downloadProvider.uninstallApp(
-                              app.packageName,
-                            );
-                            await Future.delayed(const Duration(seconds: 1));
-                            await appProvider.fetchInstalledApps();
-                          } catch (e) {
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    'Uninstall failed: ${e.toString()}',
+                                        );
+                                      }
+                                    } catch (e) {
+                                      if (context.mounted) {
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            content: Text('Update failed: $e'),
+                                          ),
+                                        );
+                                      }
+                                    }
+                                  },
+                                  icon: Icon(SolarBoldIcons.download),
+                                  label: Text(
+                                    AppLocalizations.of(context)!.update,
                                   ),
                                 ),
-                              );
-                            }
-                          }
-                        },
-                        icon: Icon(SolarBoldIcons.trashBin2),
-                        label: Text(AppLocalizations.of(context)!.uninstall),
-                        style: FilledButton.styleFrom(
-                          foregroundColor: Theme.of(
-                            context,
-                          ).colorScheme.onErrorContainer,
-                          backgroundColor: Theme.of(
-                            context,
-                          ).colorScheme.errorContainer,
+                              ),
+                            ),
+                            if (!isFloridApp)
+                              SizedBox(
+                                height: 48,
+                                child: FilledButton.tonalIcon(
+                                  onPressed: () async {
+                                    try {
+                                      final opened = await appProvider
+                                          .openInstalledApp(app.packageName);
+                                      if (!opened && context.mounted) {
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              'Unable to open ${app.name}.',
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                    } catch (e) {
+                                      if (context.mounted) {
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              'Open failed: ${e.toString()}',
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                    }
+                                  },
+                                  icon: Icon(SolarLinearIcons.squareBottomUp),
+                                  label: Text(
+                                    AppLocalizations.of(context)!.open,
+                                  ),
+                                ),
+                              ),
+                            if (!isFloridApp)
+                              SizedBox(
+                                height: 48,
+                                child: FilledButton.tonal(
+                                  onPressed: () async {
+                                    try {
+                                      await downloadProvider.uninstallApp(
+                                        app.packageName,
+                                      );
+                                      await Future.delayed(
+                                        const Duration(seconds: 1),
+                                      );
+                                      await appProvider.fetchInstalledApps();
+                                    } catch (e) {
+                                      if (context.mounted) {
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              'Uninstall failed: ${e.toString()}',
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                    }
+                                  },
+                                  style: FilledButton.styleFrom(
+                                    foregroundColor: Theme.of(
+                                      context,
+                                    ).colorScheme.onErrorContainer,
+                                    backgroundColor: Theme.of(
+                                      context,
+                                    ).colorScheme.errorContainer,
+                                  ),
+                                  child: Icon(SolarBoldIcons.trashBin2),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ],
+                    );
+                  }
+
+                  final noUpdateButtons = Row(
+                    spacing: 8,
+                    children: [
+                      Expanded(
+                        child: SizedBox(
+                          height: 48,
+                          child: FilledButton.tonalIcon(
+                            onPressed: () async {
+                              try {
+                                await downloadProvider.uninstallApp(
+                                  app.packageName,
+                                );
+                                await Future.delayed(
+                                  const Duration(seconds: 1),
+                                );
+                                await appProvider.fetchInstalledApps();
+                              } catch (e) {
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        'Uninstall failed: ${e.toString()}',
+                                      ),
+                                    ),
+                                  );
+                                }
+                              }
+                            },
+                            icon: Icon(SolarBoldIcons.trashBin2),
+                            label: Text(
+                              AppLocalizations.of(context)!.uninstall,
+                            ),
+                            style: FilledButton.styleFrom(
+                              foregroundColor: Theme.of(
+                                context,
+                              ).colorScheme.onErrorContainer,
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.errorContainer,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  ),
-                  Expanded(
-                    child: SizedBox(
-                      height: 48,
-                      child: FilledButton.icon(
-                        onPressed: () async {
-                          try {
-                            final opened = await appProvider.openInstalledApp(
-                              app.packageName,
-                            );
-                            if (!opened && context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('Unable to open ${app.name}.'),
-                                ),
-                              );
-                            }
-                          } catch (e) {
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('Open failed: ${e.toString()}'),
-                                ),
-                              );
-                            }
-                          }
-                        },
-                        icon: Icon(SolarLinearIcons.squareBottomUp),
-                        label: Text(AppLocalizations.of(context)!.open),
+                      Expanded(
+                        child: SizedBox(
+                          height: 48,
+                          child: FilledButton.icon(
+                            onPressed: () async {
+                              try {
+                                final opened = await appProvider
+                                    .openInstalledApp(app.packageName);
+                                if (!opened && context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        'Unable to open ${app.name}.',
+                                      ),
+                                    ),
+                                  );
+                                }
+                              } catch (e) {
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        'Open failed: ${e.toString()}',
+                                      ),
+                                    ),
+                                  );
+                                }
+                              }
+                            },
+                            icon: Icon(SolarLinearIcons.squareBottomUp),
+                            label: Text(AppLocalizations.of(context)!.open),
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                ],
+                    ],
+                  );
+
+                  final Widget? ignoredUpdateCard = ignoreUpdates
+                      ? Card(
+                          margin: EdgeInsets.zero,
+                          child: Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Symbols.block,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    'Updates are ignored for this app.',
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodyMedium,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                      : null;
+
+                  if (isFloridApp) {
+                    return ignoreUpdates
+                        ? Column(spacing: 8, children: [ignoredUpdateCard!])
+                        : const SizedBox.shrink();
+                  }
+
+                  return Column(
+                    spacing: 8,
+                    children: [
+                      if (ignoreUpdates) ignoredUpdateCard!,
+                      noUpdateButtons,
+                    ],
+                  );
+                },
               );
             }
 

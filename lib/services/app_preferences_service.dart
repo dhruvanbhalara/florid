@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// Service for managing per-app preferences and favorites.
 class AppPreferencesService {
   static const String _unstableKeyPrefix = 'app_unstable_';
+  static const String _ignoreUpdatesKeyPrefix = 'app_ignore_updates_';
   static const String _favoritesKey = 'favorite_apps';
 
   /// Gets whether unstable versions should be included for a specific app
@@ -25,6 +26,24 @@ class AppPreferencesService {
     await prefs.remove('$_unstableKeyPrefix$packageName');
   }
 
+  /// Gets whether updates should be ignored for a specific app
+  /// Returns false by default.
+  Future<bool> getIgnoreUpdates(String packageName) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('$_ignoreUpdatesKeyPrefix$packageName') ?? false;
+  }
+
+  /// Sets whether updates should be ignored for a specific app
+  Future<void> setIgnoreUpdates(String packageName, bool ignore) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('$_ignoreUpdatesKeyPrefix$packageName', ignore);
+  }
+
+  Future<void> removeIgnoreUpdates(String packageName) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('$_ignoreUpdatesKeyPrefix$packageName');
+  }
+
   /// Gets all apps that have unstable version preferences set
   Future<Set<String>> getAllAppsWithUnstablePreference() async {
     final prefs = await SharedPreferences.getInstance();
@@ -34,12 +53,29 @@ class AppPreferencesService {
     return keys.map((key) => key.substring(_unstableKeyPrefix.length)).toSet();
   }
 
+  Future<Set<String>> getAllAppsWithIgnoreUpdatesPreference() async {
+    final prefs = await SharedPreferences.getInstance();
+    final keys = prefs.getKeys().where(
+      (key) => key.startsWith(_ignoreUpdatesKeyPrefix),
+    );
+    return keys
+        .map((key) => key.substring(_ignoreUpdatesKeyPrefix.length))
+        .toSet();
+  }
+
   /// Cleans up preferences for apps that are no longer installed
   Future<void> cleanupUninstalledApps(Set<String> installedPackages) async {
     final appsWithPrefs = await getAllAppsWithUnstablePreference();
     for (final packageName in appsWithPrefs) {
       if (!installedPackages.contains(packageName)) {
         await removeIncludeUnstable(packageName);
+      }
+    }
+
+    final ignoredApps = await getAllAppsWithIgnoreUpdatesPreference();
+    for (final packageName in ignoredApps) {
+      if (!installedPackages.contains(packageName)) {
+        await removeIgnoreUpdates(packageName);
       }
     }
   }

@@ -841,6 +841,7 @@ class DownloadProvider extends ChangeNotifier {
       // and we can't know for sure if it succeeded immediately
       await _trackingService.removeAppSource(packageName);
       await _preferencesService.removeIncludeUnstable(packageName);
+      await _preferencesService.removeIgnoreUpdates(packageName);
     } catch (e) {
       throw Exception('Failed to uninstall app: $e');
     }
