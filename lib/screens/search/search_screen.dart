@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
+import 'package:solar_icon_pack/solar_icon_pack.dart';
 
 import '../../providers/app_provider.dart';
 import '../../providers/repositories_provider.dart';
@@ -37,6 +38,7 @@ class _SearchScreenState extends State<SearchScreen> {
       appProvider.clearSearch();
 
       _searchFocus.requestFocus();
+      _searchController.openView();
       SystemChannels.textInput.invokeMethod('TextInput.show');
     });
     _scrollController.addListener(_onScroll);
@@ -129,74 +131,147 @@ class _SearchScreenState extends State<SearchScreen> {
         final focus = FocusScope.of(context);
         if (!focus.hasPrimaryFocus && focus.focusedChild != null) {
           focus.unfocus();
+          _searchController.isAttached
+              ? SystemChannels.textInput.invokeMethod('TextInput.hide')
+              : null;
         }
       },
       child: Scaffold(
         body: CustomScrollView(
           controller: _scrollController,
           slivers: [
-            SliverAppBar(
-              floating: true,
-              title: SearchAnchor.bar(
-                barLeading: const Icon(Symbols.search),
-                barHintText: localizations.search,
-                barElevation: WidgetStatePropertyAll(0),
-                searchController: _searchController,
-                barTrailing: [
-                  if (_searchController.text.isNotEmpty)
-                    IconButton(
-                      icon: const Icon(Symbols.close),
-                      onPressed: _clearSearch,
-                    ),
-                  Badge(
-                    isLabelVisible: _filters.hasActiveFilters,
-                    label: Text(_filters.activeFilterCount.toString()),
-                    child: IconButton.filledTonal(
-                      onPressed: _openFilters,
-                      icon: const Icon(Symbols.filter_list),
-                      tooltip: localizations.filters,
-                    ),
+            SliverFloatingHeader(
+              child: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: SearchAnchor.bar(
+                    barLeading: const Icon(SolarLinearIcons.magnifer),
+                    barHintText: localizations.search,
+                    barElevation: WidgetStatePropertyAll(0),
+                    searchController: _searchController,
+                    barTrailing: [
+                      if (_searchController.text.isNotEmpty)
+                        IconButton(
+                          icon: Icon(SolarLinearIcons.close),
+                          onPressed: _clearSearch,
+                        ),
+                      Badge(
+                        isLabelVisible: _filters.hasActiveFilters,
+                        label: Text(_filters.activeFilterCount.toString()),
+                        child: IconButton.filled(
+                          onPressed: _openFilters,
+                          icon: Icon(
+                            SolarLinearIcons.filter,
+                            color: Theme.of(context).colorScheme.onPrimary,
+                          ),
+                          tooltip: localizations.filters,
+                        ),
+                      ),
+                    ],
+                    onChanged: (query) {
+                      setState(() {});
+                    },
+                    onSubmitted: (query) {
+                      _searchController.closeView(query.trim());
+                      _performSearch(query);
+                    },
+                    suggestionsBuilder: (context, controller) async {
+                      final query = controller.text.trim();
+                      final appProvider = context.read<AppProvider>();
+                      final repositoriesProvider = context
+                          .read<RepositoriesProvider>();
+                      final suggestions = await appProvider
+                          .fetchSearchSuggestions(
+                            query,
+                            repositoriesProvider: repositoriesProvider,
+                            limit: 8,
+                          );
+
+                      // If the text changed while waiting for db results, ignore stale results.
+                      if (controller.text.trim() != query) {
+                        return const <Widget>[];
+                      }
+
+                      if (suggestions.isEmpty) {
+                        return [ListTile(title: Text('No suggestions found'))];
+                      }
+
+                      return suggestions.map((suggestion) {
+                        return ListTile(
+                          title: Text(suggestion),
+                          onTap: () {
+                            controller.closeView(suggestion);
+                            _performSearch(suggestion);
+                          },
+                        );
+                      }).toList();
+                    },
                   ),
-                ],
-                onChanged: (query) {
-                  setState(() {});
-                },
-                onSubmitted: (query) {
-                  _searchController.closeView(query.trim());
-                  _performSearch(query);
-                },
-                suggestionsBuilder: (context, controller) async {
-                  final query = controller.text.trim();
-                  final appProvider = context.read<AppProvider>();
-                  final repositoriesProvider = context
-                      .read<RepositoriesProvider>();
-                  final suggestions = await appProvider.fetchSearchSuggestions(
-                    query,
-                    repositoriesProvider: repositoriesProvider,
-                    limit: 8,
-                  );
-
-                  // If the text changed while waiting for db results, ignore stale results.
-                  if (controller.text.trim() != query) {
-                    return const <Widget>[];
-                  }
-
-                  if (suggestions.isEmpty) {
-                    return [ListTile(title: Text('No suggestions found'))];
-                  }
-
-                  return suggestions.map((suggestion) {
-                    return ListTile(
-                      title: Text(suggestion),
-                      onTap: () {
-                        controller.closeView(suggestion);
-                        _performSearch(suggestion);
-                      },
-                    );
-                  }).toList();
-                },
+                ),
               ),
             ),
+            // SliverAppBar(
+            //   floating: true,
+            //   title: SearchAnchor.bar(
+            //     barLeading: const Icon(Symbols.search),
+            //     barHintText: localizations.search,
+            //     barElevation: WidgetStatePropertyAll(0),
+            //     searchController: _searchController,
+            //     barTrailing: [
+            //       if (_searchController.text.isNotEmpty)
+            //         IconButton(
+            //           icon: const Icon(Symbols.close),
+            //           onPressed: _clearSearch,
+            //         ),
+            //       Badge(
+            //         isLabelVisible: _filters.hasActiveFilters,
+            //         label: Text(_filters.activeFilterCount.toString()),
+            //         child: IconButton.filledTonal(
+            //           onPressed: _openFilters,
+            //           icon: const Icon(Symbols.filter_list),
+            //           tooltip: localizations.filters,
+            //         ),
+            //       ),
+            //     ],
+            //     onChanged: (query) {
+            //       setState(() {});
+            //     },
+            //     onSubmitted: (query) {
+            //       _searchController.closeView(query.trim());
+            //       _performSearch(query);
+            //     },
+            //     suggestionsBuilder: (context, controller) async {
+            //       final query = controller.text.trim();
+            //       final appProvider = context.read<AppProvider>();
+            //       final repositoriesProvider = context
+            //           .read<RepositoriesProvider>();
+            //       final suggestions = await appProvider.fetchSearchSuggestions(
+            //         query,
+            //         repositoriesProvider: repositoriesProvider,
+            //         limit: 8,
+            //       );
+
+            //       // If the text changed while waiting for db results, ignore stale results.
+            //       if (controller.text.trim() != query) {
+            //         return const <Widget>[];
+            //       }
+
+            //       if (suggestions.isEmpty) {
+            //         return [ListTile(title: Text('No suggestions found'))];
+            //       }
+
+            //       return suggestions.map((suggestion) {
+            //         return ListTile(
+            //           title: Text(suggestion),
+            //           onTap: () {
+            //             controller.closeView(suggestion);
+            //             _performSearch(suggestion);
+            //           },
+            //         );
+            //       }).toList();
+            //     },
+            //   ),
+            // ),
             SliverToBoxAdapter(
               child: Consumer<AppProvider>(
                 builder: (context, appProvider, child) {
@@ -218,10 +293,11 @@ class _SearchScreenState extends State<SearchScreen> {
                         : null;
 
                     return Column(
-                      mainAxisSize: MainAxisSize.min,
+                      mainAxisSize: MainAxisSize.max,
                       children: [
+                        SizedBox(height: 64),
                         Icon(
-                          Symbols.search,
+                          SolarLinearIcons.magnifer,
                           size: 64,
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
@@ -230,18 +306,16 @@ class _SearchScreenState extends State<SearchScreen> {
                           localizations.search_apps,
                           style: Theme.of(context).textTheme.headlineSmall,
                         ),
-                        const SizedBox(height: 32),
-                        Card(
-                          child: _SearchSuggestions(
-                            suggestions: suggestions,
-                            onSuggestionTap: (suggestion) {
-                              FocusScope.of(context).unfocus();
-                              setState(() {
-                                _searchController.text = suggestion;
-                              });
-                              _performSearch(suggestion);
-                            },
-                          ),
+                        SizedBox(height: 16),
+                        _SearchSuggestions(
+                          suggestions: suggestions,
+                          onSuggestionTap: (suggestion) {
+                            FocusScope.of(context).unfocus();
+                            setState(() {
+                              _searchController.text = suggestion;
+                            });
+                            _performSearch(suggestion);
+                          },
                         ),
                       ],
                     );
@@ -305,8 +379,9 @@ class _SearchScreenState extends State<SearchScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
+                          SizedBox(height: 64),
                           Icon(
-                            Symbols.search_off,
+                            SolarLinearIcons.emojiFunnySquare,
                             size: 64,
                             color: Theme.of(
                               context,
@@ -333,57 +408,54 @@ class _SearchScreenState extends State<SearchScreen> {
                   }
 
                   // Show results
-                  return Card(
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      padding: EdgeInsets.fromLTRB(8, 8, 8, bottomPadding),
-                      itemCount:
-                          results.length +
-                          (results.length < appProvider.totalSearchResults
-                              ? 1
-                              : 0),
-                      itemBuilder: (context, index) {
-                        // Show loading indicator at the bottom
-                        if (index == results.length) {
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            child: Center(
-                              child:
-                                  appProvider.searchLoadMoreState ==
-                                      LoadingState.loading
-                                  ? const CircularProgressIndicator()
-                                  : const SizedBox.shrink(),
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    padding: EdgeInsets.fromLTRB(8, 8, 8, bottomPadding),
+                    itemCount:
+                        results.length +
+                        (results.length < appProvider.totalSearchResults
+                            ? 1
+                            : 0),
+                    itemBuilder: (context, index) {
+                      // Show loading indicator at the bottom
+                      if (index == results.length) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          child: Center(
+                            child:
+                                appProvider.searchLoadMoreState ==
+                                    LoadingState.loading
+                                ? const CircularProgressIndicator()
+                                : const SizedBox.shrink(),
+                          ),
+                        );
+                      }
+
+                      final app = results[index];
+                      return AppListItem(
+                        key: ValueKey(app.packageName),
+                        app: app,
+                        showInstallStatus: false,
+                        onTap: () async {
+                          _searchFocus.unfocus(
+                            disposition: UnfocusDisposition.scope,
+                          );
+                          await Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => AppDetailsScreen(app: app),
                             ),
                           );
-                        }
-
-                        final app = results[index];
-                        return AppListItem(
-                          key: ValueKey(app.packageName),
-                          app: app,
-                          showInstallStatus: false,
-                          onTap: () async {
-                            _searchFocus.unfocus(
-                              disposition: UnfocusDisposition.scope,
-                            );
-                            await Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    AppDetailsScreen(app: app),
-                              ),
-                            );
-                            if (!mounted) return;
-                            _searchFocus.unfocus(
-                              disposition: UnfocusDisposition.scope,
-                            );
-                            SystemChannels.textInput.invokeMethod(
-                              'TextInput.hide',
-                            );
-                          },
-                        );
-                      },
-                    ),
+                          if (!mounted) return;
+                          _searchFocus.unfocus(
+                            disposition: UnfocusDisposition.scope,
+                          );
+                          SystemChannels.textInput.invokeMethod(
+                            'TextInput.hide',
+                          );
+                        },
+                      );
+                    },
                   );
                 },
               ),
@@ -427,17 +499,14 @@ class _SearchSuggestions extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16.0),
-          child: Text(
-            title,
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-            textAlign: TextAlign.center,
+        Text(
+          title,
+          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
+          textAlign: TextAlign.center,
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: 8),
         if (displaySuggestions.isEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 16.0),
@@ -448,20 +517,23 @@ class _SearchSuggestions extends StatelessWidget {
             ),
           )
         else
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            alignment: WrapAlignment.center,
-            children: displaySuggestions.map((suggestion) {
-              return ActionChip(
-                label: Text(suggestion),
-                onPressed: () => onSuggestionTap(suggestion),
-                backgroundColor: Theme.of(
-                  context,
-                ).colorScheme.surfaceContainerHighest,
-                side: BorderSide.none,
-              );
-            }).toList(),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4.0),
+            child: Wrap(
+              spacing: 4,
+              runSpacing: 4,
+              alignment: WrapAlignment.center,
+              children: displaySuggestions.map((suggestion) {
+                return ActionChip(
+                  label: Text(suggestion),
+                  onPressed: () => onSuggestionTap(suggestion),
+                  backgroundColor: Theme.of(
+                    context,
+                  ).colorScheme.surfaceContainerHighest,
+                  side: BorderSide.none,
+                );
+              }).toList(),
+            ),
           ),
       ],
     );

@@ -165,7 +165,14 @@ class _UpdatesScreenState extends State<UpdatesScreen>
                         : Theme.of(context).colorScheme.surface,
                     title: Text(AppLocalizations.of(context)!.apps),
                     scrolledUnderElevation: isDarkKnight ? 0 : null,
-                    // pinned: false,
+                    shape: LinearBorder(
+                      bottom: LinearBorderEdge(),
+                      side: BorderSide(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.surfaceContainerLow,
+                      ),
+                    ),
                     actions: [
                       IconButton(
                         icon: const Icon(Symbols.refresh),
@@ -173,20 +180,22 @@ class _UpdatesScreenState extends State<UpdatesScreen>
                         tooltip: AppLocalizations.of(context)!.refresh,
                       ),
                     ],
-                  ),
-                  SliverPersistentHeader(
-                    // pinned: true,
-                    floating: true,
-                    delegate: _FTabBarHeaderDelegate(
-                      height: settingsProvider.themeStyle == ThemeStyle.florid
-                          ? 68
-                          : 56,
+                    bottom: PreferredSize(
+                      preferredSize: Size.fromHeight(
+                        settingsProvider.themeStyle == ThemeStyle.florid
+                            ? 64
+                            : 56,
+                      ),
                       child: Material(
                         color: isDark
-                            ? Theme.of(context).colorScheme.surfaceContainerLowest
+                            ? Theme.of(
+                                context,
+                              ).colorScheme.surfaceContainerLowest
                             : Theme.of(context).colorScheme.surface,
                         surfaceTintColor: isDark
-                            ? Theme.of(context).colorScheme.surfaceContainerLowest
+                            ? Theme.of(
+                                context,
+                              ).colorScheme.surfaceContainerLowest
                             : Theme.of(context).colorScheme.surface,
                         child: FTabBar(
                           controller: _tabController,
@@ -486,7 +495,7 @@ class _UpdatesScreenState extends State<UpdatesScreen>
           ),
         ],
       ),
-      floatingActionButton:  Visibility(
+      floatingActionButton: Visibility(
         visible: updatableApps.isNotEmpty,
         child: FloatingActionButton.extended(
           onPressed: () => _updateAllApps(context, updatableApps),

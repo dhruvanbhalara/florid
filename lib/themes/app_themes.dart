@@ -278,6 +278,13 @@ class AppThemes {
       chipTheme: ChipThemeData(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(99)),
       ),
+      searchBarTheme: SearchBarThemeData(
+        backgroundColor: WidgetStatePropertyAll(scheme.surfaceContainerHighest),
+      ),
+      searchViewTheme: SearchViewThemeData(
+        backgroundColor: scheme.surface,
+        dividerColor: scheme.outlineVariant,
+      ),
     );
   }
 
