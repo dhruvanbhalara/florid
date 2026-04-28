@@ -102,34 +102,29 @@ class MainApp extends StatelessWidget {
         builder: (context, settings, _) {
           return DynamicColorBuilder(
             builder: (lightDynamic, darkDynamic) {
-              final useDynamic = settings.dynamicColorEnabled;
-              final lightScheme = useDynamic ? lightDynamic : null;
-              final darkScheme = useDynamic ? darkDynamic : null;
-
-              // Choose theme data based on selected ThemeStyle
-              final ThemeData lightTheme = () {
-                switch (settings.themeStyle) {
-                  case ThemeStyle.florid:
-                    return AppThemes.floridLightTheme(colorScheme: lightScheme);
-                  case ThemeStyle.darkKnight:
-                    return AppThemes.lightKnightTheme(colorScheme: lightScheme);
-                  case ThemeStyle.material:
-                    return AppThemes.materialLightTheme(
-                      colorScheme: lightScheme,
+              final dynamicColorSupported =
+                  lightDynamic != null || darkDynamic != null;
+              final useDynamic =
+                  settings.dynamicColorEnabled && dynamicColorSupported;
+              final ColorScheme lightScheme = useDynamic && lightDynamic != null
+                  ? lightDynamic
+                  : ColorScheme.fromSeed(
+                      seedColor: settings.themeColor,
+                      brightness: Brightness.light,
                     );
-                }
-              }();
+              final ColorScheme darkScheme = useDynamic && darkDynamic != null
+                  ? darkDynamic
+                  : ColorScheme.fromSeed(
+                      seedColor: settings.themeColor,
+                      brightness: Brightness.dark,
+                    );
 
-              final ThemeData darkThemeData = () {
-                switch (settings.themeStyle) {
-                  case ThemeStyle.florid:
-                    return AppThemes.floridDarkTheme(colorScheme: darkScheme);
-                  case ThemeStyle.darkKnight:
-                    return AppThemes.darkKnightTheme(colorScheme: darkScheme);
-                  case ThemeStyle.material:
-                    return AppThemes.materialDarkTheme(colorScheme: darkScheme);
-                }
-              }();
+              final ThemeData lightTheme = AppThemes.floridLightTheme(
+                colorScheme: lightScheme,
+              );
+              final ThemeData darkThemeData = AppThemes.floridDarkTheme(
+                colorScheme: darkScheme,
+              );
 
               return MaterialApp(
                 title: 'Florid - F-Droid Client',

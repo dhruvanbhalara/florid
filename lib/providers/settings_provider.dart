@@ -1,3 +1,4 @@
+import 'package:florid/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -20,6 +21,7 @@ class SettingsProvider extends ChangeNotifier {
   static const _onboardingCompleteKey = 'onboarding_complete';
   static const _sniBypassKey = 'sni_bypass_enabled';
   static const _dynamicColorKey = 'dynamic_color_enabled';
+  static const _themeColorKey = 'theme_color';
   static const backgroundUpdatesKey = 'background_updates_enabled';
   static const updateIntervalHoursKey = 'background_update_interval_hours';
   static const updateNetworkPolicyKey = 'background_update_network_policy';
@@ -35,6 +37,7 @@ class SettingsProvider extends ChangeNotifier {
   ThemeMode _themeMode = ThemeMode.system;
   ThemeStyle _themeStyle = ThemeStyle.florid;
   bool _autoInstallApk = true;
+  Color _themeColor = kAppColor;
   bool _autoDeleteApk = true;
   InstallMethod _installMethod = InstallMethod.system;
   String _locale = systemLocale;
@@ -68,6 +71,7 @@ class SettingsProvider extends ChangeNotifier {
   bool get onboardingComplete => _onboardingComplete;
   bool get sniBypassEnabled => _sniBypassEnabled;
   bool get dynamicColorEnabled => _dynamicColorEnabled;
+  Color get themeColor => _themeColor;
   bool get backgroundUpdatesEnabled => _backgroundUpdatesEnabled;
   int get updateIntervalHours => _updateIntervalHours;
   UpdateNetworkPolicy get updateNetworkPolicy => _updateNetworkPolicy;
@@ -79,6 +83,17 @@ class SettingsProvider extends ChangeNotifier {
   String get lastSeenVersion => _lastSeenVersion;
   String get userName => _userName;
   bool get showWhatsNew => _showWhatsNew;
+
+  static final List<Color> themeColors = [
+    kAppColor,
+    const Color(0xFF0063F7),
+    const Color(0xFF0F9D58),
+    const Color(0xFF8E24AA),
+    const Color(0xFFFB8C00),
+    const Color(0xFFE43676),
+    const Color(0xFF00BFA5),
+    const Color.fromARGB(255, 77, 69, 238),
+  ];
 
   /// Available locales for F-Droid repository data
   static const List<String> availableLocales = [
@@ -136,11 +151,7 @@ class SettingsProvider extends ChangeNotifier {
         themeIndex < ThemeMode.values.length) {
       _themeMode = ThemeMode.values[themeIndex];
     }
-    final themeStyleIndex =
-        prefs.getInt(_themeStyleKey) ?? 1; // Default to Florid
-    if (themeStyleIndex >= 0 && themeStyleIndex < ThemeStyle.values.length) {
-      _themeStyle = ThemeStyle.values[themeStyleIndex];
-    }
+    _themeStyle = ThemeStyle.florid;
     _autoInstallApk = prefs.getBool(_autoInstallKey) ?? true;
     _autoDeleteApk = prefs.getBool(_autoDeleteKey) ?? true;
     final installMethodIndex = prefs.getInt(_installMethodKey);
@@ -153,6 +164,7 @@ class SettingsProvider extends ChangeNotifier {
     _onboardingComplete = prefs.getBool(_onboardingCompleteKey) ?? false;
     _sniBypassEnabled = prefs.getBool(_sniBypassKey) ?? true;
     _dynamicColorEnabled = prefs.getBool(_dynamicColorKey) ?? false;
+    _themeColor = Color(prefs.getInt(_themeColorKey) ?? kAppColor.value);
     _backgroundUpdatesEnabled = prefs.getBool(backgroundUpdatesKey) ?? true;
     _showKeepAndroidOpenCard =
         prefs.getBool(_showKeepAndroidOpenCardKey) ?? true;
@@ -285,6 +297,13 @@ class SettingsProvider extends ChangeNotifier {
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_dynamicColorKey, value);
+  }
+
+  Future<void> setThemeColor(Color value) async {
+    _themeColor = value;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_themeColorKey, value.value);
   }
 
   Future<void> setShowKeepAndroidOpenCard(bool value) async {

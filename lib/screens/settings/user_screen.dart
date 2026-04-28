@@ -342,7 +342,7 @@ class _UserSettingsContentState extends State<_UserSettingsContent> {
                 MListView(
                   items: [
                     MListItemData(
-                      leading: ListIcon(iconData: Symbols.favorite_rounded),
+                      leading: ListIcon(iconData: SolarBoldIcons.heart),
                       title: 'Favourites',
                       subtitle: 'View your favourite apps',
                       onTap: () {
@@ -356,7 +356,7 @@ class _UserSettingsContentState extends State<_UserSettingsContent> {
                       suffix: const Icon(Symbols.chevron_right),
                     ),
                     MListItemData(
-                      leading: ListIcon(iconData: Symbols.palette),
+                      leading: ListIcon(iconData: SolarBoldIcons.palette),
                       title: 'Appearance',
                       subtitle: 'Theme mode and style',
                       onTap: () {
@@ -370,7 +370,7 @@ class _UserSettingsContentState extends State<_UserSettingsContent> {
                       suffix: const Icon(Symbols.chevron_right),
                     ),
                     MListItemData(
-                      leading: ListIcon(iconData: Symbols.language),
+                      leading: ListIcon(iconData: SolarBoldIcons.globus),
                       title: 'App content language',
                       onTap: () => _showLanguageDialog(context, settings),
                       subtitle: SettingsProvider.getLocaleDisplayName(
@@ -393,7 +393,7 @@ class _UserSettingsContentState extends State<_UserSettingsContent> {
                 MListView(
                   items: [
                     MListItemData(
-                      leading: ListIcon(iconData: Symbols.cloud),
+                      leading: ListIcon(iconData: SolarBoldIcons.cloud),
                       title: 'Manage repositories',
                       onTap: () {
                         Navigator.push(
@@ -408,7 +408,7 @@ class _UserSettingsContentState extends State<_UserSettingsContent> {
                     ),
                     MListItemData(
                       leading: ListIcon(
-                        iconData: Symbols.discover_tune_rounded,
+                        iconData: SolarBoldIcons.settingsMinimalistic,
                       ),
                       title: 'App Management',
                       subtitle:
@@ -428,6 +428,55 @@ class _UserSettingsContentState extends State<_UserSettingsContent> {
               ],
             ),
             const SizedBox(height: 16),
+            Padding(
+                  padding: const EdgeInsets.only(left: 8.0, right: 8),
+                  child: Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        spacing: 12.0,
+                        children: [
+                          Text(
+                            'Keep Android Open',
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(fontWeight: FontWeight.w600),
+                          ),
+                          const Text(
+                            'From 2026/2027 onward, Google will require developer verification for all Android apps on certified devices, including those installed outside of the Play Store.',
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              FilledButton.tonalIcon(
+                                onPressed: () {
+                                  canLaunchUrl(
+                                    Uri.parse('https://keepandroidopen.org/'),
+                                  ).then((canLaunch) {
+                                    if (canLaunch) {
+                                      launchUrl(
+                                        Uri.parse(
+                                          'https://keepandroidopen.org/',
+                                        ),
+                                      );
+                                    }
+                                  });
+                                },
+                                label: Text(
+                                  AppLocalizations.of(context)!.learn_more,
+                                ),
+                                icon: const Icon(Symbols.open_in_new),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                )
+                .animate(delay: const Duration(milliseconds: 100))
+                .fadeIn(duration: 300.ms),
+            const SizedBox(height: 16),
             Column(
               spacing: 4.0,
               children: [
@@ -438,7 +487,7 @@ class _UserSettingsContentState extends State<_UserSettingsContent> {
                 MListView(
                   items: [
                     MListItemData(
-                      leading: ListIcon(iconData: Symbols.build_rounded),
+                      leading: ListIcon(iconData: SolarBoldIcons.sledgehammer),
                       title: 'Troubleshooting',
                       subtitle: 'Storage, cache, and downloads',
                       onTap: () {
@@ -453,67 +502,10 @@ class _UserSettingsContentState extends State<_UserSettingsContent> {
                     ),
                   ],
                 ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Column(
-              spacing: 4,
-              children: [
-                const MListHeader(title: 'About', icon: Symbols.android),
-                Padding(
-                      padding: const EdgeInsets.only(left: 8.0, right: 8),
-                      child: Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            spacing: 12.0,
-                            children: [
-                              Text(
-                                'Keep Android Open',
-                                style: Theme.of(context).textTheme.titleMedium
-                                    ?.copyWith(fontWeight: FontWeight.w600),
-                              ),
-                              const Text(
-                                'From 2026/2027 onward, Google will require developer verification for all Android apps on certified devices, including those installed outside of the Play Store.',
-                              ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  FilledButton.tonalIcon(
-                                    onPressed: () {
-                                      canLaunchUrl(
-                                        Uri.parse(
-                                          'https://keepandroidopen.org/',
-                                        ),
-                                      ).then((canLaunch) {
-                                        if (canLaunch) {
-                                          launchUrl(
-                                            Uri.parse(
-                                              'https://keepandroidopen.org/',
-                                            ),
-                                          );
-                                        }
-                                      });
-                                    },
-                                    label: Text(
-                                      AppLocalizations.of(context)!.learn_more,
-                                    ),
-                                    icon: const Icon(Symbols.open_in_new),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    )
-                    .animate(delay: const Duration(milliseconds: 100))
-                    .fadeIn(duration: 300.ms),
                 MListView(
                   items: [
                     MListItemData(
-                      leading: ListIcon(iconData: Symbols.info),
+                      leading: ListIcon(iconData: SolarBoldIcons.infoSquare),
                       title: AppLocalizations.of(context)!.version,
                       subtitle: _appVersion.isEmpty ? 'Loading…' : _appVersion,
                       onTap: () {
@@ -535,9 +527,7 @@ class _UserSettingsContentState extends State<_UserSettingsContent> {
                       },
                     ),
                     MListItemData(
-                      leading: ListIcon(
-                        iconData: Symbols.system_update_rounded,
-                      ),
+                      leading: ListIcon(iconData: SolarBoldIcons.cloudDownload),
                       title: 'Check for updates',
                       subtitle: 'Manually check for new Florid versions',
                       suffix: const Icon(Symbols.chevron_right),
@@ -547,7 +537,7 @@ class _UserSettingsContentState extends State<_UserSettingsContent> {
                       leading: SocialListIcon(icon: Bxl.git),
                       title: 'Source code',
                       subtitle: 'View the Florid source code on GitHub',
-                      suffix: const Icon(Symbols.open_in_new),
+                      suffix: Icon(SolarLinearIcons.squareBottomUp),
                       onTap: () async {
                         final url = Uri.parse(
                           'https://github.com/Nandanrmenon/florid',
@@ -561,7 +551,7 @@ class _UserSettingsContentState extends State<_UserSettingsContent> {
                       leading: SocialListIcon(icon: Bxl.telegram),
                       title: 'Telegram',
                       subtitle: 'Join the community on Telegram',
-                      suffix: const Icon(Symbols.open_in_new),
+                      suffix: Icon(SolarLinearIcons.squareBottomUp),
                       onTap: () async {
                         final url = Uri.parse('https://t.me/florid_app');
                         if (await canLaunchUrl(url)) {
@@ -573,7 +563,7 @@ class _UserSettingsContentState extends State<_UserSettingsContent> {
                       leading: SocialListIcon(icon: SimpleIcons.matrix),
                       title: 'Matrix',
                       subtitle: 'Join the community on Matrix',
-                      suffix: const Icon(Symbols.open_in_new),
+                      suffix: Icon(SolarLinearIcons.squareBottomUp),
                       onTap: () async {
                         final url = Uri.parse(
                           'https://matrix.to/#/#florid:matrix.org',
@@ -584,10 +574,12 @@ class _UserSettingsContentState extends State<_UserSettingsContent> {
                       },
                     ),
                     MListItemData(
-                      leading: ListIcon(iconData: Symbols.bug_report_rounded),
+                      leading: ListIcon(
+                        iconData: SolarBoldIcons.magniferBugRounded,
+                      ),
                       title: 'Report an issue',
                       subtitle: 'Found a bug? Let us know!',
-                      suffix: const Icon(Symbols.open_in_new),
+                      suffix: Icon(SolarLinearIcons.squareBottomUp),
                       onTap: () async {
                         final url = Uri.parse(
                           'https://github.com/Nandanrmenon/florid/issues/new?template=bug_report.md',
@@ -598,10 +590,10 @@ class _UserSettingsContentState extends State<_UserSettingsContent> {
                       },
                     ),
                     MListItemData(
-                      leading: ListIcon(iconData: Symbols.volunteer_activism),
+                      leading: ListIcon(iconData: SolarBoldIcons.heartShine),
                       title: 'Donate',
                       subtitle: 'Support continued development of Florid',
-                      suffix: const Icon(Symbols.open_in_new),
+                      suffix: Icon(SolarLinearIcons.squareBottomUp),
                       onTap: () async {
                         final url = Uri.parse('https://ko-fi.com/nandanrmenon');
                         if (await canLaunchUrl(url)) {
@@ -610,7 +602,7 @@ class _UserSettingsContentState extends State<_UserSettingsContent> {
                       },
                     ),
                     MListItemData(
-                      leading: ListIcon(iconData: Symbols.share),
+                      leading: ListIcon(iconData: SolarBoldIcons.share),
                       title: 'Share Florid',
                       subtitle: 'Let your nerdy friends know about Florid!',
                       onTap: () {
@@ -627,7 +619,7 @@ class _UserSettingsContentState extends State<_UserSettingsContent> {
                 ),
               ],
             ),
-            const SafeArea(child: SizedBox(height: 64)),
+            const SizedBox(height: 16),
           ],
         );
       },

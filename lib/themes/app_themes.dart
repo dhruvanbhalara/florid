@@ -1,6 +1,6 @@
 import 'package:florid/constants.dart';
 import 'package:flutter/material.dart';
-import 'package:material_symbols_icons/symbols.dart';
+import 'package:solar_icon_pack/solar_linear_icons.dart';
 
 class AppThemes {
   // Material Theme (Original)
@@ -201,14 +201,17 @@ class AppThemes {
           Set<WidgetState> states,
         ) {
           if (states.contains(WidgetState.selected)) {
-            return Icon(Symbols.check, color: scheme.onPrimary);
+            return Icon(SolarLinearIcons.check, color: scheme.onPrimary);
           }
-          return null; // Use the default thumb icon
+          return null;
         }),
         trackColor: WidgetStateProperty.resolveWith<Color?>((
           Set<WidgetState> states,
         ) {
-          return scheme.surfaceDim;
+          if (states.contains(WidgetState.selected)) {
+            return scheme.primaryContainer.withValues(alpha: .5);
+          }
+          return scheme.surfaceContainerLowest;
         }),
         trackOutlineWidth: WidgetStateProperty.resolveWith<double?>((
           Set<WidgetState> states,
@@ -218,7 +221,6 @@ class AppThemes {
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: scheme.surfaceContainerHighest,
-        labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
         iconTheme: WidgetStateProperty.resolveWith((Set<WidgetState> states) {
           if (states.contains(WidgetState.selected)) {
             return IconThemeData(color: scheme.primary);
@@ -398,7 +400,7 @@ class AppThemes {
           Set<WidgetState> states,
         ) {
           if (states.contains(WidgetState.selected)) {
-            return scheme.primaryContainer;
+            return scheme.primary;
           }
           return null; // Use the default thumb color
         }),
@@ -406,13 +408,16 @@ class AppThemes {
           Set<WidgetState> states,
         ) {
           if (states.contains(WidgetState.selected)) {
-            return Icon(Symbols.check);
+            return Icon(SolarLinearIcons.check, color: scheme.onPrimary);
           }
-          return null; // Use the default thumb icon
+          return null;
         }),
         trackColor: WidgetStateProperty.resolveWith<Color?>((
           Set<WidgetState> states,
         ) {
+          if (states.contains(WidgetState.selected)) {
+            return scheme.primaryContainer.withValues(alpha: .5);
+          }
           return scheme.surfaceContainerLowest;
         }),
         trackOutlineWidth: WidgetStateProperty.resolveWith<double?>((
@@ -423,7 +428,6 @@ class AppThemes {
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: scheme.surfaceContainerLowest,
-        labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
         iconTheme: WidgetStateProperty.resolveWith((Set<WidgetState> states) {
           if (states.contains(WidgetState.selected)) {
             return IconThemeData(color: scheme.primary);

@@ -1,7 +1,5 @@
-import 'package:florid/providers/settings_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:iconify_flutter/iconify_flutter.dart';
-import 'package:provider/provider.dart';
 
 class ListIcon extends StatefulWidget {
   final IconData iconData;
@@ -16,27 +14,15 @@ class ListIcon extends StatefulWidget {
 class _ListIconState extends State<ListIcon> {
   @override
   Widget build(BuildContext context) {
-    final settings = context.watch<SettingsProvider>();
-    final isFlorid = settings.themeStyle == ThemeStyle.florid;
-    return Container(
-      padding: isFlorid ? EdgeInsets.all(8) : EdgeInsets.zero,
-      decoration: isFlorid
-          ? BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: Theme.of(context).colorScheme.outlineVariant,
-                width: 0.5,
-              ),
-              color: Theme.of(context).colorScheme.surfaceDim,
-            )
-          : null,
-      child: Icon(
-        widget.iconData,
-        fill: 1,
-        weight: 300,
-        color: widget.primary == true
-            ? Theme.of(context).colorScheme.onSurface
-            : null,
+    return Material(
+      color: Theme.of(context).colorScheme.primaryContainer,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Icon(
+          widget.iconData,
+          color: Theme.of(context).colorScheme.primary,
+        ),
       ),
     );
   }
@@ -55,23 +41,15 @@ class SocialListIcon extends StatefulWidget {
 class _SocialListIconState extends State<SocialListIcon> {
   @override
   Widget build(BuildContext context) {
-    final settings = context.watch<SettingsProvider>();
-    final isFlorid = settings.themeStyle == ThemeStyle.florid;
-    return Container(
-      padding: isFlorid ? EdgeInsets.all(8) : EdgeInsets.zero,
-      decoration: isFlorid
-          ? BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: Theme.of(context).colorScheme.outlineVariant,
-                width: 0.5,
-              ),
-              color: Theme.of(context).colorScheme.surfaceDim,
-            )
-          : null,
-      child: Iconify(
-        widget.icon,
-        color: Theme.of(context).colorScheme.onSurface,
+    return Material(
+      color: Theme.of(context).colorScheme.primaryContainer,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Iconify(
+          widget.icon,
+          color: Theme.of(context).colorScheme.primary,
+        ),
       ),
     );
   }
