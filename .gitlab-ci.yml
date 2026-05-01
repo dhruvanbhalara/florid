@@ -2,6 +2,8 @@ stages:
   - analyze
   - build
 
+image: cirrusci/flutter:stable
+
 variables:
   FLUTTER_CHANNEL: stable
   PUB_CACHE: "$CI_PROJECT_DIR/.pub-cache"
