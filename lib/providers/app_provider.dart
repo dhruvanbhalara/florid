@@ -117,12 +117,28 @@ class AppProvider extends ChangeNotifier {
   LoadingState get recentlyUpdatedAppsState => _recentlyUpdatedAppsState;
   String? get recentlyUpdatedAppsError => _recentlyUpdatedAppsError;
 
-  List<FDroidApp> get topApps => _topApps;
+  List<FDroidApp> get topApps {
+    if (_settingsProvider?.hideAntiFeatureApps == true) {
+      return _topApps
+          .where((app) => app.antiFeatures == null || app.antiFeatures!.isEmpty)
+          .toList();
+    }
+    return _topApps;
+  }
+
   LoadingState get topAppsState => _topAppsState;
   String? get topAppsError => _topAppsError;
   Map<String, int> get topAppsDownloads => _topAppsDownloads;
 
-  List<FDroidApp> get topAppsAllTime => _topAppsAllTime;
+  List<FDroidApp> get topAppsAllTime {
+    if (_settingsProvider?.hideAntiFeatureApps == true) {
+      return _topAppsAllTime
+          .where((app) => app.antiFeatures == null || app.antiFeatures!.isEmpty)
+          .toList();
+    }
+    return _topAppsAllTime;
+  }
+
   LoadingState get topAppsAllTimeState => _topAppsAllTimeState;
   String? get topAppsAllTimeError => _topAppsAllTimeError;
   Map<String, int> get topAppsAllTimeDownloads => _topAppsAllTimeDownloads;
@@ -690,6 +706,11 @@ class AppProvider extends ChangeNotifier {
         if (app == null) {
           continue;
         }
+        if (_settingsProvider?.hideAntiFeatureApps == true &&
+            app.antiFeatures != null &&
+            app.antiFeatures!.isNotEmpty) {
+          continue;
+        }
         topApps.add(app);
         topDownloads[app.packageName] = entry.value;
         if (topApps.length >= limit) {
@@ -795,6 +816,11 @@ class AppProvider extends ChangeNotifier {
       for (final entry in sortedStats) {
         final app = appByPackage[entry.key];
         if (app == null) {
+          continue;
+        }
+        if (_settingsProvider?.hideAntiFeatureApps == true &&
+            app.antiFeatures != null &&
+            app.antiFeatures!.isNotEmpty) {
           continue;
         }
         topApps.add(app);
@@ -926,6 +952,12 @@ class AppProvider extends ChangeNotifier {
         filteredResults = filteredResults.where((app) {
           final repoUrl = app.repositoryUrl;
           return filters.repositories.contains(repoUrl);
+        }).toList();
+      }
+
+      if (_settingsProvider?.hideAntiFeatureApps == true) {
+        filteredResults = filteredResults.where((app) {
+          return app.antiFeatures == null || app.antiFeatures!.isEmpty;
         }).toList();
       }
 

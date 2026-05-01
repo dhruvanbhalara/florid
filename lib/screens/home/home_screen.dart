@@ -118,8 +118,9 @@ class _HomeScreenState extends State<HomeScreen>
               repositoriesProvider: repositoriesProvider,
             );
           },
-          loadingMessage:
-              AppLocalizations.of(context)!.loading_recently_updated_apps,
+          loadingMessage: AppLocalizations.of(
+            context,
+          )!.loading_recently_updated_apps,
           emptyMessage: AppLocalizations.of(context)!.no_recently_updated_apps,
           emptyIcon: Symbols.update,
         ),
@@ -914,8 +915,6 @@ class _HomeScreenState extends State<HomeScreen>
                       buildNewReleasesSection()
                           .animate(delay: Duration(milliseconds: 100))
                           .fadeIn(duration: 300.ms),
-
-                      if (isFlorid || isDarkKnight) const SizedBox(height: 86),
                     ],
                   ); // Phone layout
                 }

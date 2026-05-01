@@ -10,7 +10,6 @@ import 'package:florid/widgets/m_list.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -362,94 +361,6 @@ class _AppManagementScreenState extends State<AppManagementScreen> {
                               await settings.setInstallMethod(value);
                             },
                           ),
-                          if (Platform.isAndroid)
-                            Column(
-                              children: [
-                                MListHeader(
-                                  title: 'Authentication for Installation',
-                                ),
-                                SizedBox(height: 4),
-                                MListView(
-                                  items: [
-                                    MListItemData(
-                                      leading: ListIcon(
-                                        iconData: Symbols.fingerprint,
-                                      ),
-                                      title: 'Biometric Authentication',
-                                      subtitle:
-                                          'Require authentication before installation',
-                                      onTap: () async {
-                                        await _setInstallAuthEnabledWithVerification(
-                                          settings,
-                                          !settings.installAuthEnabled,
-                                        );
-                                      },
-                                      suffix: Switch(
-                                        value: settings.installAuthEnabled,
-                                        onChanged: (value) async {
-                                          await _setInstallAuthEnabledWithVerification(
-                                            settings,
-                                            value,
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                if (settings.installAuthEnabled)
-                                  MRadioListView<InstallAuthPolicy>(
-                                        items: [
-                                          MRadioListItemData<InstallAuthPolicy>(
-                                            leading: Icon(Symbols.apps),
-                                            title: localizations.auth_all_apps,
-                                            subtitle: '',
-                                            value: InstallAuthPolicy.all,
-                                            suffix: IconButton(
-                                              onPressed: () {
-                                                showInstallAuthPolicyInfoDialog(
-                                                  context,
-                                                  localizations.auth_all_apps,
-                                                  localizations
-                                                      .auth_all_apps_desc,
-                                                );
-                                              },
-                                              icon: Icon(Symbols.info),
-                                            ),
-                                          ),
-                                          MRadioListItemData<InstallAuthPolicy>(
-                                            leading: Icon(Symbols.warning),
-                                            title: localizations
-                                                .auth_all_apps_w_anti_feat,
-                                            subtitle: '',
-                                            value:
-                                                InstallAuthPolicy.antiFeatures,
-                                            suffix: IconButton(
-                                              onPressed: () {
-                                                showInstallAuthPolicyInfoDialog(
-                                                  context,
-                                                  localizations
-                                                      .auth_all_apps_w_anti_feat,
-                                                  localizations
-                                                      .auth_all_apps_w_anti_feat_desc,
-                                                );
-                                              },
-                                              icon: Icon(Symbols.info),
-                                            ),
-                                          ),
-                                        ],
-                                        groupValue: settings.installAuthPolicy,
-                                        onChanged: (value) async {
-                                          await _setInstallAuthPolicyWithVerification(
-                                            settings,
-                                            value,
-                                          );
-                                        },
-                                      )
-                                      .animate()
-                                      .fadeIn(duration: 300.ms)
-                                      .slideY(begin: -0.1, duration: 300.ms),
-                              ],
-                            ),
                         ],
                       ),
                       Column(

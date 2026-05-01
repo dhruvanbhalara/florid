@@ -22,6 +22,7 @@ class SettingsProvider extends ChangeNotifier {
   static const _sniBypassKey = 'sni_bypass_enabled';
   static const _dynamicColorKey = 'dynamic_color_enabled';
   static const _themeColorKey = 'theme_color';
+  static const _hideAntiFeaturesKey = 'hide_anti_feature_apps';
   static const backgroundUpdatesKey = 'background_updates_enabled';
   static const updateIntervalHoursKey = 'background_update_interval_hours';
   static const updateNetworkPolicyKey = 'background_update_network_policy';
@@ -38,6 +39,7 @@ class SettingsProvider extends ChangeNotifier {
   ThemeStyle _themeStyle = ThemeStyle.florid;
   bool _autoInstallApk = true;
   Color _themeColor = kAppColor;
+  bool _hideAntiFeatureApps = false;
   bool _autoDeleteApk = true;
   InstallMethod _installMethod = InstallMethod.system;
   String _locale = systemLocale;
@@ -72,6 +74,7 @@ class SettingsProvider extends ChangeNotifier {
   bool get sniBypassEnabled => _sniBypassEnabled;
   bool get dynamicColorEnabled => _dynamicColorEnabled;
   Color get themeColor => _themeColor;
+  bool get hideAntiFeatureApps => _hideAntiFeatureApps;
   bool get backgroundUpdatesEnabled => _backgroundUpdatesEnabled;
   int get updateIntervalHours => _updateIntervalHours;
   UpdateNetworkPolicy get updateNetworkPolicy => _updateNetworkPolicy;
@@ -165,6 +168,7 @@ class SettingsProvider extends ChangeNotifier {
     _sniBypassEnabled = prefs.getBool(_sniBypassKey) ?? true;
     _dynamicColorEnabled = prefs.getBool(_dynamicColorKey) ?? false;
     _themeColor = Color(prefs.getInt(_themeColorKey) ?? kAppColor.value);
+    _hideAntiFeatureApps = prefs.getBool(_hideAntiFeaturesKey) ?? false;
     _backgroundUpdatesEnabled = prefs.getBool(backgroundUpdatesKey) ?? true;
     _showKeepAndroidOpenCard =
         prefs.getBool(_showKeepAndroidOpenCardKey) ?? true;
@@ -304,6 +308,13 @@ class SettingsProvider extends ChangeNotifier {
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_themeColorKey, value.value);
+  }
+
+  Future<void> setHideAntiFeatureApps(bool value) async {
+    _hideAntiFeatureApps = value;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_hideAntiFeaturesKey, value);
   }
 
   Future<void> setShowKeepAndroidOpenCard(bool value) async {

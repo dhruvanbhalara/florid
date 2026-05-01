@@ -13,6 +13,7 @@ import 'package:florid/screens/app_details/app_details_screen.dart';
 import 'package:florid/screens/settings/app_management_screen.dart';
 import 'package:florid/screens/settings/app_updater.dart';
 import 'package:florid/screens/settings/appearance_screen.dart';
+import 'package:florid/screens/settings/parental_control_screen.dart';
 import 'package:florid/screens/settings/repositories_screen.dart';
 import 'package:florid/screens/settings/troubleshooting_screen.dart';
 import 'package:florid/services/fdroid_api_service.dart';
@@ -364,6 +365,20 @@ class _UserSettingsContentState extends State<_UserSettingsContent> {
                           context,
                           MaterialPageRoute(
                             builder: (context) => const AppearanceScreen(),
+                          ),
+                        );
+                      },
+                      suffix: const Icon(Symbols.chevron_right),
+                    ),
+                    MListItemData(
+                      leading: ListIcon(iconData: SolarBoldIcons.shield),
+                      title: 'Parental Control',
+                      subtitle: 'Hide anti-feature apps and protect installs',
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ParentalControlScreen(),
                           ),
                         );
                       },

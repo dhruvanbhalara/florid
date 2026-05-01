@@ -61,29 +61,7 @@ class _DeveloperAppsScreenState extends State<DeveloperAppsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              widget.developerName,
-              style: Theme.of(
-                context,
-              ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
-            ),
-            Text(
-              '${_developerApps.length} ${_developerApps.length == 1 ? 'app' : 'apps'}',
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                fontSize: 12,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ],
-        ),
-      ),
-      body: _buildBody(),
-    );
+    return Scaffold(body: _buildBody());
   }
 
   Widget _buildBody() {
@@ -153,89 +131,110 @@ class _DeveloperAppsScreenState extends State<DeveloperAppsScreen> {
 
     return RefreshIndicator(
       onRefresh: _onRefresh,
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          return GridView.builder(
-            padding: const EdgeInsets.all(16),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              // crossAxisCount: constraints.maxWidth ~/ 400,
-              crossAxisCount: 3,
-
-              // childAspectRatio: 1.2,
-              crossAxisSpacing: 8,
-              mainAxisSpacing: 8,
-              childAspectRatio: .65,
+      child: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            pinned: true,
+            expandedHeight: 96,
+            toolbarHeight: 84,
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  widget.developerName,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+                ),
+                Text(
+                  '${_developerApps.length} ${_developerApps.length == 1 ? 'app' : 'apps'}',
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    fontSize: 12,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
             ),
-            itemCount: _developerApps.length,
-            itemBuilder: (context, index) {
-              return Consumer2<DownloadProvider, AppProvider>(
-                builder: (context, downloadProvider, appProvider, child) {
-                  return InkWell(
-                    borderRadius: BorderRadius.circular(16),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              AppDetailsScreen(app: _developerApps[index]),
-                        ),
-                      );
-                    },
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      spacing: 4.0,
-                      children: [
-                        Material(
-                          clipBehavior: Clip.antiAlias,
-                          color: Colors.transparent,
-                          borderRadius: BorderRadius.circular(16),
-                          elevation: 0.3,
-                          child: Hero(tag: _developerApps[index].packageName, child: AppDetailsIcon(app: _developerApps[index])),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                _developerApps[index].name,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontVariations: [
-                                    FontVariation('wght', 700),
-                                    FontVariation('ROND', 100),
-                                  ],
-                                ),
-                              ),
-                              Text(
-                                _developerApps[index]
-                                        .latestVersion
-                                        ?.sizeString ??
-                                    '',
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  // fontVariations: [
-                                  //   FontVariation('wght', 700),
-                                  //   FontVariation('ROND', 100),
-                                  // ],
-                                ),
-                              ),
-                            ],
+            forceElevated: true,
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.all(16),
+            sliver: SliverGrid(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                crossAxisSpacing: 8,
+                mainAxisSpacing: 8,
+                childAspectRatio: .65,
+              ),
+              delegate: SliverChildBuilderDelegate((context, index) {
+                return Consumer2<DownloadProvider, AppProvider>(
+                  builder: (context, downloadProvider, appProvider, child) {
+                    return InkWell(
+                      borderRadius: BorderRadius.circular(16),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                AppDetailsScreen(app: _developerApps[index]),
                           ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              );
-            },
-          );
-        },
+                        );
+                      },
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        spacing: 4.0,
+                        children: [
+                          Material(
+                            clipBehavior: Clip.antiAlias,
+                            color: Colors.transparent,
+                            borderRadius: BorderRadius.circular(16),
+                            elevation: 0.3,
+                            child: Hero(
+                              tag: _developerApps[index].packageName,
+                              child: AppDetailsIcon(app: _developerApps[index]),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8.0,
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  _developerApps[index].name,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontVariations: [
+                                      FontVariation('wght', 700),
+                                      FontVariation('ROND', 100),
+                                    ],
+                                  ),
+                                ),
+                                Text(
+                                  _developerApps[index]
+                                          .latestVersion
+                                          ?.sizeString ??
+                                      '',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(fontSize: 12),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                );
+              }, childCount: _developerApps.length),
+            ),
+          ),
+        ],
       ),
     );
   }
