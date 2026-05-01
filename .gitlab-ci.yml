@@ -1,0 +1,44 @@
+stages:
+  - analyze
+  - build
+
+variables:
+  FLUTTER_CHANNEL: stable
+  PUB_CACHE: "$CI_PROJECT_DIR/.pub-cache"
+
+cache:
+  key: "${CI_COMMIT_REF_SLUG}"
+  paths:
+    - .pub-cache/
+    - .gradle/
+    - build/
+
+default:
+  tags:
+    - flutter
+
+before_script:
+  - flutter --version
+  - flutter pub get
+
+analyze:
+  stage: analyze
+  script:
+    - flutter analyze --no-fatal-infos --no-fatal-warnings || true
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "develop"'
+      when: always
+    - when: never
+
+build_apk:
+  stage: build
+  script:
+    - flutter build apk --release --split-per-abi
+  artifacts:
+    paths:
+      - build/app/outputs/flutter-apk/*.apk
+    expire_in: 7 days
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "develop"'
+      when: always
+    - when: never
