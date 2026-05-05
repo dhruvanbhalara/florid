@@ -1,5 +1,30 @@
 # Changelogs
 
+## v1.4.0+17
+
+Sorry for the delay. I have been busy with life and studies. No! I haven't abandoned the project. I am still here and will continue to maintain the app as long as I can. I have been working on some new features and improvements for the app and I am excited to share them with you. Thank you for the support and love ❤️. Pretty soon I will release the app on F-Droid as well.
+
+**Support the developement**
+
+Help us translate Florid to more languages! Check out the translation project on [Crowdin](https://crowdin.com/project/florid)
+
+Join our Matrix room for more updates and discussions: [#florid:matrix.org](https://matrix.to/#/#florid:matrix.org)
+
+Donate to support the development of the app: [Ko-Fi](ko-fi.com/nandanrmenon), [Liberapay](liberapay.com/nandanrmenon)
+
+### New Features
+- Major UI overhaul with new design and icons. I have dropped `material` and `darkKnight` themes in favour for a unified theme with supoprt for dynamic colour or a custom color palette.
+- New Bottom Navigation Bar with better navigation experience. The new navigation bar cateres to both experienced and new users with easy access to all the main sections of the app. I know a few of you might miss the old navigation bar, however after testing it with a few users, I found that the new navigation bar is more intuitive and easier to use for most users.
+- Add parental controls to hide anti-feature apps.
+- Added Brave & microG repos.
+- Support for queued downloads and installations.
+- Add per-app 'ignore updates' preference.
+
+### Improvements
+- Unify and simplify the Updates screen and overhaul AppListItem UI/behavior.
+- Added Android 16 (API 36) to SDK map.
+- Added social tiles in userscreen.
+
 ## 1.3.0+16
 Never thought I would be consistent with something in my life. I am so happy that this app has been downloaded by many people now (approx 15k+ downloads from IzzyOnDroid).Some of you might know that I am just a student, that too a non-CS student.I am not sure how long I will be able to maintain this app but I will try to keep it up to date with new features and improvements as long as I can. Developing this app comes at a cost for me in terms of time and effort. I would be appreciated if you could support the development of the app by donating. You can find the donate button in the settings screen. If you want to contribute to the development of the app, you can check out the GitHub repository and submit a pull request. I am open to any kind of contributions, whether it's code, design, translations, or even just reporting bugs and suggesting features. Thank you for the support and love ❤️.
 

@@ -1,0 +1,22 @@
+Sorry for the delay. I have been busy with life and studies. No! I haven't abandoned the project. I am still here and will continue to maintain the app as long as I can. I have been working on some new features and improvements for the app and I am excited to share them with you. Thank you for the support and love ❤️. Pretty soon I will release the app on F-Droid as well.
+
+**Support the developement**
+
+Help us translate Florid to more languages! Check out the translation project on [Crowdin](https://crowdin.com/project/florid).
+
+Join our Matrix room for more updates and discussions: [#florid:matrix.org](https://matrix.to/#/#florid:matrix.org). 
+
+Donate to support the development of the app: [Ko-Fi](ko-fi.com/nandanrmenon), [Liberapay](liberapay.com/nandanrmenon)
+
+### New Features
+- Major UI overhaul with new design and icons. I have dropped `material` and `darkKnight` themes in favour for a unified theme with supoprt for dynamic colour or a custom color palette.
+- New Bottom Navigation Bar with better navigation experience. The new navigation bar cateres to both experienced and new users with easy access to all the main sections of the app. I know a few of you might miss the old navigation bar, however after testing it with a few users, I found that the new navigation bar is more intuitive and easier to use for most users.
+- Add parental controls to hide anti-feature apps.
+- Added Brave & microG repos
+- Support for queued downloads and installations.
+- Add per-app 'ignore updates' preference.
+
+### Improvements
+- Unify and simplify the Updates screen and overhaul AppListItem UI/behavior.
+- Added Android 16 (API 36) to SDK map.
+- Added social tiles in userscreen.
